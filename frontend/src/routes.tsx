@@ -3,12 +3,12 @@ import {
   createBrowserRouter
 } from "react-router"
 
-import App from "./App.tsx"
+import HomePage from "@/app/home/HomePage"
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />
+    element: < HomePage/>
   },
   /*
 
