@@ -3,33 +3,30 @@ import {
   createBrowserRouter
 } from "react-router"
 
-import HomePage from "@/app/home/HomePage"
+import {
+  HomePage,
+  LoginPage,
+  SignupPage,
+  DashboardPage,
+} from "@/app/index"
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: < HomePage/>
+    element: <HomePage />
   },
-  /*
-
-  FUTURE REFERENCE:
-  - Login Page
-  - Signup Page
-  - Dashboard Page
-
   {
     path: "/login",
-    element: <Login />
+    element: <LoginPage />
   },
   {
     path: "/signup",
-    element: <Signup />
+    element: <SignupPage />
   },
   {
     path: "/dashboard",
-    element: <Dashboard />
+    element: <DashboardPage />
   },
-  */
 ])
 
 export default router
