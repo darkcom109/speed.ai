@@ -21,6 +21,12 @@ export default function HomePage() {
             <Button asChild variant="ghost" size="sm">
               <a href="#features">Features</a>
             </Button>
+            <Button asChild variant="ghost" size="sm">
+              <a href="/login">Log in</a>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <a href="/signup">Sign up</a>
+            </Button>
             <Button asChild size="sm">
               <a href="/dashboard">Open dashboard</a>
             </Button>
@@ -41,10 +47,10 @@ export default function HomePage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <a href="/dashboard">View dashboard</a>
+              <a href="/signup">Get started</a>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <a href="#features">See features</a>
+              <a href="/login">Log in</a>
             </Button>
           </div>
         </div>

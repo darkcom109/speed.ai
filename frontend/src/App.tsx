@@ -1,8 +1,15 @@
+import { useLocation } from "react-router"
+import { SiteHeader } from "./components/site-header"
+
 export function App() {
-  return (
-    <div className="">
-      <p>Hello World</p>
-    </div>
+  const applyNavbar = ["/", "/login", "/signup"]
+  const location = useLocation()
+  const navbar = applyNavbar.includes(location.pathname)
+
+  return navbar ? (
+    
+  ) : (
+    
   )
 }
 
