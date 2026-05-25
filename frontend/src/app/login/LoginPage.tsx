@@ -1,105 +1,11 @@
-import { Link } from "react-router"
-
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
+import SiteNavbar from "@/components/site-navbar"
+import { LoginForm, LoginLayout } from "@/app/login/components/index"
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-10">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <Link to="/" className="text-sm font-semibold tracking-tight">
-            speed.ai
-          </Link>
-        </div>
-
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle>Welcome back</CardTitle>
-            <CardDescription>
-              Sign in to continue to your dashboard.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-4">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Checkbox id="remember" />
-                <Label
-                  htmlFor="remember"
-                  className="text-sm font-normal text-muted-foreground"
-                >
-                  Remember me
-                </Label>
-              </div>
-
-              <Button type="submit" className="w-full">
-                Sign in
-              </Button>
-            </form>
-
-            <div className="my-6 flex items-center gap-3">
-              <Separator className="flex-1" />
-              <span className="text-xs text-muted-foreground">or</span>
-              <Separator className="flex-1" />
-            </div>
-
-            <Button type="button" variant="outline" className="w-full">
-              Continue with Google
-            </Button>
-
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <Link
-                to="/signup"
-                className="font-medium text-foreground underline-offset-4 hover:underline"
-              >
-                Create one
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    </main>
+    <LoginLayout>
+      <SiteNavbar />
+      <LoginForm />
+    </LoginLayout>
   )
 }
