@@ -7,9 +7,14 @@ export function App() {
   const navbar = applyNavbar.includes(location.pathname)
 
   return navbar ? (
-    
+    <main className="min-h-screen bg-background text-foreground">
+      <SiteHeader />
+      
+    </main>
   ) : (
+    <>
     
+    </>
   )
 }
 

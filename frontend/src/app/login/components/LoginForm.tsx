@@ -12,8 +12,73 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import type React from "react"
+import { useState } from "react"
+import { useNavigate } from "react-router"
+import { loginUser } from "../api/login-api"
+
+// Google specific imports
+import { GoogleLogin } from "@react-oauth/google"
+import { loginWithGoogle } from "@/app/login/api/google-login-api"
 
 export default function LoginForm() {
+  const navigate = useNavigate()
+  const [error, setError] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  async function handleLoginSubmit(event: React.FormEvent<HTMLFormElement>) {
+      event.preventDefault()
+
+      const formData = new FormData(event.currentTarget)
+
+      const email = formData.get("email")
+      const password = formData.get("password")
+
+      try {
+        setIsSubmitting(true)
+        setError("")
+
+        if (typeof email !== "string" || typeof password !== "string") {
+          setError("Name, email and password are required")
+          return
+        }
+
+        await loginUser({email, password})
+
+        navigate("/dashboard")
+      }
+      catch(error) {
+        setError(error instanceof Error ? error.message : "Unable to sign in")
+        console.log(error)
+      }
+      finally {
+        setIsSubmitting(false)
+      }
+  }
+
+  async function handleGoogleSuccess(credential?: string) {
+    if (!credential) {
+      setError("Google sign in failed")
+      return
+    }
+
+    try {
+      setError("")
+      setIsSubmitting(true)
+
+      await loginWithGoogle(credential)
+
+      navigate("/dashboard")
+    }
+    catch(error) {
+      setError(error instanceof Error ? error.message : "Unable to sign in")
+      console.log(error)
+    }
+    finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
@@ -25,7 +90,7 @@ export default function LoginForm() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleLoginSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -66,9 +131,15 @@ export default function LoginForm() {
                   Remember me
                 </Label>
               </div>
+              
+              {error && (
+                <p className="text-sm text-center text-destructive">
+                  {error}
+                </p>
+              )}
 
-              <Button type="submit" className="w-full">
-                Sign in
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Signing in..." : "Sign in"}
               </Button>
             </form>
 
@@ -78,9 +149,12 @@ export default function LoginForm() {
               <Separator className="flex-1" />
             </div>
 
-            <Button type="button" variant="outline" className="w-full">
-              Continue with Google
-            </Button>
+            <GoogleLogin onSuccess={(credentialResponse) => {
+              handleGoogleSuccess(credentialResponse.credential)
+            }}
+            onError={() => {
+              setError("Google sign in failed")
+            }}/>
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
