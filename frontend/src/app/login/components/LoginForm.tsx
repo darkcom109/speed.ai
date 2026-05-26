@@ -12,8 +12,55 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import type React from "react"
+import { useState } from "react"
+import { useNavigate } from "react-router"
 
 export default function LoginForm() {
+  const navigate = useNavigate()
+  const [error, setError] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  async function handleLoginSubmit(event: React.FormEvent<HTMLFormElement>) {
+      event.preventDefault()
+
+      const formData = new FormData(event.currentTarget)
+
+      const email = formData.get("email")
+      const password = formData.get("password")
+
+      try {
+        setIsSubmitting(true)
+        const response = await fetch("http://localhost:3001/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            email,
+            password,
+          })
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          setError(data.error || "Something went wrong")
+          return
+        }
+
+        navigate("/dashboard")
+      }
+      catch(error) {
+        setError("Something went wrong")
+        console.log(error)
+      }
+      finally {
+        setIsSubmitting(false)
+      }
+  }
+
   return (
     <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
@@ -25,7 +72,7 @@ export default function LoginForm() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleLoginSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -66,9 +113,15 @@ export default function LoginForm() {
                   Remember me
                 </Label>
               </div>
+              
+              {error && (
+                <p className="text-sm text-center text-destructive">
+                  {error}
+                </p>
+              )}
 
-              <Button type="submit" className="w-full">
-                Sign in
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Signing in..." : "Sign in"}
               </Button>
             </form>
 

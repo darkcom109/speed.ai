@@ -11,8 +11,56 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { useNavigate } from "react-router"
+import { useState } from "react"
 
 export default function SignupForm() {
+    const navigate = useNavigate()
+    const [error, setError] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        const formData = new FormData(event.currentTarget)
+
+        const name = formData.get('name')
+        const email = formData.get("email")
+        const password = formData.get("password")
+
+        try {
+            setIsSubmitting(true)
+
+            const response = await fetch("http://localhost:3001/api/auth/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password
+                })
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                setError(data.error || "Something went wrong")
+                return
+            }
+
+            navigate("/dashboard")
+        }
+        catch(error) {
+            setError("Something went wrong")
+            console.log(error)
+        }
+        finally {
+            setIsSubmitting(false)
+        }
+    }
+
     return (
         <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-10">
             <div className="w-full max-w-sm">
@@ -24,7 +72,7 @@ export default function SignupForm() {
                     </CardDescription>
                     </CardHeader>
                     <CardContent>
-                    <form className="space-y-4">
+                    <form className="space-y-4" onSubmit={handleSubmit}>
                         <div className="space-y-2">
                         <Label htmlFor="name">Name</Label>
                         <Input
@@ -70,8 +118,14 @@ export default function SignupForm() {
                         </Label>
                         </div>
 
-                        <Button type="submit" className="w-full">
-                        Create account
+                        {error && (
+                            <p className="text-sm text-center text-destructive">
+                                {error}
+                            </p>
+                        )}
+
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            {isSubmitting ? "Creating Account..." : "Create account"}
                         </Button>
                     </form>
 

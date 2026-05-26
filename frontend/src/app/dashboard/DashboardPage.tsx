@@ -9,8 +9,28 @@ import {
 } from "@/components/ui/sidebar"
 
 import data from "@/app/dashboard/data.json"
+import { useEffect } from "react"
+import { useNavigate } from "react-router"
 
-export default function dashboard() {
+export default function DashboardPage() {
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    async function checkAuth() {
+      const response = await fetch("http://localhost:3001/api/auth/me", {
+        credentials: "include"
+      })
+
+      if (!response.ok) {
+        navigate("/login")
+        return
+      }
+    }
+
+    checkAuth()
+  }, [navigate])
+  
   return (
     <SidebarProvider
       style={
