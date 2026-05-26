@@ -6,6 +6,7 @@ import {
   RouterProvider
 } from "react-router"
 import router from "./routes"
+import { GoogleOAuthProvider } from "@react-oauth/google"
 
 import "./index.css"
 import { ThemeProvider } from "@/components/theme-provider.tsx"
@@ -13,7 +14,9 @@ import { ThemeProvider } from "@/components/theme-provider.tsx"
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
-      <RouterProvider router={router}/>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <RouterProvider router={router}/>
+      </GoogleOAuthProvider>
     </ThemeProvider>
   </StrictMode>
 )

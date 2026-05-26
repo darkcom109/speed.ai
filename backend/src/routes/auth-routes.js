@@ -144,7 +144,7 @@ authRouter.post("/google", async (req, res) => {
   const email = payload.email
   const name = payload.name || email
 
-  const user = await prisma.user.findFirst({
+  let user = await prisma.user.findFirst({
     where: {
       OR: [
         { googleId },

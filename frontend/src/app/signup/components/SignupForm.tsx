@@ -15,6 +15,10 @@ import { useNavigate } from "react-router"
 import { useState } from "react"
 import { signupUser } from "../api/signup-api"
 
+// Google specific imports
+import { GoogleLogin } from "@react-oauth/google"
+import { loginWithGoogle } from "@/app/login/api/google-login-api"
+
 export default function SignupForm() {
     const navigate = useNavigate()
     const [error, setError] = useState("")
@@ -47,6 +51,29 @@ export default function SignupForm() {
         }
         finally {
             setIsSubmitting(false)
+        }
+    }
+
+    async function handleGoogleSuccess(credential?: string) {
+        if (!credential) {
+            setError("Google sign in failed")
+            return
+        }
+        
+        try {
+            setError("")
+            setIsSubmitting(true)
+        
+            await loginWithGoogle(credential)
+        
+            navigate("/dashboard")
+        }
+        catch(error) {
+            setError(error instanceof Error ? error.message : "Unable to sign in")
+            console.log(error)
+        }
+        finally {
+          setIsSubmitting(false)
         }
     }
 
@@ -124,9 +151,12 @@ export default function SignupForm() {
                         <Separator className="flex-1" />
                     </div>
 
-                    <Button type="button" variant="outline" className="w-full">
-                        Continue with Google
-                    </Button>
+                    <GoogleLogin onSuccess={(credentialResponse) => {
+                        handleGoogleSuccess(credentialResponse.credential)
+                    }}
+                    onError={() => {
+                        setError("Google sign in failed")
+                    }}/>
 
                     <p className="mt-6 text-center text-sm text-muted-foreground">
                         Already have an account?{" "}
