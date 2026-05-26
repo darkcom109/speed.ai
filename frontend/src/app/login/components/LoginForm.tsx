@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator"
 import type React from "react"
 import { useState } from "react"
 import { useNavigate } from "react-router"
+import { loginUser } from "../api/login-api"
 
 export default function LoginForm() {
   const navigate = useNavigate()
@@ -31,29 +32,19 @@ export default function LoginForm() {
 
       try {
         setIsSubmitting(true)
-        const response = await fetch("http://localhost:3001/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            email,
-            password,
-          })
-        })
+        setError("")
 
-        const data = await response.json()
-
-        if (!response.ok) {
-          setError(data.error || "Something went wrong")
+        if (typeof email !== "string" || typeof password !== "string") {
+          setError("Name, email and password are required")
           return
         }
+
+        await loginUser({email, password})
 
         navigate("/dashboard")
       }
       catch(error) {
-        setError("Something went wrong")
+        setError(error instanceof Error ? error.message : "Unable to sign in")
         console.log(error)
       }
       finally {

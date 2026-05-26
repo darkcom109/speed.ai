@@ -13,13 +13,14 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useNavigate } from "react-router"
 import { useState } from "react"
+import { signupUser } from "../api/signup-api"
 
 export default function SignupForm() {
     const navigate = useNavigate()
     const [error, setError] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmitSignup(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
         const formData = new FormData(event.currentTarget)
 
@@ -29,31 +30,19 @@ export default function SignupForm() {
 
         try {
             setIsSubmitting(true)
+            setError("")
 
-            const response = await fetch("http://localhost:3001/api/auth/signup", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                    name,
-                    email,
-                    password
-                })
-            })
-
-            const data = await response.json()
-
-            if (!response.ok) {
-                setError(data.error || "Something went wrong")
+            if (typeof name !== "string" || typeof email !== "string" || typeof password !== "string") {
+                setError("Email and password are required")
                 return
             }
+
+            await signupUser({ name, email, password})
 
             navigate("/dashboard")
         }
         catch(error) {
-            setError("Something went wrong")
+            setError(error instanceof Error ? error.message : "Unable to sign in")
             console.log(error)
         }
         finally {
@@ -72,7 +61,7 @@ export default function SignupForm() {
                     </CardDescription>
                     </CardHeader>
                     <CardContent>
-                    <form className="space-y-4" onSubmit={handleSubmit}>
+                    <form className="space-y-4" onSubmit={handleSubmitSignup}>
                         <div className="space-y-2">
                         <Label htmlFor="name">Name</Label>
                         <Input
