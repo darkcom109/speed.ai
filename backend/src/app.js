@@ -11,7 +11,10 @@ const app = express()
 // Express middleware
 
 // Allows the frontend to call the backend from another origin/port
-app.use(cors())
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}))
 
 /*
 Parses incoming JSON request bodies into req.body

@@ -18,9 +18,9 @@ function createAuthToken(userId) {
 }
 
 function setAuthCookie(res, token) {
-  res.cookie(AUTH_COOKIE_NAME, token, {
+  res.cookie(AUTH_COOKIE_NAME, token,
     authCookieOptions,
-  })
+  )
 }
 
 function clearAuthCookie(res) {
