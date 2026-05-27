@@ -8,6 +8,7 @@ import {
   LoginPage,
   SignupPage,
   DashboardPage,
+  TasksPage,
 } from "@/app/index"
 
 const router = createBrowserRouter([
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <DashboardPage />
+  },
+  {
+    path: "/tasks",
+    element: <TasksPage />
   },
 ])
 

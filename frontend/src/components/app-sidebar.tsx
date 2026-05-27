@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/sidebar"
 import {
   CircleHelpIcon,
-  CommandIcon,
   LayoutDashboardIcon,
   SearchIcon,
   Settings2Icon,
+  SquareCheckBigIcon,
 } from "lucide-react"
 
 const data = {
@@ -29,9 +29,17 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: (
         <LayoutDashboardIcon
+        />
+      ),
+    },
+    {
+      title: "Tasks",
+      url: "/tasks",
+      icon: (
+        <SquareCheckBigIcon
         />
       ),
     },
@@ -74,9 +82,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="#">
-                <CommandIcon className="size-5!" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+              <a href="/dashboard">
+                <span className="text-sm font-semibold tracking-tight">
+                  speed.ai
+                </span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
