@@ -10,8 +10,12 @@ import { getTasks } from "@/app/tasks/api/tasks-api.ts"
 import type { Task } from "@/app/tasks/types/task.ts"
 
 import { createTask, updateTask, deleteTask } from "@/app/tasks/api/tasks-api.ts"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+
+// Component related imports
+import CreateTask from "@/app/tasks/components/CreateTask"
+import TasksHeader from "@/app/tasks/components/TasksHeader"
+import RenderTask from "./components/RenderTask"
+import UpdateTask from "./components/UpdateTask"
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -163,37 +167,17 @@ export default function TasksPage() {
         <SiteHeader title="Tasks" />
         
         <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight">Tasks</h2>
-            <p className="text-sm text-muted-foreground">
-              A basic task tracker will live here.
-            </p>
-          </div>
+          <TasksHeader />
 
-          <form
-            onSubmit={handleCreateTask}
-            className="flex flex-col gap-2 rounded-lg border bg-card p-3 sm:flex-row"
-          >
-            <Input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="Task title"
-              required
-            />
-            <Input
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Description"
-            />
-            <Input
-              type="date"
-              value={dueDate}
-              onChange={(event) => setDueDate(event.target.value)}
-            />
-            <Button type="submit" className="sm:w-28">
-              Add task
-            </Button>
-          </form>
+          <CreateTask
+            handleCreateTask={handleCreateTask}
+            title={title}
+            description={description}
+            dueDate={dueDate}
+            setTitle={setTitle}
+            setDescription={setDescription}
+            setDueDate={setDueDate}
+          />
 
           {isLoading && <p>Loading tasks...</p>}
 
@@ -203,98 +187,24 @@ export default function TasksPage() {
             {tasks.map((task) => (
               <li key={task.id} className="flex items-start justify-between gap-3 p-3">
                 {editingTaskId === task.id ? (
-                  <form
-                    onSubmit={handleUpdateTask}
-                    className="grid flex-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_10rem_auto]"
-                  >
-                    <div className="space-y-1">
-                      <Input
-                        value={editTitle}
-                        onChange={(event) => setEditTitle(event.target.value)}
-                        className="h-9"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Input
-                        value={editDescription}
-                        onChange={(event) => setEditDescription(event.target.value)}
-                        className="h-9"
-                        placeholder="Description"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Input
-                        type="date"
-                        value={editDueDate}
-                        onChange={(event) => setEditDueDate(event.target.value)}
-                        className="h-9"
-                      />
-                    </div>
-                    <div className="flex gap-2 sm:justify-end">
-                      <Button type="submit" size="sm" className="h-9">
-                        Save
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-9"
-                        onClick={() => setEditingTaskId(null)}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </form>
+                  <UpdateTask 
+                    handleUpdateTask={handleUpdateTask}
+                    editTitle={editTitle}
+                    editDescription={editDescription}
+                    editDueDate={editDueDate}
+                    setEditTitle={setEditTitle}
+                    setEditDescription={setEditDescription}
+                    setEditDueDate={setEditDueDate}
+                    setEditingTaskId={setEditingTaskId}
+                  />
                 ) : (
                   <>
-                    <div>
-                      <p
-                        className={
-                          task.completed
-                            ? "font-medium text-muted-foreground line-through"
-                            : "font-medium"
-                        }
-                      >
-                        {task.title}
-                      </p>
-                      {task.description && (
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          {task.description}
-                        </p>
-                      )}
-                      {task.dueDate && (
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Due {new Date(task.dueDate).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex shrink-0 gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => startEditingTask(task)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleToggleTask(task)}
-                      >
-                        {task.completed ? "Mark Undone" : "Mark done"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteTask(task.id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
+                    <RenderTask 
+                      task={task}
+                      startEditingTask={startEditingTask}
+                      handleToggleTask={handleToggleTask}
+                      handleDeleteTask={handleDeleteTask}
+                    />
                   </>
                 )}
               </li>
