@@ -47,7 +47,7 @@ taskRouter.get("/", async (req, res) => {
     })
 })
 
-taskRouter.patch("/id", async (req, res) => {
+taskRouter.patch("/:id", async (req, res) => {
     const result = updateTaskSchema.safeParse(req.body)
 
     if (!result.success) {
