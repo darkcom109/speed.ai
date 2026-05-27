@@ -11,6 +11,7 @@ import { taskRouter } from "./routes/task-routes.js"
 import { weatherRouter } from "./routes/weather-routes.js"
 import { assistantRouter } from "./routes/assistant-routes.js"
 import { githubRouter } from "./routes/github-routes.js"
+import { tflRouter } from "./routes/tfl-routes.js"
 
 const app = express()
 
@@ -66,5 +67,6 @@ app.use("/api/weather", weatherRouter)
 app.use("/api/holidays", holidayRouter)
 app.use("/api/assistant", assistantRouter)
 app.use("/api/github", githubRouter)
+app.use("/api/tfl", tflRouter)
 
 export { app }

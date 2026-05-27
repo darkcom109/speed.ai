@@ -14,6 +14,8 @@ import {
   NoteEditorPage,
   AssistantPage,
   GithubPage,
+  TransportPage,
+  TransportStationsPage,
 } from "@/app/index"
 
 const router = createBrowserRouter([
@@ -56,6 +58,18 @@ const router = createBrowserRouter([
   {
     path: "/github",
     element: <GithubPage />
+  },
+  {
+    path: "/transport",
+    element: <TransportPage />
+  },
+  {
+    path: "/transport/status",
+    element: <TransportPage />
+  },
+  {
+    path: "/transport/stations",
+    element: <TransportStationsPage />
   },
 ])
 
