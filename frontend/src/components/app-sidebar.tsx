@@ -21,10 +21,21 @@ import {
   SquareCheckBigIcon,
 } from "lucide-react"
 
+async function getUserData() {
+  const response = await fetch("http://localhost:3001/api/auth/me", {
+    credentials: "include"
+  })
+  const data = await response.json()
+
+  return data
+}
+
+const userData = await getUserData()
+
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: userData.user.name,
+    email: userData.user.email,
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
