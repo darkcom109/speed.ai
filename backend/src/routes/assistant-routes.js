@@ -62,6 +62,24 @@ async function getTodayTasks(userId) {
   })
 }
 
+async function getRecentNotes(userId) {
+    return prisma.note.findMany({
+        where: {
+            userId,
+        },
+        orderBy: {
+            updatedAt: "desc",
+        },
+        take: 5,
+        select: {
+            title: true,
+            content: true,
+            folder: true,
+            updatedAt: true,
+        },
+    })
+}
+
 function formatTasksForPrompt(tasks) {
     if (tasks.length === 0) {
         return "No tasks due today."
@@ -77,6 +95,23 @@ function formatTasksForPrompt(tasks) {
         .join("\n")
 }
 
+function formatNotesForPrompt(notes) {
+    if (notes.length === 0) {
+        return "No notes found."
+    }
+
+    return notes
+        .map((note, index) => {
+            const contentPreview =
+                note.content.length > 600
+                    ? `${note.content.slice(0, 600)}...`
+                    : note.content
+
+            return `${index + 1}. ${note.title} (${note.folder})\n${contentPreview || "No content"}`
+        })
+        .join("\n\n")
+}
+
 async function runOpenRouterAssistant(systemPrompt, message, userId) {
     const assistantMessage = await generateOpenRouterMessage([
         {
@@ -89,12 +124,16 @@ async function runOpenRouterAssistant(systemPrompt, message, userId) {
         },
     ])
 
-    if (assistantMessage.trim() !== "get_tasks()") {
+    const toolCall = assistantMessage.trim()
+
+    if (!["get_tasks()", "summarize_notes()"].includes(toolCall)) {
         return assistantMessage
     }
 
-    const tasks = await getTodayTasks(userId)
-    const toolResult = formatTasksForPrompt(tasks)
+    const toolResult =
+        toolCall === "get_tasks()"
+            ? formatTasksForPrompt(await getTodayTasks(userId))
+            : formatNotesForPrompt(await getRecentNotes(userId))
 
     return generateOpenRouterMessage([
         {
@@ -107,11 +146,11 @@ async function runOpenRouterAssistant(systemPrompt, message, userId) {
         },
         {
             role: "assistant",
-            content: "get_tasks()",
+            content: toolCall,
         },
         {
             role: "user",
-            content: `Tool result from get_tasks():\n${toolResult}\n\nNow answer the user naturally.`,
+            content: `Tool result from ${toolCall}:\n${toolResult}\n\nNow answer the user naturally.`,
         },
     ])
 }
@@ -134,9 +173,13 @@ assistantRouter.post("/chat", async (req, res) => {
     If the user asks about their tasks, reply with exactly:
     get_tasks()
 
+    If the user asks you to summarize their notes, recent notes, or note content, reply with exactly:
+    summarize_notes()
+
     Do not explain the function call.
     Do not wrap it in markdown.
     Only use get_tasks() when task data is needed.
+    Only use summarize_notes() when note data is needed.
 
     Otherwise, answer normally.
     `
