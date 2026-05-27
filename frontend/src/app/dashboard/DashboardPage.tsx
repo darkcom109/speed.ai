@@ -7,14 +7,20 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { getNextHoliday } from "@/app/dashboard/api/holiday-api"
 import { getWeather } from "@/app/dashboard/api/weather-api"
+import HolidayCard from "@/app/dashboard/components/HolidayCard"
 import WeatherCard from "@/app/dashboard/components/WeatherCard"
+import type { Holiday } from "@/app/dashboard/types/holiday"
 import type { Weather } from "@/app/dashboard/types/weather"
 
 export default function DashboardPage() {
   const [weather, setWeather] = useState<Weather | null>(null)
   const [weatherError, setWeatherError] = useState("")
   const [isWeatherLoading, setIsWeatherLoading] = useState(true)
+  const [holiday, setHoliday] = useState<Holiday | null>(null)
+  const [holidayError, setHolidayError] = useState("")
+  const [isHolidayLoading, setIsHolidayLoading] = useState(true)
 
   const navigate = useNavigate()
 
@@ -43,6 +49,20 @@ export default function DashboardPage() {
     )
   }
 
+  async function loadHoliday() {
+    try {
+      const holiday = await getNextHoliday("US")
+
+      setHoliday(holiday)
+    } catch (error) {
+      setHolidayError(
+        error instanceof Error ? error.message : "Unable to load holiday"
+      )
+    } finally {
+      setIsHolidayLoading(false)
+    }
+  }
+
   useEffect(() => {
     async function checkAuth() {
       const response = await fetch("http://localhost:3001/api/auth/me", {
@@ -55,6 +75,7 @@ export default function DashboardPage() {
       }
 
       loadWeather()
+      loadHoliday()
     }
 
     checkAuth()
@@ -80,11 +101,18 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <WeatherCard
-            weather={weather}
-            error={weatherError}
-            isLoading={isWeatherLoading}
-          />
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,24rem)_minmax(0,24rem)]">
+            <WeatherCard
+              weather={weather}
+              error={weatherError}
+              isLoading={isWeatherLoading}
+            />
+            <HolidayCard
+              holiday={holiday}
+              error={holidayError}
+              isLoading={isHolidayLoading}
+            />
+          </div>
         </main>
       </SidebarInset>
     </SidebarProvider>

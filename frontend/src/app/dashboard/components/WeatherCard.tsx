@@ -34,7 +34,7 @@ export default function WeatherCard({
   isLoading,
 }: WeatherCardProps) {
   return (
-    <section className="w-full max-w-xs rounded-lg border bg-card p-3">
+    <section className="min-h-36 w-full rounded-lg border bg-card p-3">
       <h3 className="text-sm font-medium">Weather</h3>
 
       {isLoading && (
@@ -49,18 +49,18 @@ export default function WeatherCard({
         return (
           <div className="mt-2">
             <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <WeatherIcon className="size-5" />
               </div>
-              <p className="text-2xl font-semibold">
+              <p className="min-w-0 text-2xl font-semibold">
                 {weather.temperature} degrees
               </p>
             </div>
-          <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">
-            <p>Rain chance: {weather.rainChance}%</p>
-            <p>Precipitation: {weather.precipitation}mm</p>
-            <p>{weather.timezone}</p>
-          </div>
+            <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+              <p>Rain chance: {weather.rainChance}%</p>
+              <p>Precipitation: {weather.precipitation}mm</p>
+              <p>{weather.timezone}</p>
+            </div>
           </div>
         )
       })()}
