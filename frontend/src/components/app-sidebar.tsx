@@ -16,6 +16,7 @@ import {
   CalendarDaysIcon,
   CircleHelpIcon,
   LayoutDashboardIcon,
+  MessageCircleIcon,
   NotebookTextIcon,
   SearchIcon,
   Settings2Icon,
@@ -69,6 +70,14 @@ const data = {
       url: "/notes",
       icon: (
         <NotebookTextIcon
+        />
+      ),
+    },
+    {
+      title: "Assistant",
+      url: "/assistant",
+      icon: (
+        <MessageCircleIcon
         />
       ),
     },

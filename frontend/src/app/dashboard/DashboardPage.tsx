@@ -12,6 +12,7 @@ import { getWeather } from "@/app/dashboard/api/weather-api"
 import HolidayCard from "@/app/dashboard/components/HolidayCard"
 import TaskActivityChart from "@/app/dashboard/components/TaskActivityChart"
 import TaskSummaryCard from "@/app/dashboard/components/TaskSummaryCard"
+import TodayTasksCard from "@/app/dashboard/components/TodayTasksCard"
 import WeatherCard from "@/app/dashboard/components/WeatherCard"
 import type { Holiday } from "@/app/dashboard/types/holiday"
 import type { Weather } from "@/app/dashboard/types/weather"
@@ -127,7 +128,7 @@ export default function DashboardPage() {
             isLoading={isTasksLoading}
           />
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <WeatherCard
               weather={weather}
               error={weatherError}
@@ -139,6 +140,11 @@ export default function DashboardPage() {
               isLoading={isHolidayLoading}
             />
             <TaskSummaryCard
+              tasks={tasks}
+              error={tasksError}
+              isLoading={isTasksLoading}
+            />
+            <TodayTasksCard
               tasks={tasks}
               error={tasksError}
               isLoading={isTasksLoading}

@@ -12,6 +12,7 @@ import {
   CalendarPage,
   NotesPage,
   NoteEditorPage,
+  AssistantPage,
 } from "@/app/index"
 
 const router = createBrowserRouter([
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
   {
     path: "/notes",
     element: <NotesPage />
+  },
+  {
+    path: "/assistant",
+    element: <AssistantPage />
   },
 ])
 

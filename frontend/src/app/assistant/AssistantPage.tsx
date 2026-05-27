@@ -1,0 +1,142 @@
+import { useState } from "react"
+import { BotIcon, SendIcon, UserIcon } from "lucide-react"
+import type { FormEvent } from "react"
+
+import { AppSidebar } from "@/components/app-sidebar"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { SiteHeader } from "@/components/site-header"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
+
+type Message = {
+  id: number
+  role: "assistant" | "user"
+  content: string
+}
+
+const initialMessages: Message[] = [
+  {
+    id: 1,
+    role: "assistant",
+    content: "Ask me about your tasks, notes, calendar, or dashboard.",
+  },
+]
+
+export default function AssistantPage() {
+  const [messages, setMessages] = useState<Message[]>(initialMessages)
+  const [message, setMessage] = useState("")
+
+  function handleSendMessage(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const trimmedMessage = message.trim()
+
+    if (!trimmedMessage) {
+      return
+    }
+
+    setMessages((currentMessages) => [
+      ...currentMessages,
+      {
+        id: Date.now(),
+        role: "user",
+        content: trimmedMessage,
+      },
+      {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: "API response will go here once the backend is connected.",
+      },
+    ])
+    setMessage("")
+  }
+
+  return (
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader title="Assistant" />
+
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight">Assistant</h2>
+            <p className="text-sm text-muted-foreground">
+              A personal chat interface for speed.ai.
+            </p>
+          </div>
+
+          <Card className="flex h-[min(40rem,calc(100vh-11rem))] min-h-96 flex-col">
+            <CardHeader className="border-b">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <BotIcon className="size-4" />
+                Chat
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex min-h-0 flex-1 flex-col gap-4 p-4">
+              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
+                {messages.map((message) => {
+                  const MessageIcon =
+                    message.role === "assistant" ? BotIcon : UserIcon
+
+                  return (
+                    <div
+                      key={message.id}
+                      className={
+                        message.role === "assistant"
+                          ? "flex items-start gap-2"
+                          : "flex flex-row-reverse items-start gap-2"
+                      }
+                    >
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                        <MessageIcon className="size-4" />
+                      </div>
+                      <div
+                        className={
+                          message.role === "assistant"
+                            ? "max-w-[80%] rounded-lg border bg-muted/40 px-3 py-2 text-sm"
+                            : "max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground"
+                        }
+                      >
+                        {message.content}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <form
+                onSubmit={handleSendMessage}
+                className="flex items-center gap-2 border-t pt-4"
+              >
+                <Input
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  placeholder="Ask something..."
+                />
+                <Button type="submit" size="icon" aria-label="Send message">
+                  <SendIcon className="size-4" />
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
