@@ -56,12 +56,12 @@ export default function NotesPage() {
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <div className="grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)]">
-            <section className="rounded-lg border bg-background">
+          <div className="grid min-h-0 gap-4 lg:grid-cols-[14rem_minmax(0,1fr)]">
+            <section className="flex h-[min(34rem,calc(100vh-18rem))] min-h-80 flex-col rounded-lg border bg-background">
               <div className="border-b bg-muted/40 px-3 py-2">
                 <h3 className="text-sm font-medium">Folders</h3>
               </div>
-              <div className="space-y-1 p-2">
+              <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
                 {folders.map((folderName) => {
                   const noteCount =
                     folderName === "All"
@@ -90,11 +90,11 @@ export default function NotesPage() {
               </div>
             </section>
 
-            <section className="min-h-80 rounded-lg border bg-background">
+            <section className="flex h-[min(34rem,calc(100vh-18rem))] min-h-80 flex-col rounded-lg border bg-background">
               <div className="border-b bg-muted/40 px-3 py-2">
                 <h3 className="text-sm font-medium">Files</h3>
               </div>
-              <div className="grid gap-3 p-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid min-h-0 flex-1 auto-rows-min gap-3 overflow-y-auto p-3 sm:grid-cols-2 xl:grid-cols-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
                 {!isLoading && !error && filteredNotes.length === 0 && (
                   <p className="p-2 text-sm text-muted-foreground sm:col-span-2 xl:col-span-3">
                     No files in this folder.

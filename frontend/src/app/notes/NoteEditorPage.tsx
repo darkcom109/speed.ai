@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router"
 
 import { AppSidebar } from "@/components/app-sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { CheckIcon } from "lucide-react"
 import { SiteHeader } from "@/components/site-header"
 import {
   SidebarInset,
@@ -15,6 +16,12 @@ import {
   updateNote,
 } from "@/app/notes/api/notes-api"
 
+type NoteDraft = {
+  title: string
+  folder: string
+  content: string
+}
+
 export default function NoteEditorPage() {
   const { noteId } = useParams()
   const navigate = useNavigate()
@@ -25,6 +32,9 @@ export default function NoteEditorPage() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [didSave, setDidSave] = useState(false)
+  const savedDraftRef = useRef<NoteDraft | null>(null)
+  const saveFeedbackTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     async function loadNote() {
@@ -47,6 +57,12 @@ export default function NoteEditorPage() {
 
         const note = await getNote(noteId)
 
+        savedDraftRef.current = {
+          title: note.title,
+          folder: note.folder,
+          content: note.content,
+        }
+
         setTitle(note.title)
         setFolder(note.folder)
         setContent(note.content)
@@ -60,6 +76,82 @@ export default function NoteEditorPage() {
     loadNote()
   }, [navigate, noteId])
 
+  useEffect(() => {
+    return () => {
+      if (saveFeedbackTimeoutRef.current) {
+        window.clearTimeout(saveFeedbackTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isLoading || !noteId || !title.trim()) {
+      return
+    }
+
+    const draft = {
+      title,
+      folder: folder.trim() || "General",
+      content,
+    }
+    const savedDraft = savedDraftRef.current
+
+    if (
+      savedDraft &&
+      savedDraft.title === draft.title &&
+      savedDraft.folder === draft.folder &&
+      savedDraft.content === draft.content
+    ) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        await saveNoteDraft(draft)
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Unable to auto-save file")
+      }
+    }, 900)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [content, folder, isLoading, noteId, title])
+
+  function showSavedFeedback() {
+    setDidSave(true)
+
+    if (saveFeedbackTimeoutRef.current) {
+      window.clearTimeout(saveFeedbackTimeoutRef.current)
+    }
+
+    saveFeedbackTimeoutRef.current = window.setTimeout(() => {
+      setDidSave(false)
+    }, 1200)
+  }
+
+  async function saveNoteDraft(draft: NoteDraft) {
+    if (!noteId) {
+      return null
+    }
+
+    setError("")
+    setIsSaving(true)
+
+    try {
+      const note = await updateNote(noteId, draft)
+
+      savedDraftRef.current = {
+        title: note.title,
+        folder: note.folder,
+        content: note.content,
+      }
+      showSavedFeedback()
+
+      return note
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   async function handleSaveNote(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -68,22 +160,19 @@ export default function NoteEditorPage() {
     }
 
     try {
-      setError("")
-      setIsSaving(true)
-
-      const note = await updateNote(noteId, {
+      const note = await saveNoteDraft({
         title,
         folder: folder.trim() || "General",
         content,
       })
 
-      setTitle(note.title)
-      setFolder(note.folder)
-      setContent(note.content)
+      if (note) {
+        setTitle(note.title)
+        setFolder(note.folder)
+        setContent(note.content)
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to save file")
-    } finally {
-      setIsSaving(false)
     }
   }
 
@@ -160,7 +249,13 @@ export default function NoteEditorPage() {
                   required
                 />
                 <Button type="submit" disabled={isSaving}>
-                  {isSaving ? "Saving..." : "Save"}
+                  {didSave ? (
+                    <CheckIcon className="size-4" />
+                  ) : isSaving ? (
+                    "Saving..."
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
               </div>
               <textarea
