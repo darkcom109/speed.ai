@@ -158,41 +158,52 @@ export default function CalendarPage() {
 
           <div className="grid grid-cols-7 rounded-lg border bg-card">
             {blankDays.map((_, index) => (
-              <div key={`blank-${index}`} className="min-h-28 border p-2" />
+              <div key={`blank-${index}`} className="h-36 border p-2" />
             ))}
 
-            {days.map((day) => (
-              <div
-                key={day.toISOString()}
-                className={
-                  isSameDay(day, today)
-                    ? "min-h-28 border bg-accent/40 p-2"
-                    : "min-h-28 border p-2"
-                }
-              >
-                <p
+            {days.map((day) => {
+              const tasksForDay = getTasksForDay(day)
+              const visibleTasks = tasksForDay.slice(0, 3)
+              const hiddenTaskCount = tasksForDay.length - visibleTasks.length
+
+              return (
+                <div
+                  key={day.toISOString()}
                   className={
                     isSameDay(day, today)
-                      ? "inline-flex size-7 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground"
-                      : "text-sm font-medium"
+                      ? "h-36 overflow-hidden border bg-accent/40 p-2"
+                      : "h-36 overflow-hidden border p-2"
                   }
                 >
-                  {day.getDate()}
-                </p>
-                {getTasksForDay(day).map((task) => (
-                  <div
-                    key={task.id}
+                  <p
                     className={
-                      task.completed
-                        ? "mt-2 truncate rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground line-through"
-                        : "mt-2 truncate rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground"
+                      isSameDay(day, today)
+                        ? "inline-flex size-7 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground"
+                        : "text-sm font-medium"
                     }
                   >
-                    {task.title}
-                  </div>
-                ))}
-              </div>
-            ))}
+                    {day.getDate()}
+                  </p>
+                  {visibleTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className={
+                        task.completed
+                          ? "mt-2 truncate rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground line-through"
+                          : "mt-2 truncate rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground"
+                      }
+                    >
+                      {task.title}
+                    </div>
+                  ))}
+                  {hiddenTaskCount > 0 && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      +{hiddenTaskCount} more
+                    </p>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </main>
       </SidebarInset>
