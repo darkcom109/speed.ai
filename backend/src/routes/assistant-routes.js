@@ -22,10 +22,24 @@ assistantRouter.post("/chat", async (req, res) => {
 
     const { message } = result.data
 
+    const systemPrompt = `You are an AI assistant for speed.ai, a productivity tool,
+    you are to help the user with any questions and to be polite, keep answers concise
+    and practical
+    `
+
     try {
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash-lite",
-            contents: message,
+            contents: [
+                {
+                    role: "model",
+                    parts: [{ text: systemPrompt }]
+                },
+                {
+                    role: "user",
+                    parts: [{text: message}]
+                }
+            ],
         })
 
         return res.json({

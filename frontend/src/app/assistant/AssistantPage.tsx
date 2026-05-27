@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { BotIcon, SendIcon, UserIcon } from "lucide-react"
 import type { FormEvent } from "react"
 
@@ -37,6 +37,14 @@ export default function AssistantPage() {
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
   const [isSending, setIsSending] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    })
+  }, [messages, isSending])
 
   async function handleSendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -88,6 +96,25 @@ export default function AssistantPage() {
         } as React.CSSProperties
       }
     >
+      <style>
+        {`
+          @keyframes assistant-glow {
+            0% {
+              transform: translateX(0);
+              opacity: 0;
+            }
+
+            30% {
+              opacity: 1;
+            }
+
+            100% {
+              transform: translateX(300%);
+              opacity: 0;
+            }
+          }
+        `}
+      </style>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader title="Assistant" />
@@ -142,11 +169,12 @@ export default function AssistantPage() {
                     <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                       <BotIcon className="size-4" />
                     </div>
-                    <div className="rounded-lg border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                      Thinking...
+                    <div className="relative overflow-hidden rounded-lg border bg-muted/40 px-3 py-2 text-sm text-muted-foreground shadow-[0_0_18px_rgba(255,255,255,0.06)] before:absolute before:inset-y-0 before:-left-1/2 before:w-1/2 before:animate-[assistant-glow_1.4s_ease-in-out_infinite] before:bg-linear-to-r before:from-transparent before:via-primary/25 before:to-transparent">
+                      <span className="relative">Thinking...</span>
                     </div>
                   </div>
                 )}
+                <div ref={messagesEndRef} />
               </div>
 
               {error && <p className="text-sm text-destructive">{error}</p>}
