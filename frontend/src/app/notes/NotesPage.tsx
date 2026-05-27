@@ -1,10 +1,11 @@
 import { AppSidebar } from "@/components/app-sidebar"
+import { Input } from "@/components/ui/input"
 import { SiteHeader } from "@/components/site-header"
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { FileTextIcon, FolderIcon } from "lucide-react"
+import { FileTextIcon, FolderIcon, SearchIcon } from "lucide-react"
 import { Link } from "react-router"
 
 import CreateNote from "@/app/notes/components/CreateNote"
@@ -21,9 +22,11 @@ export default function NotesPage() {
     title,
     folder,
     activeFolder,
+    searchQuery,
     setTitle,
     setFolder,
     setActiveFolder,
+    setSearchQuery,
     handleCreateNote,
   } = useNotes()
 
@@ -91,13 +94,22 @@ export default function NotesPage() {
             </section>
 
             <section className="flex h-[min(34rem,calc(100vh-18rem))] min-h-80 flex-col rounded-lg border bg-background">
-              <div className="border-b bg-muted/40 px-3 py-2">
+              <div className="flex flex-col gap-2 border-b bg-muted/40 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="text-sm font-medium">Files</h3>
+                <div className="relative w-full sm:max-w-64">
+                  <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder="Search files"
+                    className="h-8 pl-8"
+                  />
+                </div>
               </div>
               <div className="grid min-h-0 flex-1 auto-rows-min gap-3 overflow-y-auto p-3 sm:grid-cols-2 xl:grid-cols-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
                 {!isLoading && !error && filteredNotes.length === 0 && (
                   <p className="p-2 text-sm text-muted-foreground sm:col-span-2 xl:col-span-3">
-                    No files in this folder.
+                    {searchQuery ? "No files match your search." : "No files in this folder."}
                   </p>
                 )}
 

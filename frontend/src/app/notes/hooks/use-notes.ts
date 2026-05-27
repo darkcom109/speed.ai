@@ -16,6 +16,7 @@ export function useNotes() {
   const [title, setTitle] = useState("")
   const [folder, setFolder] = useState("General")
   const [activeFolder, setActiveFolder] = useState("All")
+  const [searchQuery, setSearchQuery] = useState("")
 
   const navigate = useNavigate()
 
@@ -72,12 +73,25 @@ export function useNotes() {
   }, [notes])
 
   const filteredNotes = useMemo(() => {
-    if (activeFolder === "All") {
-      return notes
+    const folderNotes =
+      activeFolder === "All"
+        ? notes
+        : notes.filter((note) => note.folder === activeFolder)
+
+    const normalizedSearchQuery = searchQuery.trim().toLowerCase()
+
+    if (!normalizedSearchQuery) {
+      return folderNotes
     }
 
-    return notes.filter((note) => note.folder === activeFolder)
-  }, [activeFolder, notes])
+    return folderNotes.filter((note) => {
+      return (
+        note.title.toLowerCase().includes(normalizedSearchQuery) ||
+        note.folder.toLowerCase().includes(normalizedSearchQuery) ||
+        note.content.toLowerCase().includes(normalizedSearchQuery)
+      )
+    })
+  }, [activeFolder, notes, searchQuery])
 
   return {
     notes,
@@ -88,9 +102,11 @@ export function useNotes() {
     title,
     folder,
     activeFolder,
+    searchQuery,
     setTitle,
     setFolder,
     setActiveFolder,
+    setSearchQuery,
     handleCreateNote,
   }
 }
