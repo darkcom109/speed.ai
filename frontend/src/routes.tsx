@@ -9,6 +9,7 @@ import {
   SignupPage,
   DashboardPage,
   TasksPage,
+  CalendarPage,
 } from "@/app/index"
 
 const router = createBrowserRouter([
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
   {
     path: "/tasks",
     element: <TasksPage />
+  },
+  {
+    path: "/calendar",
+    element: <CalendarPage />
   },
 ])
 

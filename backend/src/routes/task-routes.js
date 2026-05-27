@@ -17,12 +17,13 @@ taskRouter.post("/", async (req, res) => {
         })
     }
 
-    const { title, description } = result.data
+    const { title, description, dueDate } = result.data
 
     const task = await prisma.task.create({
         data: {
             title,
             description,
+            dueDate,
             userId: req.userId
         }
     })
