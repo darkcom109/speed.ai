@@ -5,6 +5,7 @@ import cors from "cors"
 import express from "express"
 
 import { authRouter } from "./routes/auth-routes.js"
+import { noteRouter } from "./routes/note-routes.js"
 import { taskRouter } from "./routes/task-routes.js"
 
 const app = express()
@@ -56,5 +57,6 @@ app.get("/api/health", (req, res) => {
 // API routes
 app.use("/api/auth", authRouter)
 app.use("/api/tasks", taskRouter)
+app.use("/api/notes", noteRouter)
 
 export { app }

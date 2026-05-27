@@ -16,6 +16,7 @@ import {
   CalendarDaysIcon,
   CircleHelpIcon,
   LayoutDashboardIcon,
+  NotebookTextIcon,
   SearchIcon,
   Settings2Icon,
   SquareCheckBigIcon,
@@ -60,6 +61,14 @@ const data = {
       url: "/calendar",
       icon: (
         <CalendarDaysIcon
+        />
+      ),
+    },
+    {
+      title: "Notes",
+      url: "/notes",
+      icon: (
+        <NotebookTextIcon
         />
       ),
     },
