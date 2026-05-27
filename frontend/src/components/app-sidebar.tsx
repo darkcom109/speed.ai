@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import {
+  CalendarDaysIcon,
   CircleHelpIcon,
   LayoutDashboardIcon,
   SearchIcon,
@@ -40,6 +41,14 @@ const data = {
       url: "/tasks",
       icon: (
         <SquareCheckBigIcon
+        />
+      ),
+    },
+    {
+      title: "Calendar",
+      url: "/calendar",
+      icon: (
+        <CalendarDaysIcon
         />
       ),
     },

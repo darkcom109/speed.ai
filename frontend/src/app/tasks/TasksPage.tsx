@@ -21,9 +21,12 @@ export default function TasksPage() {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState("")
   const [editDescription, setEditDescription] = useState("")
+  const [editDueDate, setEditDueDate] = useState("")
 
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
+  const [dueDate, setDueDate] = useState("")
+
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -61,11 +64,13 @@ export default function TasksPage() {
       const task = await createTask({
         title,
         description: description || undefined,
+        dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
       })
 
       setTasks((currentTasks) => [task, ...currentTasks])
       setTitle("")
       setDescription("")
+      setDueDate("")
     }
     catch(error) {
       setError(error instanceof Error ? error.message : "Unable to create task")
@@ -95,6 +100,7 @@ export default function TasksPage() {
     setEditingTaskId(task.id)
     setEditTitle(task.title)
     setEditDescription(task.description || "")
+    setEditDueDate(task.dueDate ? task.dueDate.slice(0, 10) : "")
   }
 
   async function handleUpdateTask(event: React.FormEvent<HTMLFormElement>) {
@@ -109,7 +115,8 @@ export default function TasksPage() {
 
       const updatedTask = await updateTask(editingTaskId, {
         title: editTitle,
-        description: editDescription || undefined
+        description: editDescription || undefined,
+        dueDate: editDueDate ? new Date(editDueDate).toISOString() : undefined,
       })
 
       setTasks((currentTasks) =>
@@ -121,6 +128,7 @@ export default function TasksPage() {
       setEditingTaskId(null)
       setEditTitle("")
       setEditDescription("")
+      setEditDueDate("")
     } 
     catch (error) {
       setError(error instanceof Error ? error.message : "Unable to update task")
@@ -177,6 +185,11 @@ export default function TasksPage() {
               onChange={(event) => setDescription(event.target.value)}
               placeholder="Description"
             />
+            <Input
+              type="date"
+              value={dueDate}
+              onChange={(event) => setDueDate(event.target.value)}
+            />
             <Button type="submit" className="sm:w-28">
               Add task
             </Button>
@@ -190,25 +203,43 @@ export default function TasksPage() {
             {tasks.map((task) => (
               <li key={task.id} className="flex items-start justify-between gap-3 p-3">
                 {editingTaskId === task.id ? (
-                  <form onSubmit={handleUpdateTask} className="flex flex-1 flex-col gap-2">
-                    <Input
-                      value={editTitle}
-                      onChange={(event) => setEditTitle(event.target.value)}
-                      required
-                    />
-                    <Input
-                      value={editDescription}
-                      onChange={(event) => setEditDescription(event.target.value)}
-                      placeholder="Description"
-                    />
-                    <div className="flex gap-2">
-                      <Button type="submit" size="sm">
+                  <form
+                    onSubmit={handleUpdateTask}
+                    className="grid flex-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_10rem_auto]"
+                  >
+                    <div className="space-y-1">
+                      <Input
+                        value={editTitle}
+                        onChange={(event) => setEditTitle(event.target.value)}
+                        className="h-9"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Input
+                        value={editDescription}
+                        onChange={(event) => setEditDescription(event.target.value)}
+                        className="h-9"
+                        placeholder="Description"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Input
+                        type="date"
+                        value={editDueDate}
+                        onChange={(event) => setEditDueDate(event.target.value)}
+                        className="h-9"
+                      />
+                    </div>
+                    <div className="flex gap-2 sm:justify-end">
+                      <Button type="submit" size="sm" className="h-9">
                         Save
                       </Button>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
+                        className="h-9"
                         onClick={() => setEditingTaskId(null)}
                       >
                         Cancel
@@ -230,6 +261,11 @@ export default function TasksPage() {
                       {task.description && (
                         <p className="mt-1 text-sm text-muted-foreground">
                           {task.description}
+                        </p>
+                      )}
+                      {task.dueDate && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Due {new Date(task.dueDate).toLocaleDateString()}
                         </p>
                       )}
                     </div>
