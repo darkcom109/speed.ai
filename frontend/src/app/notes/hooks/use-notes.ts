@@ -1,0 +1,96 @@
+import { useEffect, useMemo, useState } from "react"
+import type { FormEvent } from "react"
+import { useNavigate } from "react-router"
+
+import {
+  createNote,
+  getNotes,
+} from "@/app/notes/api/notes-api"
+import type { Note } from "@/app/notes/types/note"
+
+export function useNotes() {
+  const [notes, setNotes] = useState<Note[]>([])
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
+
+  const [title, setTitle] = useState("")
+  const [folder, setFolder] = useState("General")
+  const [activeFolder, setActiveFolder] = useState("All")
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    async function loadNotes() {
+      try {
+        setError("")
+
+        const response = await fetch("http://localhost:3001/api/auth/me", {
+          credentials: "include",
+        })
+
+        if (!response.ok) {
+          navigate("/login")
+          return
+        }
+
+        const notes = await getNotes()
+        setNotes(notes)
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Unable to load notes")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadNotes()
+  }, [navigate])
+
+  async function handleCreateNote(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    try {
+      setError("")
+
+      const note = await createNote({
+        title,
+        folder: folder.trim() || "General",
+      })
+
+      setNotes((currentNotes) => [note, ...currentNotes])
+      setActiveFolder(note.folder)
+      setTitle("")
+      navigate(`/notes/${note.id}`)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to create note")
+    }
+  }
+
+  const folders = useMemo(() => {
+    const noteFolders = notes.map((note) => note.folder)
+
+    return ["All", ...Array.from(new Set(noteFolders)).sort()]
+  }, [notes])
+
+  const filteredNotes = useMemo(() => {
+    if (activeFolder === "All") {
+      return notes
+    }
+
+    return notes.filter((note) => note.folder === activeFolder)
+  }, [activeFolder, notes])
+
+  return {
+    notes,
+    filteredNotes,
+    folders,
+    error,
+    isLoading,
+    title,
+    folder,
+    activeFolder,
+    setTitle,
+    setFolder,
+    setActiveFolder,
+    handleCreateNote,
+  }
+}

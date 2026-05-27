@@ -1,0 +1,130 @@
+import { AppSidebar } from "@/components/app-sidebar"
+import { SiteHeader } from "@/components/site-header"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
+import { FileTextIcon, FolderIcon } from "lucide-react"
+import { Link } from "react-router"
+
+import CreateNote from "@/app/notes/components/CreateNote"
+import NotesHeader from "@/app/notes/components/NotesHeader"
+import { useNotes } from "@/app/notes/hooks/use-notes"
+
+export default function NotesPage() {
+  const {
+    notes,
+    filteredNotes,
+    folders,
+    error,
+    isLoading,
+    title,
+    folder,
+    activeFolder,
+    setTitle,
+    setFolder,
+    setActiveFolder,
+    handleCreateNote,
+  } = useNotes()
+
+  return (
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader title="Notes" />
+
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+          <NotesHeader />
+
+          <CreateNote
+            handleCreateNote={handleCreateNote}
+            title={title}
+            folder={folder}
+            setTitle={setTitle}
+            setFolder={setFolder}
+          />
+
+          {isLoading && <p>Loading notes...</p>}
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
+
+          <div className="grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)]">
+            <section className="rounded-lg border bg-background">
+              <div className="border-b bg-muted/40 px-3 py-2">
+                <h3 className="text-sm font-medium">Folders</h3>
+              </div>
+              <div className="space-y-1 p-2">
+                {folders.map((folderName) => {
+                  const noteCount =
+                    folderName === "All"
+                      ? notes.length
+                      : notes.filter((note) => note.folder === folderName).length
+
+                  return (
+                    <button
+                      key={folderName}
+                      type="button"
+                      onClick={() => setActiveFolder(folderName)}
+                      className={
+                        activeFolder === folderName
+                          ? "flex w-full items-center justify-between gap-2 rounded-md bg-primary/10 px-2 py-2 text-left text-sm text-foreground"
+                          : "flex w-full items-center justify-between gap-2 rounded-md px-2 py-2 text-left text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <FolderIcon className="size-4 shrink-0" />
+                        <span className="truncate">{folderName}</span>
+                      </span>
+                      <span className="text-xs">{noteCount}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </section>
+
+            <section className="min-h-80 rounded-lg border bg-background">
+              <div className="border-b bg-muted/40 px-3 py-2">
+                <h3 className="text-sm font-medium">Files</h3>
+              </div>
+              <div className="grid gap-3 p-3 sm:grid-cols-2 xl:grid-cols-3">
+                {!isLoading && !error && filteredNotes.length === 0 && (
+                  <p className="p-2 text-sm text-muted-foreground sm:col-span-2 xl:col-span-3">
+                    No files in this folder.
+                  </p>
+                )}
+
+                {filteredNotes.map((note) => (
+                  <Link
+                    key={note.id}
+                    to={`/notes/${note.id}`}
+                    className="flex min-h-24 items-start gap-3 rounded-md border bg-card p-3 text-left shadow-xs transition-colors hover:bg-muted"
+                  >
+                    <FileTextIcon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-medium">
+                        {note.title}
+                      </span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {note.folder}
+                      </span>
+                      <span className="mt-2 block truncate text-xs text-muted-foreground">
+                        Updated {new Date(note.updatedAt).toLocaleDateString()}
+                      </span>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          </div>
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
