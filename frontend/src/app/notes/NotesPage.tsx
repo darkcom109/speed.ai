@@ -47,6 +47,7 @@ export default function NotesPage() {
             handleCreateNote={handleCreateNote}
             title={title}
             folder={folder}
+            folders={folders}
             setTitle={setTitle}
             setFolder={setFolder}
           />
