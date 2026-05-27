@@ -12,6 +12,10 @@ import {
   CalendarPage,
   NotesPage,
   NoteEditorPage,
+  AssistantPage,
+  GithubPage,
+  TransportPage,
+  TransportStationsPage,
 } from "@/app/index"
 
 const router = createBrowserRouter([
@@ -46,6 +50,26 @@ const router = createBrowserRouter([
   {
     path: "/notes",
     element: <NotesPage />
+  },
+  {
+    path: "/assistant",
+    element: <AssistantPage />
+  },
+  {
+    path: "/github",
+    element: <GithubPage />
+  },
+  {
+    path: "/transport",
+    element: <TransportPage />
+  },
+  {
+    path: "/transport/status",
+    element: <TransportPage />
+  },
+  {
+    path: "/transport/stations",
+    element: <TransportStationsPage />
   },
 ])
 

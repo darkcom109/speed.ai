@@ -15,11 +15,14 @@ import {
 import {
   CalendarDaysIcon,
   CircleHelpIcon,
+  CodeIcon,
   LayoutDashboardIcon,
+  MessageCircleIcon,
   NotebookTextIcon,
   SearchIcon,
   Settings2Icon,
   SquareCheckBigIcon,
+  TrainFrontIcon,
 } from "lucide-react"
 
 async function getUserData() {
@@ -41,36 +44,85 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: (
-        <LayoutDashboardIcon
-        />
-      ),
+      title: "Overview",
+      items: [
+        {
+          title: "Dashboard",
+          url: "/dashboard",
+          icon: (
+            <LayoutDashboardIcon
+            />
+          ),
+        },
+      ],
     },
     {
-      title: "Tasks",
-      url: "/tasks",
-      icon: (
-        <SquareCheckBigIcon
-        />
-      ),
+      title: "Workspace",
+      items: [
+        {
+          title: "Tasks",
+          url: "/tasks",
+          icon: (
+            <SquareCheckBigIcon
+            />
+          ),
+        },
+        {
+          title: "Calendar",
+          url: "/calendar",
+          icon: (
+            <CalendarDaysIcon
+            />
+          ),
+        },
+        {
+          title: "Notes",
+          url: "/notes",
+          icon: (
+            <NotebookTextIcon
+            />
+          ),
+        },
+      ],
     },
     {
-      title: "Calendar",
-      url: "/calendar",
-      icon: (
-        <CalendarDaysIcon
-        />
-      ),
-    },
-    {
-      title: "Notes",
-      url: "/notes",
-      icon: (
-        <NotebookTextIcon
-        />
-      ),
+      title: "Tools",
+      items: [
+        {
+          title: "Assistant",
+          url: "/assistant",
+          icon: (
+            <MessageCircleIcon
+            />
+          ),
+        },
+        {
+          title: "GitHub",
+          url: "/github",
+          icon: (
+            <CodeIcon
+            />
+          ),
+        },
+        {
+          title: "Transport",
+          url: "/transport/status",
+          icon: (
+            <TrainFrontIcon
+            />
+          ),
+          items: [
+            {
+              title: "Status",
+              url: "/transport/status",
+            },
+            {
+              title: "Stations",
+              url: "/transport/stations",
+            },
+          ],
+        },
+      ],
     },
   ],
   navSecondary: [
@@ -121,7 +173,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain groups={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
