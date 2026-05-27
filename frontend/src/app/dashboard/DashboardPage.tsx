@@ -121,6 +121,12 @@ export default function DashboardPage() {
             </p>
           </div>
 
+          <TaskActivityChart
+            tasks={tasks}
+            error={tasksError}
+            isLoading={isTasksLoading}
+          />
+
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <WeatherCard
               weather={weather}
@@ -138,12 +144,6 @@ export default function DashboardPage() {
               isLoading={isTasksLoading}
             />
           </div>
-
-          <TaskActivityChart
-            tasks={tasks}
-            error={tasksError}
-            isLoading={isTasksLoading}
-          />
         </main>
       </SidebarInset>
     </SidebarProvider>
