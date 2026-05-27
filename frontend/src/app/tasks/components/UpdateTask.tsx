@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 type UpdateTaskProps = {
-    handleUpdateTask: (event: React.FormEvent<HTMLFormElement>) => void
+    handleUpdateTask: (event: React.FormEvent<HTMLFormElement>) => Promise<void>
     editTitle: string
     editDescription: string
     editDueDate: string

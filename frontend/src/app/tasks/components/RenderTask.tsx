@@ -4,8 +4,8 @@ import { type Task } from "@/app/tasks/types/task"
 export type RenderTaskProps = {
     task: Task
     startEditingTask: (task: Task) => void
-    handleToggleTask: (task: Task) => void
-    handleDeleteTask: (taskId: string) => void
+    handleToggleTask: (task: Task) => Promise<void>
+    handleDeleteTask: (taskId: string) => Promise<void>
 }
 
 export default function RenderTask({

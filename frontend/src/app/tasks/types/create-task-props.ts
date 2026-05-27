@@ -1,5 +1,5 @@
 export type CreateTaskProps = {
-    handleCreateTask: (event: React.FormEvent<HTMLFormElement>) => void
+    handleCreateTask: (event: React.FormEvent<HTMLFormElement>) => Promise<void>
     title: string
     description: string
     dueDate: string
