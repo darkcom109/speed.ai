@@ -10,9 +10,13 @@ import {
 import { getNextHoliday } from "@/app/dashboard/api/holiday-api"
 import { getWeather } from "@/app/dashboard/api/weather-api"
 import HolidayCard from "@/app/dashboard/components/HolidayCard"
+import TaskActivityChart from "@/app/dashboard/components/TaskActivityChart"
+import TaskSummaryCard from "@/app/dashboard/components/TaskSummaryCard"
 import WeatherCard from "@/app/dashboard/components/WeatherCard"
 import type { Holiday } from "@/app/dashboard/types/holiday"
 import type { Weather } from "@/app/dashboard/types/weather"
+import { getTasks } from "@/app/tasks/api/tasks-api"
+import type { Task } from "@/app/tasks/types/task"
 
 export default function DashboardPage() {
   const [weather, setWeather] = useState<Weather | null>(null)
@@ -21,6 +25,9 @@ export default function DashboardPage() {
   const [holiday, setHoliday] = useState<Holiday | null>(null)
   const [holidayError, setHolidayError] = useState("")
   const [isHolidayLoading, setIsHolidayLoading] = useState(true)
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [tasksError, setTasksError] = useState("")
+  const [isTasksLoading, setIsTasksLoading] = useState(true)
 
   const navigate = useNavigate()
 
@@ -36,7 +43,7 @@ export default function DashboardPage() {
           setWeather(weather)
         } catch (error) {
           setWeatherError(
-            error instanceof Error ? error.message : "Unable to load weather"
+            "Unable to load weather"
           )
         } finally {
           setIsWeatherLoading(false)
@@ -56,10 +63,22 @@ export default function DashboardPage() {
       setHoliday(holiday)
     } catch (error) {
       setHolidayError(
-        error instanceof Error ? error.message : "Unable to load holiday"
+        "Unable to load holiday"
       )
     } finally {
       setIsHolidayLoading(false)
+    }
+  }
+
+  async function loadTasks() {
+    try {
+      const tasks = await getTasks()
+
+      setTasks(tasks)
+    } catch (error) {
+      setTasksError("Unable to load tasks")
+    } finally {
+      setIsTasksLoading(false)
     }
   }
 
@@ -76,6 +95,7 @@ export default function DashboardPage() {
 
       loadWeather()
       loadHoliday()
+      loadTasks()
     }
 
     checkAuth()
@@ -101,7 +121,7 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,24rem)_minmax(0,24rem)]">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <WeatherCard
               weather={weather}
               error={weatherError}
@@ -112,7 +132,18 @@ export default function DashboardPage() {
               error={holidayError}
               isLoading={isHolidayLoading}
             />
+            <TaskSummaryCard
+              tasks={tasks}
+              error={tasksError}
+              isLoading={isTasksLoading}
+            />
           </div>
+
+          <TaskActivityChart
+            tasks={tasks}
+            error={tasksError}
+            isLoading={isTasksLoading}
+          />
         </main>
       </SidebarInset>
     </SidebarProvider>
