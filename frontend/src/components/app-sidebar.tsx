@@ -15,6 +15,7 @@ import {
 import {
   CalendarDaysIcon,
   CircleHelpIcon,
+  CodeIcon,
   LayoutDashboardIcon,
   MessageCircleIcon,
   NotebookTextIcon,
@@ -78,6 +79,14 @@ const data = {
       url: "/assistant",
       icon: (
         <MessageCircleIcon
+        />
+      ),
+    },
+    {
+      title: "GitHub",
+      url: "/github",
+      icon: (
+        <CodeIcon
         />
       ),
     },

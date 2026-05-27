@@ -13,6 +13,7 @@ import {
   NotesPage,
   NoteEditorPage,
   AssistantPage,
+  GithubPage,
 } from "@/app/index"
 
 const router = createBrowserRouter([
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
   {
     path: "/assistant",
     element: <AssistantPage />
+  },
+  {
+    path: "/github",
+    element: <GithubPage />
   },
 ])
 
