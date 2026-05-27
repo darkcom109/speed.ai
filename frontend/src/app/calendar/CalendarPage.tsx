@@ -4,7 +4,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router"
 import { getTasks } from "@/app/tasks/api/tasks-api"
 import type { Task } from "@/app/tasks/types/task"
@@ -46,10 +46,24 @@ export default function CalendarPage() {
     loadTasks()
   }, [navigate])
 
-  const datedTasks = tasks.filter((task) => task.dueDate)
+  const tasksByDate = useMemo(() => {
+    const groupedTasks: Record<string, Task[]> = {}
+
+    for (const task of tasks) {
+      if (!task.dueDate) continue
+
+      const dateKey = getDateKey(new Date(task.dueDate))
+
+      groupedTasks[dateKey] = groupedTasks[dateKey] || []
+      groupedTasks[dateKey].push(task)
+    }
+
+    return groupedTasks
+  }, [tasks])
 
   const currentMonth = currentDate.getMonth()
   const currentYear = currentDate.getFullYear()
+  const currentMonthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`
   const currentMonthLabel = currentDate.toLocaleString("default", {
     month: "long",
     year: "numeric",
@@ -73,6 +87,17 @@ export default function CalendarPage() {
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay()
   const blankDays = Array.from({ length: firstDayOfMonth })
   const today = new Date()
+  const hasTasksDueThisMonth = Object.keys(tasksByDate).some((dateKey) =>
+    dateKey.startsWith(currentMonthKey)
+  )
+
+  function getDateKey(date: Date) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    const day = String(date.getDate()).padStart(2, "0")
+
+    return `${year}-${month}-${day}`
+  }
 
   function isSameDay(firstDate: Date, secondDate: Date) {
     return (
@@ -83,25 +108,8 @@ export default function CalendarPage() {
   }
 
   function getTasksForDay(day: Date) {
-    return datedTasks.filter((task) => {
-      if (!task.dueDate) return false
-
-      const taskDate = new Date(task.dueDate)
-
-      return isSameDay(taskDate, day)
-    })
+    return tasksByDate[getDateKey(day)] || []
   }
-
-  const tasksDueThisMonth = datedTasks.filter((task) => {
-    if (!task.dueDate) return false
-
-    const taskDate = new Date(task.dueDate)
-
-    return (
-      taskDate.getFullYear() === currentYear &&
-      taskDate.getMonth() === currentMonth
-    )
-  })
 
   return (
     <SidebarProvider
@@ -116,15 +124,6 @@ export default function CalendarPage() {
       <SidebarInset>
         <SiteHeader title="Calendar" />
         <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight">Calendar</h2>
-            <p className="text-sm text-muted-foreground">
-              A mini calendar will live here.
-            </p>
-          </div>
-
-          {isLoading && <p>Loading calendar...</p>}
-
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex items-center justify-between gap-3">
@@ -139,7 +138,7 @@ export default function CalendarPage() {
             </Button>
           </div>
 
-          {!isLoading && !error && tasksDueThisMonth.length === 0 && (
+          {!isLoading && !error && !hasTasksDueThisMonth && (
             <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
               No tasks due this month.
             </p>
@@ -184,23 +183,25 @@ export default function CalendarPage() {
                   >
                     {day.getDate()}
                   </p>
-                  {visibleTasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className={
-                        task.completed
-                          ? "mt-2 truncate rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground line-through"
-                          : "mt-2 truncate rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground"
-                      }
-                    >
-                      {task.title}
-                    </div>
-                  ))}
-                  {hiddenTaskCount > 0 && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      +{hiddenTaskCount} more
-                    </p>
-                  )}
+                  <div className="mt-2 space-y-1">
+                    {visibleTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className={
+                          task.completed
+                            ? "truncate rounded-md bg-muted px-2 py-1 text-xs leading-4 text-muted-foreground line-through"
+                            : "truncate rounded-md bg-primary px-2 py-1 text-xs leading-4 text-primary-foreground"
+                        }
+                      >
+                        {task.title}
+                      </div>
+                    ))}
+                    {hiddenTaskCount > 0 && (
+                      <p className="px-1 text-xs leading-4 text-muted-foreground">
+                        +{hiddenTaskCount} more
+                      </p>
+                    )}
+                  </div>
                 </div>
               )
             })}
