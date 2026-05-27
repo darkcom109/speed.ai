@@ -28,22 +28,26 @@ export default function HolidayCard({
       )}
 
       {holiday && (
-        <div className="mt-2 flex items-start gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <CalendarDaysIcon className="size-5" />
-          </div>
-          <div className="min-w-0">
-            <p className="line-clamp-2 text-sm font-semibold leading-snug">
+        <div className="mt-2">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <CalendarDaysIcon className="size-5" />
+            </div>
+            <p className="line-clamp-2 min-w-0 text-xl font-semibold leading-tight">
               {holiday.localName}
             </p>
-            <p className="text-xs text-muted-foreground">{holiday.name}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+          </div>
+          <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+            <p className="line-clamp-1">{holiday.name}</p>
+            <p>
+              Date:{" "}
               {new Date(holiday.date).toLocaleDateString(undefined, {
                 day: "numeric",
                 month: "short",
                 year: "numeric",
               })}
             </p>
+            <p>Country: {holiday.countryCode}</p>
           </div>
         </div>
       )}
