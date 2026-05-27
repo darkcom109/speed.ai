@@ -46,6 +46,12 @@ export default function AssistantPage() {
     })
   }, [messages, isSending])
 
+  function handleClearChat() {
+    setMessages(initialMessages)
+    setMessage("")
+    setError("")
+  }
+
   async function handleSendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -128,11 +134,20 @@ export default function AssistantPage() {
           </div>
 
           <Card className="flex h-[min(40rem,calc(100vh-11rem))] min-h-96 flex-col">
-            <CardHeader className="border-b">
+            <CardHeader className="flex flex-row items-center justify-between gap-3 border-b">
               <CardTitle className="flex items-center gap-2 text-base">
                 <BotIcon className="size-4" />
                 Chat
               </CardTitle>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleClearChat}
+                disabled={isSending}
+              >
+                Clear chat
+              </Button>
             </CardHeader>
             <CardContent className="flex min-h-0 flex-1 flex-col gap-4 p-4">
               <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">

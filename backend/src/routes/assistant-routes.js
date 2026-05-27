@@ -46,9 +46,11 @@ assistantRouter.post("/chat", async (req, res) => {
             message: response.text
         })
     }
-    catch {
+    catch (error) {
+        console.error("Assistant error:", error)
+
         return res.status(500).json({
-            error: "Assistant failed to respond"
+            error: `Assistant failed to respond`
         })
     }
 })
