@@ -16,6 +16,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { sendAssistantMessage } from "@/app/assistant/api/assistant-api"
 
 type Message = {
   id: number
@@ -34,30 +35,48 @@ const initialMessages: Message[] = [
 export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [message, setMessage] = useState("")
+  const [error, setError] = useState("")
+  const [isSending, setIsSending] = useState(false)
 
-  function handleSendMessage(event: FormEvent<HTMLFormElement>) {
+  async function handleSendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const trimmedMessage = message.trim()
 
-    if (!trimmedMessage) {
+    if (!trimmedMessage || isSending) {
       return
     }
+
+    const messageId = Date.now()
 
     setMessages((currentMessages) => [
       ...currentMessages,
       {
-        id: Date.now(),
+        id: messageId,
         role: "user",
         content: trimmedMessage,
       },
-      {
-        id: Date.now() + 1,
-        role: "assistant",
-        content: "API response will go here once the backend is connected.",
-      },
     ])
     setMessage("")
+    setError("")
+    setIsSending(true)
+
+    try {
+      const reply = await sendAssistantMessage(trimmedMessage)
+
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        {
+          id: messageId + 1,
+          role: "assistant",
+          content: reply,
+        },
+      ])
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Assistant failed")
+    } finally {
+      setIsSending(false)
+    }
   }
 
   return (
@@ -118,7 +137,19 @@ export default function AssistantPage() {
                     </div>
                   )
                 })}
+                {isSending && (
+                  <div className="flex items-start gap-2">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <BotIcon className="size-4" />
+                    </div>
+                    <div className="rounded-lg border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                      Thinking...
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {error && <p className="text-sm text-destructive">{error}</p>}
 
               <form
                 onSubmit={handleSendMessage}
@@ -128,8 +159,14 @@ export default function AssistantPage() {
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   placeholder="Ask something..."
+                  disabled={isSending}
                 />
-                <Button type="submit" size="icon" aria-label="Send message">
+                <Button
+                  type="submit"
+                  size="icon"
+                  aria-label="Send message"
+                  disabled={isSending}
+                >
                   <SendIcon className="size-4" />
                 </Button>
               </form>
