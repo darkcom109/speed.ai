@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { type Task } from "@/app/tasks/types/task"
+import DeleteTaskDialog from "@/app/tasks/components/DeleteTaskDialog"
 
 export type RenderTaskProps = {
     task: Task
@@ -55,14 +56,10 @@ export default function RenderTask({
                 >
                     {task.completed ? "Mark Undone" : "Mark done"}
                 </Button>
-                <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteTask(task.id)}
-                >
-                    Delete
-                </Button>
+                <DeleteTaskDialog
+                    taskTitle={task.title}
+                    onDelete={() => handleDeleteTask(task.id)}
+                />
             </div>
         </>
     )
