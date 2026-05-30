@@ -47,7 +47,7 @@ assistantRouter.post("/chat", async (req, res) => {
 
     // Prevents memory from becoming too large
     if (memory.length > 5) {
-        memory.splice(0, 5)
+        memory.splice(-5)
     }
 
     try {
