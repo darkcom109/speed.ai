@@ -8,11 +8,12 @@ Return only valid JSON.
 Do not wrap the JSON in markdown.
 Do not include extra text before or after the JSON.
 
-You have one tool available:
+You have two tools available:
 getTasks()
+getTasksToday()
 
 If the user clearly asks to view, list, show, check, or retrieve their tasks, return exactly:
-{"type":"tool","tool":"getTasks"}
+{"type":"tool","tool":"getTasks"} OR {"type":"tool","tool":"getTasksToday"}
 
 For normal responses, return exactly:
 {"type":"message","response":"your response here"}
