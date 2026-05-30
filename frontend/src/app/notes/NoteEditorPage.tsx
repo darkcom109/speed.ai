@@ -10,6 +10,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { DeleteNoteDialog } from "@/app/notes/components/DeleteNoteDialog"
 import { RichNoteEditor } from "@/app/notes/components/RichNoteEditor"
 import {
   deleteNote,
@@ -217,13 +218,7 @@ export default function NoteEditorPage() {
               <Button asChild type="button" variant="outline">
                 <Link to="/notes">Back to files</Link>
               </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleDeleteNote}
-              >
-                Delete
-              </Button>
+              <DeleteNoteDialog noteTitle={title} onDelete={handleDeleteNote} />
             </div>
           </div>
 
