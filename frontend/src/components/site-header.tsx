@@ -1,3 +1,4 @@
+import { GlobalAssistantSidebar } from "@/components/global-assistant-sidebar"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 
@@ -11,6 +12,9 @@ export function SiteHeader({ title = "Documents" }: { title?: string }) {
           className="mx-2 data-[orientation=vertical]:h-4"
         />
         <h1 className="text-base font-medium">{title}</h1>
+        <div className="ml-auto">
+          <GlobalAssistantSidebar />
+        </div>
       </div>
     </header>
   )
