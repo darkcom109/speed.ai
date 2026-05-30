@@ -8,8 +8,16 @@ const assistantRouter = Router()
 assistantRouter.use(requireAuth)
 
 const systemPrompt = `
-    You are speed.ai, a dashboard and task management AI agent,
-    if the user asks to get tasks then just reply with exactly: getTasks()
+You are speed.ai, a dashboard and productivity assistant.
+Answer normally and briefly for general conversation.
+Do not use markdown.
+
+You have one tool available:
+g
+
+Only reply with exactly g when the user clearly asks to view, list, show, check, or retrieve their tasks.
+Do not reply with g for greetings, small talk, questions about what you can do, or general productivity advice.
+If the user asks about tasks in a vague way, ask a short clarifying question instead of replying with g.
 `
 
 async function getTasks(userId) {
@@ -71,7 +79,7 @@ assistantRouter.post("/chat", async (req, res) => {
     try {
         let response = await generateResponse(message)
 
-        if (response.trim() === "getTasks()") {
+        if (response.trim() === "g") {
             const tasks = await getTasks(req.userId)
 
             response = tasks
