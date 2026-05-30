@@ -31,13 +31,30 @@ async function getTasks(userId) {
 }
 
 async function generateResponse(message) {
-    const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {
+    const ollamaUrl = process.env.OLLAMA_URL || "http://localhost:11434"
+    const ollamaModel = process.env.OLLAMA_MODEL
+
+    if (!ollamaModel) {
+        throw new Error("OLLAMA_MODEL is not configured")
+    }
+
+    if (ollamaUrl === "https://ollama.com" && !process.env.OLLAMA_API_KEY) {
+        throw new Error("OLLAMA_API_KEY is required for Ollama Cloud")
+    }
+
+    const headers = {
+        "Content-Type": "application/json",
+    }
+
+    if (process.env.OLLAMA_API_KEY) {
+        headers.Authorization = `Bearer ${process.env.OLLAMA_API_KEY}`
+    }
+
+    const response = await fetch(`${ollamaUrl.replace(/\/$/, "")}/api/chat`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({
-            model: process.env.OLLAMA_MODEL,
+            model: ollamaModel,
             stream: false,
             messages: [
                 {
