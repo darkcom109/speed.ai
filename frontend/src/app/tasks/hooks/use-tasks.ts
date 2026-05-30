@@ -24,6 +24,9 @@ export function useTasks() {
   const [description, setDescription] = useState("")
   const [dueDate, setDueDate] = useState("")
 
+  // For searching for specific tasks
+  const [searchTerm, setSearchTerm] = useState("")
+
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -166,5 +169,7 @@ export function useTasks() {
     startEditingTask,
     handleUpdateTask,
     handleDeleteTask,
+    searchTerm,
+    setSearchTerm,
   }
 }
