@@ -26,20 +26,29 @@ import {
 } from "lucide-react"
 
 async function getUserData() {
-  const response = await fetch("http://localhost:3001/api/auth/me", {
-    credentials: "include"
-  })
-  const data = await response.json()
+  try {
+    const response = await fetch("http://localhost:3001/api/auth/me", {
+      credentials: "include"
+    })
 
-  return data
+    if (!response.ok) {
+      return null
+    }
+
+    const data = await response.json()
+
+    return data.user
+  } catch {
+    return null
+  }
 }
 
 const userData = await getUserData()
 
 const data = {
   user: {
-    name: userData.user.name,
-    email: userData.user.email,
+    name: userData?.name || "Guest",
+    email: userData?.email || "Not signed in",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
