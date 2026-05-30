@@ -28,6 +28,8 @@ export async function generateResponse(message) {
 
     const data = await response.json()
 
+    console.log(data)
+
     if (!response.ok) {
         throw new Error(data.error || "AI assistant failed")
     }

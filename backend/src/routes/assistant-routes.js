@@ -6,6 +6,7 @@ import prisma from "../../prisma/client.js"
 
 // Assistant related imports
 import { getTasks } from "../assistant/assistant-tools/get-tasks.js"
+import { getTasksToday } from "../assistant/assistant-tools/get-tasks-today.js"
 import { generateResponse } from "../assistant/generate-response.js"
 
 const assistantRouter = Router()
@@ -13,7 +14,8 @@ assistantRouter.use(requireAuth)
 
 // Available tools for AI assistant 
 const tools = {
-    "getTasks": getTasks
+    "getTasks": getTasks,
+    "getTasksToday": getTasksToday
 }
 
 // Endpoint for communicating with AI assistant
