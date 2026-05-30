@@ -20,8 +20,12 @@ const initialMessages: AssistantMessage[] = [
   },
 ]
 
+const assistantOpenStorageKey = "speed-ai-assistant-open"
+
 export function GlobalAssistantSidebar() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(() => {
+    return window.localStorage.getItem(assistantOpenStorageKey) === "true"
+  })
   const [messages, setMessages] = useState<AssistantMessage[]>(initialMessages)
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
@@ -45,6 +49,10 @@ export function GlobalAssistantSidebar() {
     return () => {
       delete document.body.dataset.assistantOpen
     }
+  }, [isOpen])
+
+  useEffect(() => {
+    window.localStorage.setItem(assistantOpenStorageKey, String(isOpen))
   }, [isOpen])
 
   function handleClearChat() {

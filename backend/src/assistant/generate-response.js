@@ -2,7 +2,7 @@ import { systemPrompt } from "./assistant-prompt.js"
 import { cleanJsonResponse } from "../assistant/helper-functions/clean-json-response.js"
 
 // Generate response through Ollama Cloud service and parse as JSON
-export async function generateResponse(message) {
+export async function generateResponse(message, memory) {
     const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {
         method: "POST",
         headers: {
@@ -13,16 +13,7 @@ export async function generateResponse(message) {
             model: process.env.OLLAMA_MODEL,
             stream: false,
             think: false,
-            messages: [
-                {
-                    role: "system",
-                    content: systemPrompt,
-                },
-                {
-                    role: "user",
-                    content: message
-                }
-            ]
+            messages: memory
         })
     })
 

@@ -6,6 +6,7 @@ import prisma from "../../prisma/client.js"
 
 // Assistant related imports
 import { getTasks, getTasksToday } from "../assistant/assistant-tools/index.js"
+import { systemPrompt } from "../assistant/assistant-prompt.js"
 import { generateResponse } from "../assistant/generate-response.js"
 
 const assistantRouter = Router()
@@ -16,6 +17,13 @@ const tools = {
     "getTasks": getTasks,
     "getTasksToday": getTasksToday
 }
+
+const memory = [
+    {
+        role: "system",
+        content: systemPrompt,
+    }
+]
 
 // Endpoint for communicating with AI assistant
 assistantRouter.post("/chat", async (req, res) => {
@@ -29,9 +37,22 @@ assistantRouter.post("/chat", async (req, res) => {
 
     const { message } = validationResult.data
 
+    // Add message to global memory
+    memory.push(
+        {
+            role: "user",
+            content: message
+        }
+    )
+
+    // Prevents memory from becoming too large
+    if (memory.length > 5) {
+        memory.splice(0, 5)
+    }
+
     try {
         // Send user message to Ollama Cloud service API
-        const data = await generateResponse(message)
+        const data = await generateResponse(message, memory)
 
         if (data.type === "message") {
             return res.status(200).json({
