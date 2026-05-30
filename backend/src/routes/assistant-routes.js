@@ -9,37 +9,60 @@ assistantRouter.use(requireAuth)
 
 const systemPrompt = `
 You are speed.ai, a dashboard and productivity assistant.
-Answer normally and briefly for general conversation.
+Answer briefly.
 Do not use markdown.
+Do not think step by step.
+Return only valid JSON.
+Do not wrap the JSON in markdown.
+Do not include extra text before or after the JSON.
 
 You have one tool available:
-g
+getTasks()
 
-Only reply with exactly g when the user clearly asks to view, list, show, check, or retrieve their tasks.
-Do not reply with g for greetings, small talk, questions about what you can do, or general productivity advice.
-If the user asks about tasks in a vague way, ask a short clarifying question instead of replying with g.
+If the user clearly asks to view, list, show, check, or retrieve their tasks, return exactly:
+{"type":"tool","tool":"getTasks"}
+
+For normal responses, return exactly:
+{"type":"message","response":"your response here"}
 `
+
+const tools = {
+    "getTasks": getTasks
+}
 
 async function getTasks(userId) {
     const tasks = await prisma.task.findMany({
         where: {
             userId: userId
         },
+        take: 5
     })
 
-    return tasks
+    const parsedTasks = tasks.length
+        ? tasks.map((task, index) => `${index + 1}. ${task.title}`).join("\n")
+        : "You do not have any tasks yet."
+
+    return parsedTasks
+}
+
+function cleanJsonResponse(content) {
+    return content
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim()
 }
 
 async function generateResponse(message) {
     const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {
         method: "POST",
         headers: {
-            Authorization = `Bearer ${process.env.OLLAMA_API_KEY}`,
+            Authorization : `Bearer ${process.env.OLLAMA_API_KEY}`,
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
             model: process.env.OLLAMA_MODEL,
             stream: false,
+            think: false,
             messages: [
                 {
                     role: "system",
@@ -59,7 +82,9 @@ async function generateResponse(message) {
         throw new Error(data.error || "AI assistant failed")
     }
 
-    return data.message.content
+    const parsedData = JSON.parse(cleanJsonResponse(data.message.content))
+
+    return parsedData
 }
 
 assistantRouter.post("/chat", async (req, res) => {
@@ -74,19 +99,28 @@ assistantRouter.post("/chat", async (req, res) => {
     const { message } = validationResult.data
 
     try {
-        let response = await generateResponse(message)
+        const data = await generateResponse(message)
 
-        if (response.trim() === "g") {
-            const tasks = await getTasks(req.userId)
-
-            response = tasks
-                .map((task) => `- ${task.title}`)
-                .join("\n")
+        if (data.type === "message") {
+            return res.status(200).json({
+                message: data.response
+            })
         }
+        else {
+            const tool = tools[data.tool]
 
-        return res.status(200).json({
-            message: response
-        })
+            if (!tool) {
+                return res.status(400).json({
+                    error: "AI assistant could not perform task"
+                })
+            }
+
+            const toolResponse = await tool(req.userId)
+
+            return res.status(200).json({
+                message: toolResponse
+            })
+        }
     }
     catch (error) {
         console.error("Assistant failed to respond:", error)
