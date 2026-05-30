@@ -1,12 +1,12 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
 
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { type CreateTaskProps } from "../types/create-task-props"
 import TaskFormDialog from "@/app/tasks/components/TaskFormDialog"
+import { type TasksToolbarProps } from "@/app/tasks/types/tasks-toolbar-props"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
-export default function CreateTask({
+export default function TasksToolbar({
   handleCreateTask,
   title,
   description,
@@ -14,7 +14,9 @@ export default function CreateTask({
   setTitle,
   setDescription,
   setDueDate,
-}: CreateTaskProps) {
+  searchTerm,
+  setSearchTerm,
+}: TasksToolbarProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
 
   async function handleSubmitCreateTask(event: FormEvent<HTMLFormElement>) {
@@ -28,7 +30,11 @@ export default function CreateTask({
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 sm:flex-row">
-      <Input placeholder="Search tasks..." />
+      <Input
+        value={searchTerm}
+        onChange={(event) => setSearchTerm(event.target.value)}
+        placeholder="Search tasks..."
+      />
 
       <TaskFormDialog
         open={isCreateOpen}
