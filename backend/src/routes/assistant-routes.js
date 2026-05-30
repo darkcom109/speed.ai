@@ -31,30 +31,14 @@ async function getTasks(userId) {
 }
 
 async function generateResponse(message) {
-    const ollamaUrl = process.env.OLLAMA_URL || "http://localhost:11434"
-    const ollamaModel = process.env.OLLAMA_MODEL
-
-    if (!ollamaModel) {
-        throw new Error("OLLAMA_MODEL is not configured")
-    }
-
-    if (ollamaUrl === "https://ollama.com" && !process.env.OLLAMA_API_KEY) {
-        throw new Error("OLLAMA_API_KEY is required for Ollama Cloud")
-    }
-
-    const headers = {
-        "Content-Type": "application/json",
-    }
-
-    if (process.env.OLLAMA_API_KEY) {
-        headers.Authorization = `Bearer ${process.env.OLLAMA_API_KEY}`
-    }
-
-    const response = await fetch(`${ollamaUrl.replace(/\/$/, "")}/api/chat`, {
+    const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {
         method: "POST",
-        headers,
+        headers: {
+            Authorization = `Bearer ${process.env.OLLAMA_API_KEY}`,
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify({
-            model: ollamaModel,
+            model: process.env.OLLAMA_MODEL,
             stream: false,
             messages: [
                 {
@@ -72,11 +56,7 @@ async function generateResponse(message) {
     const data = await response.json()
 
     if (!response.ok) {
-        const errorMessage = typeof data.error === "string"
-            ? data.error
-            : data.error?.message
-
-        throw new Error(errorMessage || "AI assistant failed")
+        throw new Error(data.error || "AI assistant failed")
     }
 
     return data.message.content
