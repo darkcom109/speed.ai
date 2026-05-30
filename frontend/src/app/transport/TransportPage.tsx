@@ -199,7 +199,7 @@ export default function TransportPage() {
             </Button>
           </div>
 
-          <section className="grid gap-4 md:grid-cols-3">
+          <section className="grid grid-cols-[repeat(auto-fit,minmax(min(18rem,100%),1fr))] gap-4">
             <div className="flex min-h-28 items-center rounded-lg border bg-card p-4">
               <div className="flex items-center gap-3">
                 <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">

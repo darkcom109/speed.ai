@@ -1,4 +1,3 @@
-import { GoogleGenAI } from "@google/genai"
 import { Router } from "express"
 
 import { requireAuth } from "../middleware/require-auth.js"
@@ -7,9 +6,41 @@ import { chatSchema } from "../schemas/chat-schemas.js"
 const assistantRouter = Router()
 assistantRouter.use(requireAuth)
 
-const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-})
+const systemPrompt = `
+    You are speed.ai, a dashboard and task management AI agent,
+    you are to help the user with anything it attempts to ask, do not hallucinate 
+`
+
+async function generateResponse(message) {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            model: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+            messages: [
+                {
+                    role: "system",
+                    content: systemPrompt,
+                },
+                {
+                    role: "user",
+                    content: message
+                }
+            ]
+        })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.error?.message || "AI assistant failed")
+    }
+
+    return data.choices[0].message.content
+}
 
 assistantRouter.post("/chat", async (req, res) => {
     const result = chatSchema.safeParse(req.body)
@@ -22,35 +53,16 @@ assistantRouter.post("/chat", async (req, res) => {
 
     const { message } = result.data
 
-    const systemPrompt = `You are an AI assistant for speed.ai, a productivity tool,
-    you are to help the user with any questions and to be polite, keep answers concise
-    and practical
-    `
-
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-lite",
-            contents: [
-                {
-                    role: "model",
-                    parts: [{ text: systemPrompt }]
-                },
-                {
-                    role: "user",
-                    parts: [{text: message}]
-                }
-            ],
-        })
+        const result = await generateResponse(message)
 
-        return res.json({
-            message: response.text
+        return res.status(200).json({
+            message: result
         })
     }
-    catch (error) {
-        console.error("Assistant error:", error)
-
+    catch {
         return res.status(500).json({
-            error: `Assistant failed to respond`
+            error: "Assistant failed to respond"
         })
     }
 })

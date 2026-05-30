@@ -10,11 +10,14 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { DeleteNoteDialog } from "@/app/notes/components/DeleteNoteDialog"
+import { RichNoteEditor } from "@/app/notes/components/RichNoteEditor"
 import {
   deleteNote,
   getNote,
   updateNote,
 } from "@/app/notes/api/notes-api"
+import handleExportNote from "@/app/notes/utils/export-note"
 
 type NoteDraft = {
   title: string
@@ -204,11 +207,11 @@ export default function NoteEditorPage() {
       <SidebarInset>
         <SiteHeader title="Notes" />
 
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
+        <main className="flex flex-1 flex-col bg-muted/30 p-4 lg:p-6">
+          <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
               <p className="text-xs text-muted-foreground">/{folder}</p>
-              <h2 className="text-xl font-semibold tracking-tight">
+              <h2 className="truncate text-xl font-semibold tracking-tight">
                 {title || "Untitled file"}
               </h2>
             </div>
@@ -216,13 +219,10 @@ export default function NoteEditorPage() {
               <Button asChild type="button" variant="outline">
                 <Link to="/notes">Back to files</Link>
               </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleDeleteNote}
-              >
-                Delete
+              <Button type="button" variant="outline" onClick={() => handleExportNote(title, content)}>
+                Export
               </Button>
+              <DeleteNoteDialog noteTitle={title} onDelete={handleDeleteNote} />
             </div>
           </div>
 
@@ -233,22 +233,24 @@ export default function NoteEditorPage() {
           {!isLoading && (
             <form
               onSubmit={handleSaveNote}
-              className="flex min-h-[calc(100vh-12rem)] flex-col gap-3 rounded-lg border bg-card p-3"
+              className="mx-auto mt-6 flex min-h-[calc(100vh-14rem)] w-full max-w-5xl flex-col rounded-xl border bg-card shadow-sm"
             >
-              <div className="grid gap-2 sm:grid-cols-[12rem_minmax(0,1fr)_auto]">
+              <div className="grid gap-3 border-b bg-background/60 p-4 sm:grid-cols-[12rem_minmax(0,1fr)_auto]">
                 <Input
                   value={folder}
                   onChange={(event) => setFolder(event.target.value)}
                   placeholder="Folder"
                   required
+                  className="h-10 bg-background"
                 />
                 <Input
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
                   placeholder="File name"
                   required
+                  className="h-10 bg-background"
                 />
-                <Button type="submit" disabled={isSaving}>
+                <Button type="submit" className="h-10" disabled={isSaving}>
                   {didSave ? (
                     <CheckIcon className="size-4" />
                   ) : isSaving ? (
@@ -258,12 +260,7 @@ export default function NoteEditorPage() {
                   )}
                 </Button>
               </div>
-              <textarea
-                value={content}
-                onChange={(event) => setContent(event.target.value)}
-                placeholder="Start writing..."
-                className="min-h-96 flex-1 resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              />
+              <RichNoteEditor content={content} onChange={setContent} />
             </form>
           )}
         </main>
