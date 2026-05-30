@@ -1,3 +1,6 @@
+import { systemPrompt } from "./assistant-prompt.js"
+import { cleanJsonResponse } from "../assistant/helper-functions/clean-json-response.js"
+
 // Generate response through Ollama Cloud service and parse as JSON
 export async function generateResponse(message) {
     const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {

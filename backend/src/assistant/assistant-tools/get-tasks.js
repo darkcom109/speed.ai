@@ -1,4 +1,6 @@
-// Assistant tool to get tasks
+import prisma from "../../../prisma/client.js"
+
+// Assistant tool to get most recent tasks
 export async function getTasks(userId) {
     const tasks = await prisma.task.findMany({
         where: {

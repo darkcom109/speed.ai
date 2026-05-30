@@ -5,9 +5,8 @@ import { chatSchema } from "../schemas/chat-schemas.js"
 import prisma from "../../prisma/client.js"
 
 // Assistant related imports
-import { systemPrompt } from "../assistant/assistant-prompt.js"
-import { cleanJsonResponse } from "../assistant/helper-functions/clean-json-response.js"
 import { getTasks } from "../assistant/assistant-tools/get-tasks.js"
+import { generateResponse } from "../assistant/generate-response.js"
 
 const assistantRouter = Router()
 assistantRouter.use(requireAuth)
