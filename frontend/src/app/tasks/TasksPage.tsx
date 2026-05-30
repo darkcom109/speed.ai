@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react"
+
 import { AppSidebar } from "@/components/app-sidebar"
+import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -9,7 +12,21 @@ import TasksToolbar from "@/app/tasks/components/TasksToolbar"
 import RenderTask from "./components/RenderTask"
 import type { Task } from "@/app/tasks/types/task"
 
+const tasksPerPage = 10
+
+function getPageCount(totalTasks: number) {
+  return Math.max(1, Math.ceil(totalTasks / tasksPerPage))
+}
+
+function getPaginatedTasks(tasks: Task[], page: number) {
+  const start = (page - 1) * tasksPerPage
+
+  return tasks.slice(start, start + tasksPerPage)
+}
+
 export default function TasksPage() {
+  const [activePage, setActivePage] = useState(1)
+  const [completedPage, setCompletedPage] = useState(1)
   const {
     tasks,
     error,
@@ -47,6 +64,30 @@ export default function TasksPage() {
   })
   const activeTasks = filteredTasks.filter((task) => !task.completed)
   const completedTasks = filteredTasks.filter((task) => task.completed)
+  const activePageCount = getPageCount(activeTasks.length)
+  const completedPageCount = getPageCount(completedTasks.length)
+  const paginatedActiveTasks = getPaginatedTasks(activeTasks, activePage)
+  const paginatedCompletedTasks = getPaginatedTasks(
+    completedTasks,
+    completedPage
+  )
+
+  useEffect(() => {
+    setActivePage(1)
+    setCompletedPage(1)
+  }, [searchTerm])
+
+  useEffect(() => {
+    if (activePage > activePageCount) {
+      setActivePage(activePageCount)
+    }
+  }, [activePage, activePageCount])
+
+  useEffect(() => {
+    if (completedPage > completedPageCount) {
+      setCompletedPage(completedPageCount)
+    }
+  }, [completedPage, completedPageCount])
 
   function renderTaskList(tasks: Task[], emptyMessage: string) {
     if (tasks.length === 0) {
@@ -82,6 +123,51 @@ export default function TasksPage() {
           </li>
         ))}
       </ul>
+    )
+  }
+
+  function renderPagination(
+    currentPage: number,
+    pageCount: number,
+    totalTasks: number,
+    onPageChange: (page: number) => void
+  ) {
+    if (totalTasks <= tasksPerPage) {
+      return null
+    }
+
+    const firstVisibleTask = (currentPage - 1) * tasksPerPage + 1
+    const lastVisibleTask = Math.min(currentPage * tasksPerPage, totalTasks)
+
+    return (
+      <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <p>
+          Showing {firstVisibleTask}-{lastVisibleTask} of {totalTasks}
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <span>
+            Page {currentPage} of {pageCount}
+          </span>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === pageCount}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
     )
   }
 
@@ -134,7 +220,13 @@ export default function TasksPage() {
                   Tasks that still need attention.
                 </p>
               </div>
-              {renderTaskList(activeTasks, "No current tasks found.")}
+              {renderTaskList(paginatedActiveTasks, "No current tasks found.")}
+              {renderPagination(
+                activePage,
+                activePageCount,
+                activeTasks.length,
+                setActivePage
+              )}
             </TabsContent>
 
             <TabsContent value="marked" className="space-y-3">
@@ -144,7 +236,16 @@ export default function TasksPage() {
                   Tasks you have marked as done.
                 </p>
               </div>
-              {renderTaskList(completedTasks, "No marked tasks found.")}
+              {renderTaskList(
+                paginatedCompletedTasks,
+                "No marked tasks found."
+              )}
+              {renderPagination(
+                completedPage,
+                completedPageCount,
+                completedTasks.length,
+                setCompletedPage
+              )}
             </TabsContent>
           </Tabs>
         </main>
