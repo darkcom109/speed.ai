@@ -1,11 +1,13 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTasks } from "@/app/tasks/hooks/use-tasks"
 
 import TasksHeader from "@/app/tasks/components/TasksHeader"
 import TasksToolbar from "@/app/tasks/components/TasksToolbar"
 import RenderTask from "./components/RenderTask"
+import type { Task } from "@/app/tasks/types/task"
 
 export default function TasksPage() {
   const {
@@ -43,6 +45,45 @@ export default function TasksPage() {
       task.description?.toLowerCase().includes(search)
     )
   })
+  const activeTasks = filteredTasks.filter((task) => !task.completed)
+  const completedTasks = filteredTasks.filter((task) => task.completed)
+
+  function renderTaskList(tasks: Task[], emptyMessage: string) {
+    if (tasks.length === 0) {
+      return (
+        <div className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">
+          {emptyMessage}
+        </div>
+      )
+    }
+
+    return (
+      <ul className="divide-y rounded-lg border bg-card">
+        {tasks.map((task) => (
+          <li
+            key={task.id}
+            className="flex items-start justify-between gap-3 p-3"
+          >
+            <RenderTask
+              task={task}
+              isEditing={editingTaskId === task.id}
+              startEditingTask={startEditingTask}
+              handleToggleTask={handleToggleTask}
+              handleDeleteTask={handleDeleteTask}
+              handleUpdateTask={handleUpdateTask}
+              editTitle={editTitle}
+              editDescription={editDescription}
+              editDueDate={editDueDate}
+              setEditTitle={setEditTitle}
+              setEditDescription={setEditDescription}
+              setEditDueDate={setEditDueDate}
+              setEditingTaskId={setEditingTaskId}
+            />
+          </li>
+        ))}
+      </ul>
+    )
+  }
 
   return (
     <SidebarProvider
@@ -76,30 +117,36 @@ export default function TasksPage() {
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <ul className="divide-y rounded-lg border bg-card">
-            {filteredTasks.map((task) => (
-              <li
-                key={task.id}
-                className="flex items-start justify-between gap-3 p-3"
-              >
-                <RenderTask
-                  task={task}
-                  isEditing={editingTaskId === task.id}
-                  startEditingTask={startEditingTask}
-                  handleToggleTask={handleToggleTask}
-                  handleDeleteTask={handleDeleteTask}
-                  handleUpdateTask={handleUpdateTask}
-                  editTitle={editTitle}
-                  editDescription={editDescription}
-                  editDueDate={editDueDate}
-                  setEditTitle={setEditTitle}
-                  setEditDescription={setEditDescription}
-                  setEditDueDate={setEditDueDate}
-                  setEditingTaskId={setEditingTaskId}
-                />
-              </li>
-            ))}
-          </ul>
+          <Tabs defaultValue="current" className="gap-4">
+            <TabsList className="h-10 w-full justify-start rounded-lg bg-card p-1 sm:w-fit">
+              <TabsTrigger value="current">
+                Current ({activeTasks.length})
+              </TabsTrigger>
+              <TabsTrigger value="marked">
+                Marked ({completedTasks.length})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="current" className="space-y-3">
+              <div>
+                <h3 className="text-sm font-medium">Current tasks</h3>
+                <p className="text-xs text-muted-foreground">
+                  Tasks that still need attention.
+                </p>
+              </div>
+              {renderTaskList(activeTasks, "No current tasks found.")}
+            </TabsContent>
+
+            <TabsContent value="marked" className="space-y-3">
+              <div>
+                <h3 className="text-sm font-medium">Marked tasks</h3>
+                <p className="text-xs text-muted-foreground">
+                  Tasks you have marked as done.
+                </p>
+              </div>
+              {renderTaskList(completedTasks, "No marked tasks found.")}
+            </TabsContent>
+          </Tabs>
         </main>
       </SidebarInset>
     </SidebarProvider>
