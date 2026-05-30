@@ -17,6 +17,7 @@ import {
   getNote,
   updateNote,
 } from "@/app/notes/api/notes-api"
+import handleExportNote from "@/app/notes/utils/export-note"
 
 type NoteDraft = {
   title: string
@@ -217,6 +218,9 @@ export default function NoteEditorPage() {
             <div className="flex gap-2">
               <Button asChild type="button" variant="outline">
                 <Link to="/notes">Back to files</Link>
+              </Button>
+              <Button type="button" variant="outline" onClick={() => handleExportNote(title, content)}>
+                Export
               </Button>
               <DeleteNoteDialog noteTitle={title} onDelete={handleDeleteNote} />
             </div>
