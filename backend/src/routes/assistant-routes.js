@@ -5,8 +5,7 @@ import { chatSchema } from "../schemas/chat-schemas.js"
 import prisma from "../../prisma/client.js"
 
 // Assistant related imports
-import { getTasks } from "../assistant/assistant-tools/get-tasks.js"
-import { getTasksToday } from "../assistant/assistant-tools/get-tasks-today.js"
+import { getTasks, getTasksToday } from "../assistant/assistant-tools/index.js"
 import { generateResponse } from "../assistant/generate-response.js"
 
 const assistantRouter = Router()
