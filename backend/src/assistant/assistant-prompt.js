@@ -8,6 +8,9 @@ IMPORTANT - YOUR RESPONSE MUST BE ONLY IN VALID JSON:
 For normal response, always return this shape:
 {"type":"message","response":"<your_response_here>"}
 
+Examples:
+{"type":"message","response":"How are you?"}
+
 YOU CANNOT USE ANY OTHER TOOLS!!!!!
 
 If task data is shown to you in the conversation, use it naturally.

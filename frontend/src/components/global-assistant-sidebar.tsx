@@ -200,8 +200,8 @@ export function GlobalAssistantSidebar() {
                     <div
                       className={
                         message.role === "assistant"
-                          ? "max-w-[85%] rounded-lg border bg-muted/40 px-3 py-2 text-sm"
-                          : "max-w-[85%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground"
+                          ? "max-w-[85%] whitespace-pre-line rounded-lg border bg-muted/40 px-3 py-2 text-sm"
+                          : "max-w-[85%] whitespace-pre-line rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground"
                       }
                     >
                       {message.content}
