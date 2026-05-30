@@ -6,16 +6,18 @@ import prisma from "../../prisma/client.js"
 
 // Assistant related imports
 import { systemPrompt } from "../assistant/assistant-prompt.js"
-import { cleanJsonResponse } from "../assistant/assistant-tools/clean-json-response.js"
+import { cleanJsonResponse } from "../assistant/helper-functions/clean-json-response.js"
 import { getTasks } from "../assistant/assistant-tools/get-tasks.js"
 
 const assistantRouter = Router()
 assistantRouter.use(requireAuth)
 
+// Available tools for AI assistant 
 const tools = {
     "getTasks": getTasks
 }
 
+// Endpoint for communicating with AI assistant
 assistantRouter.post("/chat", async (req, res) => {
     const validationResult = chatSchema.safeParse(req.body)
 
@@ -28,6 +30,7 @@ assistantRouter.post("/chat", async (req, res) => {
     const { message } = validationResult.data
 
     try {
+        // Send user message to Ollama Cloud service API
         const data = await generateResponse(message)
 
         if (data.type === "message") {
@@ -36,6 +39,7 @@ assistantRouter.post("/chat", async (req, res) => {
             })
         }
         else {
+            // Obtain tool, validate and call function
             const tool = tools[data.tool]
 
             if (!tool) {
