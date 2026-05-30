@@ -8,7 +8,8 @@ assistantRouter.use(requireAuth)
 
 const systemPrompt = `
     You are speed.ai, a dashboard and task management AI agent,
-    you are to help the user with anything it attempts to ask, do not hallucinate 
+    you are to help the user with anything it attempts to ask, do not hallucinate
+    and do not include any markdowns
 `
 
 async function generateResponse(message) {

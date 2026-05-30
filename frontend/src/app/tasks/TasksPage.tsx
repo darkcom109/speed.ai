@@ -1,16 +1,12 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { useTasks } from "@/app/tasks/hooks/use-tasks"
 
 // Component related imports
 import CreateTask from "@/app/tasks/components/CreateTask"
 import TasksHeader from "@/app/tasks/components/TasksHeader"
 import RenderTask from "./components/RenderTask"
-import UpdateTask from "./components/UpdateTask"
 
 export default function TasksPage() {
   const {
@@ -50,7 +46,7 @@ export default function TasksPage() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader title="Tasks" />
-        
+
         <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
           <TasksHeader />
 
@@ -70,32 +66,28 @@ export default function TasksPage() {
 
           <ul className="divide-y rounded-lg border bg-card">
             {tasks.map((task) => (
-              <li key={task.id} className="flex items-start justify-between gap-3 p-3">
-                {editingTaskId === task.id ? (
-                  <UpdateTask 
-                    handleUpdateTask={handleUpdateTask}
-                    editTitle={editTitle}
-                    editDescription={editDescription}
-                    editDueDate={editDueDate}
-                    setEditTitle={setEditTitle}
-                    setEditDescription={setEditDescription}
-                    setEditDueDate={setEditDueDate}
-                    setEditingTaskId={setEditingTaskId}
-                  />
-                ) : (
-                  <>
-                    <RenderTask 
-                      task={task}
-                      startEditingTask={startEditingTask}
-                      handleToggleTask={handleToggleTask}
-                      handleDeleteTask={handleDeleteTask}
-                    />
-                  </>
-                )}
+              <li
+                key={task.id}
+                className="flex items-start justify-between gap-3 p-3"
+              >
+                <RenderTask
+                  task={task}
+                  isEditing={editingTaskId === task.id}
+                  startEditingTask={startEditingTask}
+                  handleToggleTask={handleToggleTask}
+                  handleDeleteTask={handleDeleteTask}
+                  handleUpdateTask={handleUpdateTask}
+                  editTitle={editTitle}
+                  editDescription={editDescription}
+                  editDueDate={editDueDate}
+                  setEditTitle={setEditTitle}
+                  setEditDescription={setEditDescription}
+                  setEditDueDate={setEditDueDate}
+                  setEditingTaskId={setEditingTaskId}
+                />
               </li>
             ))}
           </ul>
-
         </main>
       </SidebarInset>
     </SidebarProvider>
