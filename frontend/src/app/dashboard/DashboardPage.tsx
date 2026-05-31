@@ -7,9 +7,11 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { getDashboardSummary } from "@/app/dashboard/api/dashboard-summary-api"
 import { getNextHoliday } from "@/app/dashboard/api/holiday-api"
 import { getWeather } from "@/app/dashboard/api/weather-api"
 import DashboardQuickInfo from "@/app/dashboard/components/DashboardQuickInfo"
+import DashboardSummaryCard from "@/app/dashboard/components/DashboardSummaryCard"
 import DailyBriefCard from "@/app/dashboard/components/DailyBriefCard"
 import FinanceSnapshotCard from "@/app/dashboard/components/FinanceSnapshotCard"
 import TaskActivityChart from "@/app/dashboard/components/TaskActivityChart"
@@ -33,6 +35,9 @@ export default function DashboardPage() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [expensesError, setExpensesError] = useState("")
   const [isExpensesLoading, setIsExpensesLoading] = useState(true)
+  const [dashboardSummary, setDashboardSummary] = useState("")
+  const [dashboardSummaryError, setDashboardSummaryError] = useState("")
+  const [isDashboardSummaryLoading, setIsDashboardSummaryLoading] = useState(true)
 
   const navigate = useNavigate()
 
@@ -94,6 +99,25 @@ export default function DashboardPage() {
     }
   }
 
+  async function loadDashboardSummary() {
+    try {
+      setDashboardSummaryError("")
+      setIsDashboardSummaryLoading(true)
+
+      const summary = await getDashboardSummary()
+
+      setDashboardSummary(summary)
+    } catch (error) {
+      setDashboardSummaryError(
+        error instanceof Error
+          ? error.message
+          : "Unable to load dashboard summary"
+      )
+    } finally {
+      setIsDashboardSummaryLoading(false)
+    }
+  }
+
   useEffect(() => {
     async function checkAuth() {
       const response = await fetch("http://localhost:3001/api/auth/me", {
@@ -109,6 +133,7 @@ export default function DashboardPage() {
       loadHoliday()
       loadTasks()
       loadExpenses()
+      loadDashboardSummary()
     }
 
     checkAuth()
@@ -117,10 +142,12 @@ export default function DashboardPage() {
   useEffect(() => {
     function handleTasksUpdated() {
       void loadTasks()
+      void loadDashboardSummary()
     }
 
     function handleFinancesUpdated() {
       void loadExpenses()
+      void loadDashboardSummary()
     }
 
     window.addEventListener("tasks-updated", handleTasksUpdated)
@@ -173,6 +200,12 @@ export default function DashboardPage() {
               isLoading={isExpensesLoading}
             />
           </div>
+
+          <DashboardSummaryCard
+            summary={dashboardSummary}
+            error={dashboardSummaryError}
+            isLoading={isDashboardSummaryLoading}
+          />
 
           <TaskActivityChart
             tasks={tasks}

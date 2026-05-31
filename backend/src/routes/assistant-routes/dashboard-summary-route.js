@@ -1,7 +1,6 @@
 import { Router } from "express"
 import { dashboardSummaryPrompt } from "../../assistant/prompts/dashboard-summary-prompt.js"
 import { requireAuth } from "../../middleware/require-auth.js"
-import { chatSchema } from "../../schemas/chat-schemas.js"
 import prisma from "../../../prisma/client.js"
 
 const dashboardSummaryRouter = Router()
@@ -64,7 +63,7 @@ dashboardSummaryRouter.get("/dashboard-summary", async (req, res) => {
             body: JSON.stringify({
                 model: process.env.OLLAMA_MODEL,
                 stream: false,
-                think: true,
+                think: false,
                 messages: [
                     {
                         role: "system",
