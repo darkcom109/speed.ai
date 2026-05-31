@@ -16,4 +16,8 @@ const updateExpenseSchema = z.object({
   spentAt: z.string().datetime().optional(),
 })
 
-export { createExpenseSchema, updateExpenseSchema }
+const importExpensesSchema = z.object({
+  expenses: z.array(createExpenseSchema).min(1, "At least one finance entry is required"),
+})
+
+export { createExpenseSchema, importExpensesSchema, updateExpenseSchema }

@@ -37,6 +37,29 @@ export async function createExpense(
   return data.expense
 }
 
+export async function importExpenses(
+  expenses: CreateExpensePayload[]
+): Promise<number> {
+  const response = await fetch("http://localhost:3001/api/expenses/import", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      expenses,
+    }),
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.error || "Unable to import finances")
+  }
+
+  return data.count
+}
+
 export async function updateExpense(
   expenseId: string,
   payload: UpdateExpensePayload

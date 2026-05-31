@@ -6,9 +6,11 @@ import {
   deleteAllExpenses,
   deleteExpense,
   getExpenses,
+  importExpenses,
   updateExpense,
 } from "@/app/expenses/api/expenses-api"
 import type { Expense, ExpenseKind } from "@/app/expenses/types/expense"
+import { parseFinancesCsv } from "@/app/expenses/utils/import-finances-csv"
 
 const financeEntriesPerPage = 10
 
@@ -48,6 +50,7 @@ export function useExpenses() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
+  const [isImporting, setIsImporting] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null)
@@ -190,6 +193,22 @@ export function useExpenses() {
     }
   }
 
+  async function handleImportExpenses(file: File) {
+    try {
+      setError("")
+      setIsImporting(true)
+
+      const financeEntries = await parseFinancesCsv(file)
+
+      await importExpenses(financeEntries)
+      await loadExpenses()
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to import finances")
+    } finally {
+      setIsImporting(false)
+    }
+  }
+
   function startEditingExpense(expense: Expense) {
     setEditingExpenseId(expense.id)
     setEditTitle(expense.title)
@@ -248,6 +267,7 @@ export function useExpenses() {
     error,
     isLoading,
     isCreating,
+    isImporting,
     searchTerm,
     currentPage,
     editingExpenseId,
@@ -281,6 +301,7 @@ export function useExpenses() {
     handleCreateExpense,
     handleDeleteExpense,
     handleDeleteAllExpenses,
+    handleImportExpenses,
     startEditingExpense,
     handleUpdateExpense,
   }

@@ -54,6 +54,7 @@ export default function ExpensesPage() {
     error,
     isLoading,
     isCreating,
+    isImporting,
     searchTerm,
     currentPage,
     editingExpenseId,
@@ -87,6 +88,7 @@ export default function ExpensesPage() {
     handleCreateExpense,
     handleDeleteExpense,
     handleDeleteAllExpenses,
+    handleImportExpenses,
     startEditingExpense,
     handleUpdateExpense,
   } = useExpenses()
@@ -206,6 +208,7 @@ export default function ExpensesPage() {
             category={category}
             spentAt={spentAt}
             isCreating={isCreating}
+            isImporting={isImporting}
             setTitle={setTitle}
             setAmount={setAmount}
             setKind={setKind}
@@ -213,6 +216,7 @@ export default function ExpensesPage() {
             setSpentAt={setSpentAt}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            onImportCsv={handleImportExpenses}
           />
 
           <Card>
