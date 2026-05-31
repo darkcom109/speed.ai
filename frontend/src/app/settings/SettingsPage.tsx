@@ -195,11 +195,11 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 grid gap-2">
+                <div className="mt-4 flex flex-wrap items-center gap-2">
                   <Button
                     type="button"
                     variant="outline"
-                    className="justify-start"
+                    size="sm"
                     onClick={handleLogout}
                   >
                     <LogOutIcon />
@@ -211,7 +211,7 @@ export default function SettingsPage() {
                       <Button
                         type="button"
                         variant="destructive"
-                        className="justify-start"
+                        size="sm"
                       >
                         <Trash2Icon />
                         Delete account
