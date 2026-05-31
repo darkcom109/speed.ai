@@ -94,7 +94,7 @@ export function useTasks() {
       setError("")
 
       await deleteAllTasks()
-      setTasks([])
+      setTasks(tasks.filter((task) => task.completed !== false))
     }
     catch(error) {
       setError(error instanceof Error ? error.message : "Unable to delete all tasks")

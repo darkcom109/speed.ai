@@ -86,7 +86,8 @@ taskRouter.delete("/delete_all", async (req, res) => {
     try {
         const result = await prisma.task.deleteMany({
             where: {
-                userId: req.userId
+                userId: req.userId,
+                completed: false,
             }
         })
 
