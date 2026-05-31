@@ -9,26 +9,30 @@ import {
 } from "@/components/ui/sidebar"
 import { getNextHoliday } from "@/app/dashboard/api/holiday-api"
 import { getWeather } from "@/app/dashboard/api/weather-api"
-import HolidayCard from "@/app/dashboard/components/HolidayCard"
+import DashboardQuickInfo from "@/app/dashboard/components/DashboardQuickInfo"
+import DailyBriefCard from "@/app/dashboard/components/DailyBriefCard"
+import FinanceSnapshotCard from "@/app/dashboard/components/FinanceSnapshotCard"
 import TaskActivityChart from "@/app/dashboard/components/TaskActivityChart"
 import TaskSummaryCard from "@/app/dashboard/components/TaskSummaryCard"
 import TodayTasksCard from "@/app/dashboard/components/TodayTasksCard"
-import WeatherCard from "@/app/dashboard/components/WeatherCard"
 import type { Holiday } from "@/app/dashboard/types/holiday"
 import type { Weather } from "@/app/dashboard/types/weather"
+import { getExpenses } from "@/app/expenses/api/expenses-api"
+import type { Expense } from "@/app/expenses/types/expense"
 import { getTasks } from "@/app/tasks/api/tasks-api"
 import type { Task } from "@/app/tasks/types/task"
 
 export default function DashboardPage() {
   const [weather, setWeather] = useState<Weather | null>(null)
-  const [weatherError, setWeatherError] = useState("")
   const [isWeatherLoading, setIsWeatherLoading] = useState(true)
   const [holiday, setHoliday] = useState<Holiday | null>(null)
-  const [holidayError, setHolidayError] = useState("")
   const [isHolidayLoading, setIsHolidayLoading] = useState(true)
   const [tasks, setTasks] = useState<Task[]>([])
   const [tasksError, setTasksError] = useState("")
   const [isTasksLoading, setIsTasksLoading] = useState(true)
+  const [expenses, setExpenses] = useState<Expense[]>([])
+  const [expensesError, setExpensesError] = useState("")
+  const [isExpensesLoading, setIsExpensesLoading] = useState(true)
 
   const navigate = useNavigate()
 
@@ -42,16 +46,13 @@ export default function DashboardPage() {
           )
 
           setWeather(weather)
-        } catch (error) {
-          setWeatherError(
-            "Unable to load weather"
-          )
+        } catch {
+          setWeather(null)
         } finally {
           setIsWeatherLoading(false)
         }
       },
       () => {
-        setWeatherError("Location permission denied")
         setIsWeatherLoading(false)
       }
     )
@@ -62,10 +63,8 @@ export default function DashboardPage() {
       const holiday = await getNextHoliday("US")
 
       setHoliday(holiday)
-    } catch (error) {
-      setHolidayError(
-        "Unable to load holiday"
-      )
+    } catch {
+      setHoliday(null)
     } finally {
       setIsHolidayLoading(false)
     }
@@ -83,6 +82,18 @@ export default function DashboardPage() {
     }
   }
 
+  async function loadExpenses() {
+    try {
+      const expenses = await getExpenses()
+
+      setExpenses(expenses)
+    } catch (error) {
+      setExpensesError("Unable to load finances")
+    } finally {
+      setIsExpensesLoading(false)
+    }
+  }
+
   useEffect(() => {
     async function checkAuth() {
       const response = await fetch("http://localhost:3001/api/auth/me", {
@@ -97,10 +108,29 @@ export default function DashboardPage() {
       loadWeather()
       loadHoliday()
       loadTasks()
+      loadExpenses()
     }
 
     checkAuth()
   }, [navigate])
+
+  useEffect(() => {
+    function handleTasksUpdated() {
+      void loadTasks()
+    }
+
+    function handleFinancesUpdated() {
+      void loadExpenses()
+    }
+
+    window.addEventListener("tasks-updated", handleTasksUpdated)
+    window.addEventListener("finances-updated", handleFinancesUpdated)
+
+    return () => {
+      window.removeEventListener("tasks-updated", handleTasksUpdated)
+      window.removeEventListener("finances-updated", handleFinancesUpdated)
+    }
+  }, [])
 
   return (
     <SidebarProvider
@@ -115,11 +145,33 @@ export default function DashboardPage() {
       <SidebarInset>
         <SiteHeader title="Dashboard" />
         <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
-            <p className="text-sm text-muted-foreground">
-              Your personal overview will live here.
-            </p>
+          <div className="flex flex-col gap-3">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
+              <p className="text-sm text-muted-foreground">
+                A live overview of your workspace.
+              </p>
+            </div>
+
+            <DashboardQuickInfo
+              weather={weather}
+              holiday={holiday}
+              isWeatherLoading={isWeatherLoading}
+              isHolidayLoading={isHolidayLoading}
+            />
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
+            <DailyBriefCard
+              tasks={tasks}
+              expenses={expenses}
+              isLoading={isTasksLoading || isExpensesLoading}
+            />
+            <FinanceSnapshotCard
+              expenses={expenses}
+              error={expensesError}
+              isLoading={isExpensesLoading}
+            />
           </div>
 
           <TaskActivityChart
@@ -128,17 +180,7 @@ export default function DashboardPage() {
             isLoading={isTasksLoading}
           />
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <WeatherCard
-              weather={weather}
-              error={weatherError}
-              isLoading={isWeatherLoading}
-            />
-            <HolidayCard
-              holiday={holiday}
-              error={holidayError}
-              isLoading={isHolidayLoading}
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
             <TaskSummaryCard
               tasks={tasks}
               error={tasksError}
