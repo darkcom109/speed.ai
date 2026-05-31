@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import type { FormEvent } from "react"
 import { useNavigate } from "react-router"
 
@@ -29,31 +29,43 @@ export function useTasks() {
 
   const navigate = useNavigate()
 
-  useEffect(() => {
-    async function loadTasks() {
-      try {
-        setError("")
+  const loadTasks = useCallback(async () => {
+    try {
+      setError("")
 
-        const response = await fetch("http://localhost:3001/api/auth/me", {
-          credentials: "include",
-        })
+      const response = await fetch("http://localhost:3001/api/auth/me", {
+        credentials: "include",
+      })
 
-        if (!response.ok) {
-          navigate("/login")
-          return
-        }
-
-        const tasks = await getTasks()
-        setTasks(tasks)
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Unable to retrieve tasks")
-      } finally {
-        setIsLoading(false)
+      if (!response.ok) {
+        navigate("/login")
+        return
       }
+
+      const tasks = await getTasks()
+      setTasks(tasks)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to retrieve tasks")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [navigate])
+
+  useEffect(() => {
+    void loadTasks()
+  }, [loadTasks])
+
+  useEffect(() => {
+    function handleTasksUpdated() {
+      void loadTasks()
     }
 
-    loadTasks()
-  }, [navigate])
+    window.addEventListener("tasks-updated", handleTasksUpdated)
+
+    return () => {
+      window.removeEventListener("tasks-updated", handleTasksUpdated)
+    }
+  }, [loadTasks])
 
   async function handleCreateTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()

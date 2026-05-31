@@ -4,7 +4,13 @@ import { requireAuth } from "../middleware/require-auth.js"
 import { chatSchema } from "../schemas/chat-schemas.js"
 
 // Assistant related imports
-import { getTasks, getTasksToday, getExpenses, getIncomes } from "../assistant/assistant-tools/index.js"
+import {
+    createTask,
+    getTasks,
+    getTasksToday,
+    getExpenses,
+    getIncomes,
+} from "../assistant/assistant-tools/index.js"
 import { generateResponse } from "../assistant/generate-response.js"
 import { memory } from "../assistant/memory-storage.js"
 import { compactMemory } from "../assistant/compact-memory.js"
@@ -16,6 +22,7 @@ assistantRouter.use(requireAuth)
 const tools = {
     "getTasks": getTasks,
     "getTasksToday": getTasksToday,
+    "createTask": createTask,
     "getExpenses": getExpenses,
     "getIncomes": getIncomes,
 }
@@ -77,15 +84,20 @@ assistantRouter.post("/chat", async (req, res) => {
                 })
             }
 
-            const toolResponse = await tool(req.userId)
+            const toolResponse = await tool(req.userId, data.args || {})
 
             memory.messages.push({
                 role: "assistant",
                 content: toolResponse,
             })
 
+            const event = data.tool === "createTask" && toolResponse.startsWith("Task created:")
+                ? "tasks-updated"
+                : undefined
+
             return res.status(200).json({
-                message: toolResponse
+                message: toolResponse,
+                event,
             })
         }
     }

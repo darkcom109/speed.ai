@@ -16,5 +16,9 @@ export async function sendAssistantMessage(message: string): Promise<string> {
     throw new Error(data.error || "Assistant failed")
   }
 
+  if (data.event) {
+    window.dispatchEvent(new Event(data.event))
+  }
+
   return data.message
 }
