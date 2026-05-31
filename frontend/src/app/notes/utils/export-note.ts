@@ -1,26 +1,48 @@
 export default function handleExportNote(title: string, content: string) {
-    const fileContent = `
-        <!doctype html>
-        <html>
-        <head>
-            <meta charset="utf-8" />
-            <title>${title}</title>
-        </head>
-        <body>
-            ${content}
-        </body>
-        </html>`
-    
-    const blob = new Blob([fileContent], {
-        type: "text/html",
-    })
+  const printWindow = window.open("", "_blank")
 
-    const url = URL.createObjectURL(blob)
+  if (!printWindow) {
+    return
+  }
 
-    const link = document.createElement("a")
-    link.href = url
-    link.download = `${title || "note"}.html`
-    link.click()
+  printWindow.document.write(`
+    <!doctype html>
+    <html>
+      <head>
+        <title>${title}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            max-width: 760px;
+            margin: 40px auto;
+            line-height: 1.6;
+          }
 
-    URL.revokeObjectURL(url)
+          h1 {
+            font-size: 32px;
+          }
+
+          h2 {
+            font-size: 26px;
+          }
+
+          h3 {
+            font-size: 22px;
+          }
+
+          h4 {
+            font-size: 18px;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>${title}</h1>
+        ${content}
+      </body>
+    </html>
+  `)
+
+  printWindow.document.close()
+  printWindow.focus()
+  printWindow.print()
 }
