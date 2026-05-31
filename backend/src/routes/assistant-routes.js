@@ -91,7 +91,7 @@ assistantRouter.post("/chat", async (req, res) => {
                 content: toolResponse,
             })
 
-            const event = data.tool === "createTask" && toolResponse.startsWith("Task created:")
+            const event = data.tool === "createTask" && toolResponse.startsWith("Task")
                 ? "tasks-updated"
                 : undefined
 

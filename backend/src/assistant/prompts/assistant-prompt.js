@@ -13,11 +13,18 @@ IMPORTANT - YOUR RESPONSE MUST BE ONLY IN VALID JSON:
 {
   "type": "tool",
   "tool": "createTask",
-  "args": {
-    "title": "Finish portfolio",
-    "description": "Work on the homepage and project cards",
-    "dueDate": "2026-06-03"
-  }
+  "args": [
+    {
+        "title": "task 1",
+        "description": "task 1",
+        "dueDate": "2026-06-03"
+    },
+    {
+        "title": "task 2",
+        "description": "task 1",
+        "dueDate": "2026-06-05"
+    },
+    ]
 } = for creating tasks
 
 For normal response, always return this shape:
