@@ -7,6 +7,7 @@ IMPORTANT - YOUR RESPONSE MUST BE ONLY IN VALID JSON:
 {"type":"tool","tool":"getTasks"} - to get all tasks
 {"type":"tool","tool":"getTasksToday"} - to get today's tasks
 {"type":"tool","tool":"getExpenses"} - to get last 30 days of expenses
+{"type":"tool","tool":"getIncomes"} - to get last 30 days of income
 For normal response, always return this shape:
 {"type":"message","response":"<your_response_here>"}
 

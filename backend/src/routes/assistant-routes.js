@@ -4,7 +4,7 @@ import { requireAuth } from "../middleware/require-auth.js"
 import { chatSchema } from "../schemas/chat-schemas.js"
 
 // Assistant related imports
-import { getTasks, getTasksToday, getExpenses } from "../assistant/assistant-tools/index.js"
+import { getTasks, getTasksToday, getExpenses, getIncomes } from "../assistant/assistant-tools/index.js"
 import { generateResponse } from "../assistant/generate-response.js"
 import { memory } from "../assistant/memory-storage.js"
 import { compactMemory } from "../assistant/compact-memory.js"
@@ -17,6 +17,7 @@ const tools = {
     "getTasks": getTasks,
     "getTasksToday": getTasksToday,
     "getExpenses": getExpenses,
+    "getIncomes": getIncomes,
 }
 
 // Endpoint for communicating with AI assistant
