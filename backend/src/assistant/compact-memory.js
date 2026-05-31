@@ -1,7 +1,9 @@
+import { systemPrompt } from "./assistant-prompt.js"
+
 const compactMemorySystemPrompt = `
 You are a memory system context compacter.
-You will compact messages/context in half, for example:
-
+You will summarise a total set of 6 messages between a user and AI,
+then return the summary as a string
 `
 
 export async function compactMemory(memory) {
@@ -18,9 +20,23 @@ export async function compactMemory(memory) {
             messages: [
                 {
                     role: "system",
-                    content: `${}`
+                    content: systemPrompt
+                },
+                {
+                    role: "system",
+                    content: `${compactMemorySystemPrompt}`,
+                },
+                {
+                    role: "user",
+                    content: `Compact these messages into a sentence: ${JSON.stringify(memory)}`,
                 }
             ]
         })
     })
+
+    const data = await response.json()
+
+    console.log(data.message.content)
+
+    return data.message.content
 }

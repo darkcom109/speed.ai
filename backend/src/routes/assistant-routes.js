@@ -7,6 +7,7 @@ import { chatSchema } from "../schemas/chat-schemas.js"
 import { getTasks, getTasksToday } from "../assistant/assistant-tools/index.js"
 import { generateResponse } from "../assistant/generate-response.js"
 import { memory } from "../assistant/memory-storage.js"
+import { compactMemory } from "../assistant/compact-memory.js"
 
 const assistantRouter = Router()
 assistantRouter.use(requireAuth)
@@ -25,6 +26,15 @@ assistantRouter.post("/chat", async (req, res) => {
         return res.status(400).json({
             error: validationResult.error.issues[0].message,
         })
+    }
+
+    const memoryLength = memory.messages.length
+
+    if (memoryLength > 12) {
+        const compactedContext = await compactMemory(memory.messages.slice(0, 6))
+        console.log(compactedContext)
+        memory.summary = compactedContext
+        memory.messages.splice(0, 6)
     }
 
     const { message } = validationResult.data

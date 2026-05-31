@@ -1,4 +1,5 @@
 import { cleanJsonResponse } from "../assistant/helper-functions/clean-json-response.js"
+import { systemPrompt } from "./assistant-prompt.js"
 
 // Generate response through Ollama Cloud service and parse as JSON
 export async function generateResponse(memory) {
@@ -12,7 +13,17 @@ export async function generateResponse(memory) {
             model: process.env.OLLAMA_MODEL,
             stream: false,
             think: true,
-            messages: memory.messages
+            messages: [
+                {
+                    role: "system",
+                    content: systemPrompt
+                },
+                {
+                    role: "system",
+                    content: `Here is the summary of the conversation so far: ${memory.summary}`
+                },
+                ...memory.messages
+            ]
         })
     })
 
