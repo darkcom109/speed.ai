@@ -21,39 +21,12 @@ const initialMessages: AssistantMessage[] = [
 ]
 
 const assistantOpenStorageKey = "speed-ai-assistant-open"
-const assistantMessagesStorageKey = "speed-ai-assistant-messages"
-
-function getInitialAssistantOpen() {
-  return window.localStorage.getItem(assistantOpenStorageKey) === "true"
-}
-
-function getInitialAssistantMessages() {
-  const storedMessages = window.localStorage.getItem(
-    assistantMessagesStorageKey
-  )
-
-  if (!storedMessages) {
-    return initialMessages
-  }
-
-  try {
-    const parsedMessages = JSON.parse(storedMessages) as AssistantMessage[]
-
-    if (!Array.isArray(parsedMessages) || parsedMessages.length === 0) {
-      return initialMessages
-    }
-
-    return parsedMessages
-  } catch {
-    return initialMessages
-  }
-}
 
 export function GlobalAssistantSidebar() {
-  const [isOpen, setIsOpen] = useState(getInitialAssistantOpen)
-  const [messages, setMessages] = useState<AssistantMessage[]>(
-    getInitialAssistantMessages
-  )
+  const [isOpen, setIsOpen] = useState(() => {
+    return window.localStorage.getItem(assistantOpenStorageKey) === "true"
+  })
+  const [messages, setMessages] = useState<AssistantMessage[]>(initialMessages)
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
   const [isSending, setIsSending] = useState(false)
@@ -81,13 +54,6 @@ export function GlobalAssistantSidebar() {
   useEffect(() => {
     window.localStorage.setItem(assistantOpenStorageKey, String(isOpen))
   }, [isOpen])
-
-  useEffect(() => {
-    window.localStorage.setItem(
-      assistantMessagesStorageKey,
-      JSON.stringify(messages)
-    )
-  }, [messages])
 
   function handleClearChat() {
     setMessages(initialMessages)
@@ -234,8 +200,8 @@ export function GlobalAssistantSidebar() {
                     <div
                       className={
                         message.role === "assistant"
-                          ? "max-w-[85%] rounded-lg border bg-muted/40 px-3 py-2 text-sm"
-                          : "max-w-[85%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground"
+                          ? "max-w-[85%] whitespace-pre-line rounded-lg border bg-muted/40 px-3 py-2 text-sm"
+                          : "max-w-[85%] whitespace-pre-line rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground"
                       }
                     >
                       {message.content}

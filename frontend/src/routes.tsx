@@ -8,8 +8,10 @@ import {
   LoginPage,
   SignupPage,
   DashboardPage,
+  SettingsPage,
   TasksPage,
   CalendarPage,
+  ExpensesPage,
   NotesPage,
   NoteEditorPage,
   AssistantPage,
@@ -36,12 +38,20 @@ const router = createBrowserRouter([
     element: <DashboardPage />
   },
   {
+    path: "/settings",
+    element: <SettingsPage />
+  },
+  {
     path: "/tasks",
     element: <TasksPage />
   },
   {
     path: "/calendar",
     element: <CalendarPage />
+  },
+  {
+    path: "/expenses",
+    element: <ExpensesPage />
   },
   {
     path: "/notes/:noteId",

@@ -66,3 +66,16 @@ export async function deleteTask(taskId: string): Promise<void> {
     throw new Error(data.error || "Unable to delete task")
   }
 }
+
+export async function deleteAllTasks(): Promise<void> {
+  const response = await fetch(`http://localhost:3001/api/tasks/delete_all`, {
+    method: "DELETE",
+    credentials: "include",
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.error || "Unable to delete all tasks")
+  }
+}

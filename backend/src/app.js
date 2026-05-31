@@ -10,6 +10,7 @@ import { noteRouter } from "./routes/note-routes.js"
 import { taskRouter } from "./routes/task-routes.js"
 import { weatherRouter } from "./routes/weather-routes.js"
 import { assistantRouter } from "./routes/assistant-routes.js"
+import { expenseRouter } from "./routes/expense-routes.js"
 import { githubRouter } from "./routes/github-routes.js"
 import { tflRouter } from "./routes/tfl-routes.js"
 
@@ -63,6 +64,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRouter)
 app.use("/api/tasks", taskRouter)
 app.use("/api/notes", noteRouter)
+app.use("/api/expenses", expenseRouter)
 app.use("/api/weather", weatherRouter)
 app.use("/api/holidays", holidayRouter)
 app.use("/api/assistant", assistantRouter)

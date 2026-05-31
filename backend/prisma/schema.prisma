@@ -23,6 +23,7 @@ model User {
   updatedAt    DateTime @updatedAt
   tasks        Task[]
   notes        Note[]
+  expenses     Expense[]
 }
 
 model Task {
@@ -43,6 +44,20 @@ model Note {
   title     String
   content   String
   folder    String   @default("General")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Expense {
+  id        String   @id @default(uuid())
+  title     String
+  amount    Float
+  kind      String   @default("expense")
+  category  String   @default("General")
+  spentAt   DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

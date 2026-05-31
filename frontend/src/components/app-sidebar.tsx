@@ -14,32 +14,40 @@ import {
 } from "@/components/ui/sidebar"
 import {
   CalendarDaysIcon,
-  CircleHelpIcon,
   CodeIcon,
   LayoutDashboardIcon,
   MessageCircleIcon,
   NotebookTextIcon,
-  SearchIcon,
+  ReceiptTextIcon,
   Settings2Icon,
   SquareCheckBigIcon,
   TrainFrontIcon,
 } from "lucide-react"
 
 async function getUserData() {
-  const response = await fetch("http://localhost:3001/api/auth/me", {
-    credentials: "include"
-  })
-  const data = await response.json()
+  try {
+    const response = await fetch("http://localhost:3001/api/auth/me", {
+      credentials: "include"
+    })
 
-  return data
+    if (!response.ok) {
+      return null
+    }
+
+    const data = await response.json()
+
+    return data.user
+  } catch {
+    return null
+  }
 }
 
 const userData = await getUserData()
 
 const data = {
   user: {
-    name: userData.user.name,
-    email: userData.user.email,
+    name: userData?.name || "Guest",
+    email: userData?.email || "Not signed in",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
@@ -72,6 +80,14 @@ const data = {
           url: "/calendar",
           icon: (
             <CalendarDaysIcon
+            />
+          ),
+        },
+        {
+          title: "Finances",
+          url: "/expenses",
+          icon: (
+            <ReceiptTextIcon
             />
           ),
         },
@@ -128,25 +144,9 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: (
         <Settings2Icon
-        />
-      ),
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: (
-        <CircleHelpIcon
-        />
-      ),
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: (
-        <SearchIcon
         />
       ),
     },

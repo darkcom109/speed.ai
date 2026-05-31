@@ -206,6 +206,20 @@ authRouter.get("/me", requireAuth, async (req, res) => {
   })
 })
 
+authRouter.delete("/me", requireAuth, async (req, res) => {
+  await prisma.user.delete({
+    where: {
+      id: req.userId,
+    },
+  })
+
+  clearAuthCookie(res)
+
+  return res.status(200).json({
+    message: "Account deleted",
+  })
+})
+
 authRouter.post("/logout", (req, res) => {
   clearAuthCookie(res)
 

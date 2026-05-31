@@ -2,20 +2,34 @@ import { Router } from "express"
 
 import { requireAuth } from "../middleware/require-auth.js"
 import { chatSchema } from "../schemas/chat-schemas.js"
-import prisma from "../../prisma/client.js"
 
 // Assistant related imports
-import { systemPrompt } from "../assistant/assistant-prompt.js"
-import { cleanJsonResponse } from "../assistant/assistant-tools/clean-json-response.js"
-import { getTasks } from "../assistant/assistant-tools/get-tasks.js"
+import {
+    createFinances,
+    createTask,
+    getTasks,
+    getTasksToday,
+    getExpenses,
+    getIncomes,
+} from "../assistant/assistant-tools/index.js"
+import { generateResponse } from "../assistant/generate-response.js"
+import { memory } from "../assistant/memory-storage.js"
+import { compactMemory } from "../assistant/compact-memory.js"
 
 const assistantRouter = Router()
 assistantRouter.use(requireAuth)
 
+// Available tools for AI assistant 
 const tools = {
-    "getTasks": getTasks
+    "getTasks": getTasks,
+    "getTasksToday": getTasksToday,
+    "createTask": createTask,
+    "createFinances": createFinances,
+    "getExpenses": getExpenses,
+    "getIncomes": getIncomes,
 }
 
+// Endpoint for communicating with AI assistant
 assistantRouter.post("/chat", async (req, res) => {
     const validationResult = chatSchema.safeParse(req.body)
 
@@ -25,17 +39,45 @@ assistantRouter.post("/chat", async (req, res) => {
         })
     }
 
+    const memoryLength = memory.messages.length
+
+    if (memoryLength > 12) {
+        try {
+            const compactedContext = await compactMemory(memory)
+            console.log(compactedContext)
+            memory.summary = compactedContext
+        }
+        catch {
+            return res.status(400).json({
+                error: "Could not compact context"
+            })
+        }
+        memory.messages.splice(0, 6)
+    }
+
     const { message } = validationResult.data
 
+    memory.messages.push({
+        role: "user",
+        content: message,
+    })
+
     try {
-        const data = await generateResponse(message)
+        // Send user message to Ollama Cloud service API
+        const data = await generateResponse(memory)
 
         if (data.type === "message") {
+            memory.messages.push({
+                role: "assistant",
+                content: data.response,
+            })
+
             return res.status(200).json({
                 message: data.response
             })
         }
         else {
+            // Obtain tool, validate and call function
             const tool = tools[data.tool]
 
             if (!tool) {
@@ -44,10 +86,26 @@ assistantRouter.post("/chat", async (req, res) => {
                 })
             }
 
-            const toolResponse = await tool(req.userId)
+            const toolResponse = await tool(req.userId, data.args || {})
+
+            memory.messages.push({
+                role: "assistant",
+                content: toolResponse,
+            })
+
+            let event
+
+            if (data.tool === "createTask" && toolResponse.startsWith("Task")) {
+                event = "tasks-updated"
+            }
+
+            if (data.tool === "createFinances" && toolResponse.startsWith("Finance")) {
+                event = "finances-updated"
+            }
 
             return res.status(200).json({
-                message: toolResponse
+                message: toolResponse,
+                event,
             })
         }
     }
