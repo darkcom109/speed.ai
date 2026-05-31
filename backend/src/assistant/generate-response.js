@@ -12,7 +12,7 @@ export async function generateResponse(memory) {
             model: process.env.OLLAMA_MODEL,
             stream: false,
             think: true,
-            messages: memory
+            messages: memory.messages
         })
     })
 

@@ -6,7 +6,7 @@ import { chatSchema } from "../schemas/chat-schemas.js"
 // Assistant related imports
 import { getTasks, getTasksToday } from "../assistant/assistant-tools/index.js"
 import { generateResponse } from "../assistant/generate-response.js"
-import { systemPrompt } from "../assistant/assistant-prompt.js"
+import { memory } from "../assistant/memory-storage.js"
 
 const assistantRouter = Router()
 assistantRouter.use(requireAuth)
@@ -16,15 +16,6 @@ const tools = {
     "getTasks": getTasks,
     "getTasksToday": getTasksToday
 }
-
-// Temporary memory
-const memory = [
-    {
-        role: "system",
-        content: systemPrompt,
-    }
-]
-
 
 // Endpoint for communicating with AI assistant
 assistantRouter.post("/chat", async (req, res) => {
@@ -38,7 +29,7 @@ assistantRouter.post("/chat", async (req, res) => {
 
     const { message } = validationResult.data
 
-    memory.push({
+    memory.messages.push({
         role: "user",
         content: message,
     })
@@ -48,7 +39,7 @@ assistantRouter.post("/chat", async (req, res) => {
         const data = await generateResponse(memory)
 
         if (data.type === "message") {
-            memory.push({
+            memory.messages.push({
                 role: "assistant",
                 content: data.response,
             })
@@ -69,7 +60,7 @@ assistantRouter.post("/chat", async (req, res) => {
 
             const toolResponse = await tool(req.userId)
 
-            memory.push({
+            memory.messages.push({
                 role: "assistant",
                 content: toolResponse,
             })
