@@ -69,7 +69,7 @@ export default function ExpensesToolbar({
           </Button>
         }
         title="Add Finance Entry"
-        description="Create a new expense or paid-in entry."
+        description="Create a new expense or income entry."
         submitLabel="Add entry"
         expenseTitle={title}
         expenseAmount={amount}

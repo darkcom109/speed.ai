@@ -5,6 +5,7 @@ import { chatSchema } from "../schemas/chat-schemas.js"
 
 // Assistant related imports
 import {
+    createFinances,
     createTask,
     getTasks,
     getTasksToday,
@@ -23,6 +24,7 @@ const tools = {
     "getTasks": getTasks,
     "getTasksToday": getTasksToday,
     "createTask": createTask,
+    "createFinances": createFinances,
     "getExpenses": getExpenses,
     "getIncomes": getIncomes,
 }
@@ -91,9 +93,15 @@ assistantRouter.post("/chat", async (req, res) => {
                 content: toolResponse,
             })
 
-            const event = data.tool === "createTask" && toolResponse.startsWith("Task")
-                ? "tasks-updated"
-                : undefined
+            let event
+
+            if (data.tool === "createTask" && toolResponse.startsWith("Task")) {
+                event = "tasks-updated"
+            }
+
+            if (data.tool === "createFinances" && toolResponse.startsWith("Finance")) {
+                event = "finances-updated"
+            }
 
             return res.status(200).json({
                 message: toolResponse,

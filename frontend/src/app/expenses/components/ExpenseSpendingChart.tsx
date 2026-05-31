@@ -31,7 +31,7 @@ const chartConfig = {
     color: "var(--primary)",
   },
   paidIn: {
-    label: "Paid in",
+    label: "Income",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig
@@ -114,14 +114,14 @@ function getChartLabel(date: Date, range: ChartRange) {
 
 function getChartDescription(range: ChartRange) {
   if (range === "week") {
-    return "Daily spending and paid in totals"
+    return "Daily spending and income totals"
   }
 
   if (range === "month") {
-    return "Monthly spending and paid in totals"
+    return "Monthly spending and income totals"
   }
 
-  return "Yearly spending and paid in totals"
+  return "Yearly spending and income totals"
 }
 
 export default function ExpenseSpendingChart({
@@ -238,7 +238,7 @@ export default function ExpenseSpendingChart({
 
             {!hasActivity && (
               <p className="mt-3 text-sm text-muted-foreground">
-                No expenses or paid in entries recorded for this range yet.
+                No expenses or income entries recorded for this range yet.
               </p>
             )}
           </>

@@ -60,7 +60,7 @@ export default function ExpensesPage() {
     editCategory,
     editSpentAt,
     totalSpent,
-    totalPaidIn,
+    totalIncome,
     balance,
     filteredExpenses,
     paginatedExpenses,
@@ -142,7 +142,7 @@ export default function ExpensesPage() {
           <div>
             <h2 className="text-xl font-semibold tracking-tight">Finances</h2>
             <p className="text-sm text-muted-foreground">
-              Track spending and money paid in across your workspace.
+              Track spending and income across your workspace.
             </p>
           </div>
 
@@ -167,8 +167,8 @@ export default function ExpensesPage() {
                   <TrendingUpIcon className="size-5" />
                 </div>
                 <div>
-                  <CardTitle>{currencyFormatter.format(totalPaidIn)}</CardTitle>
-                  <CardDescription>Paid in</CardDescription>
+                  <CardTitle>{currencyFormatter.format(totalIncome)}</CardTitle>
+                  <CardDescription>Income</CardDescription>
                 </div>
               </CardHeader>
             </Card>
@@ -243,7 +243,7 @@ export default function ExpensesPage() {
                         <div className="min-w-0">
                           <p className="truncate font-medium">{expense.title}</p>
                           <p className="text-sm text-muted-foreground">
-                            {expense.kind === "income" ? "Paid in" : "Expense"} -{" "}
+                            {expense.kind === "income" ? "Income" : "Expense"} -{" "}
                             {expense.category || "General"} -{" "}
                             {dateFormatter.format(getExpenseDate(expense.spentAt))}
                           </p>

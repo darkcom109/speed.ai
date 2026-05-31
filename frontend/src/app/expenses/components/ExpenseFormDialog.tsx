@@ -26,17 +26,19 @@ const categoryOptions: Record<ExpenseKind, string[]> = {
     "Other",
   ],
   income: [
-    "Paid in",
+    "Income",
     "Salary",
+    "Freelance",
     "Refund",
     "Gift",
+    "Investment",
     "Other",
   ],
 }
 
 const defaultCategory: Record<ExpenseKind, string> = {
   expense: "General",
-  income: "Paid in",
+  income: "Income",
 }
 
 type ExpenseFormDialogProps = {
@@ -134,7 +136,7 @@ export default function ExpenseFormDialog({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="expense">Expense</SelectItem>
-                <SelectItem value="income">Paid in</SelectItem>
+                <SelectItem value="income">Income</SelectItem>
               </SelectContent>
             </Select>
             <Select

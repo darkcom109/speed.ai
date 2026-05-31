@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import type { FormEvent } from "react"
 
 import {
@@ -66,7 +66,7 @@ export function useExpenses() {
     [expenses]
   )
 
-  const totalPaidIn = useMemo(
+  const totalIncome = useMemo(
     () =>
       expenses.reduce(
         (total, expense) =>
@@ -76,7 +76,7 @@ export function useExpenses() {
     [expenses]
   )
 
-  const balance = totalPaidIn - totalSpent
+  const balance = totalIncome - totalSpent
 
   const filteredExpenses = expenses.filter((expense) => {
     const search = searchTerm.toLowerCase()
@@ -95,22 +95,34 @@ export function useExpenses() {
     filteredExpenses.length
   )
 
-  useEffect(() => {
-    async function loadExpenses() {
-      try {
-        setError("")
-        const loadedExpenses = await getExpenses()
+  const loadExpenses = useCallback(async () => {
+    try {
+      setError("")
+      const loadedExpenses = await getExpenses()
 
-        setExpenses(loadedExpenses)
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Unable to load expenses")
-      } finally {
-        setIsLoading(false)
-      }
+      setExpenses(loadedExpenses)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to load expenses")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadExpenses()
+  }, [loadExpenses])
+
+  useEffect(() => {
+    function handleFinancesUpdated() {
+      void loadExpenses()
     }
 
-    loadExpenses()
-  }, [])
+    window.addEventListener("finances-updated", handleFinancesUpdated)
+
+    return () => {
+      window.removeEventListener("finances-updated", handleFinancesUpdated)
+    }
+  }, [loadExpenses])
 
   useEffect(() => {
     setCurrentPage(1)
@@ -172,7 +184,7 @@ export function useExpenses() {
     setEditAmount(String(expense.amount))
     setEditKind(expense.kind)
     setEditCategory(
-      expense.category || (expense.kind === "income" ? "Paid in" : "General")
+      expense.category || (expense.kind === "income" ? "Income" : "General")
     )
     setEditSpentAt(getDateInputValueFromDate(new Date(expense.spentAt)))
   }
@@ -233,7 +245,7 @@ export function useExpenses() {
     editCategory,
     editSpentAt,
     totalSpent,
-    totalPaidIn,
+    totalIncome,
     balance,
     filteredExpenses,
     paginatedExpenses,
