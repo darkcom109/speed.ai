@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import {
@@ -7,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import {
   ChartContainer,
   ChartTooltip,
@@ -20,6 +22,8 @@ type ExpenseSpendingChartProps = {
   error: string
   isLoading: boolean
 }
+
+type ChartRange = "week" | "month" | "year"
 
 const chartConfig = {
   spent: {
@@ -38,7 +42,33 @@ const currencyFormatter = new Intl.NumberFormat("en-GB", {
   maximumFractionDigits: 0,
 })
 
-function isSameDay(firstDate: Date, secondDate: Date) {
+const chartRanges: { label: string; value: ChartRange }[] = [
+  {
+    label: "Week",
+    value: "week",
+  },
+  {
+    label: "Month",
+    value: "month",
+  },
+  {
+    label: "Year",
+    value: "year",
+  },
+]
+
+function isSamePeriod(firstDate: Date, secondDate: Date, range: ChartRange) {
+  if (range === "year") {
+    return firstDate.getFullYear() === secondDate.getFullYear()
+  }
+
+  if (range === "month") {
+    return (
+      firstDate.getFullYear() === secondDate.getFullYear() &&
+      firstDate.getMonth() === secondDate.getMonth()
+    )
+  }
+
   return (
     firstDate.getFullYear() === secondDate.getFullYear() &&
     firstDate.getMonth() === secondDate.getMonth() &&
@@ -46,14 +76,52 @@ function isSameDay(firstDate: Date, secondDate: Date) {
   )
 }
 
-function getLastSevenDays() {
-  return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date()
-    date.setDate(date.getDate() - (6 - index))
-    date.setHours(0, 0, 0, 0)
+function getChartPeriods(range: ChartRange) {
+  const length = range === "week" ? 7 : range === "month" ? 6 : 5
+  const now = new Date()
 
-    return date
+  return Array.from({ length }, (_, index) => {
+    const offset = length - 1 - index
+
+    if (range === "week") {
+      const date = new Date(now)
+
+      date.setDate(now.getDate() - offset)
+      date.setHours(0, 0, 0, 0)
+
+      return date
+    }
+
+    if (range === "month") {
+      return new Date(now.getFullYear(), now.getMonth() - offset, 1)
+    }
+
+    return new Date(now.getFullYear() - offset, 0, 1)
   })
+}
+
+function getChartLabel(date: Date, range: ChartRange) {
+  if (range === "week") {
+    return date.toLocaleDateString(undefined, { weekday: "short" })
+  }
+
+  if (range === "month") {
+    return date.toLocaleDateString(undefined, { month: "short" })
+  }
+
+  return date.toLocaleDateString(undefined, { year: "numeric" })
+}
+
+function getChartDescription(range: ChartRange) {
+  if (range === "week") {
+    return "Daily spending and paid in totals"
+  }
+
+  if (range === "month") {
+    return "Monthly spending and paid in totals"
+  }
+
+  return "Yearly spending and paid in totals"
 }
 
 export default function ExpenseSpendingChart({
@@ -61,24 +129,26 @@ export default function ExpenseSpendingChart({
   error,
   isLoading,
 }: ExpenseSpendingChartProps) {
-  const chartData = getLastSevenDays().map((date) => {
+  const [range, setRange] = useState<ChartRange>("week")
+
+  const chartData = getChartPeriods(range).map((date) => {
     const spent = expenses.reduce((total, expense) => {
       const expenseDate = new Date(expense.spentAt)
 
-      return expense.kind === "expense" && isSameDay(expenseDate, date)
+      return expense.kind === "expense" && isSamePeriod(expenseDate, date, range)
         ? total + expense.amount
         : total
     }, 0)
     const paidIn = expenses.reduce((total, expense) => {
       const expenseDate = new Date(expense.spentAt)
 
-      return expense.kind === "income" && isSameDay(expenseDate, date)
+      return expense.kind === "income" && isSamePeriod(expenseDate, date, range)
         ? total + expense.amount
         : total
     }, 0)
 
     return {
-      day: date.toLocaleDateString(undefined, { weekday: "short" }),
+      period: getChartLabel(date, range),
       spent,
       paidIn,
     }
@@ -87,9 +157,25 @@ export default function ExpenseSpendingChart({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Spending activity</CardTitle>
-        <CardDescription>Daily spending and paid in totals</CardDescription>
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <CardTitle>Spending activity</CardTitle>
+          <CardDescription>{getChartDescription(range)}</CardDescription>
+        </div>
+        <div className="flex rounded-lg border bg-card p-1">
+          {chartRanges.map((chartRange) => (
+            <Button
+              key={chartRange.value}
+              type="button"
+              variant={range === chartRange.value ? "default" : "ghost"}
+              size="sm"
+              className="h-7 px-3"
+              onClick={() => setRange(chartRange.value)}
+            >
+              {chartRange.label}
+            </Button>
+          ))}
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading && !error && (
@@ -107,7 +193,7 @@ export default function ExpenseSpendingChart({
               <LineChart data={chartData}>
                 <CartesianGrid vertical={false} />
                 <XAxis
-                  dataKey="day"
+                  dataKey="period"
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
@@ -152,7 +238,7 @@ export default function ExpenseSpendingChart({
 
             {!hasActivity && (
               <p className="mt-3 text-sm text-muted-foreground">
-                No expenses or paid in entries recorded this week yet.
+                No expenses or paid in entries recorded for this range yet.
               </p>
             )}
           </>

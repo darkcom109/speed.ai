@@ -1,5 +1,4 @@
-import type { CSSProperties, FormEvent } from "react"
-import { useEffect, useMemo, useState } from "react"
+import type { CSSProperties } from "react"
 import {
   ReceiptTextIcon,
   TrendingUpIcon,
@@ -21,16 +20,10 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import {
-  createExpense,
-  deleteExpense,
-  getExpenses,
-  updateExpense,
-} from "@/app/expenses/api/expenses-api"
 import EditExpenseDialog from "@/app/expenses/components/EditExpenseDialog"
 import ExpenseSpendingChart from "@/app/expenses/components/ExpenseSpendingChart"
 import ExpensesToolbar from "@/app/expenses/components/ExpensesToolbar"
-import type { Expense, ExpenseKind } from "@/app/expenses/types/expense"
+import { useExpenses } from "@/app/expenses/hooks/use-expenses"
 
 const currencyFormatter = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -43,205 +36,61 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   year: "numeric",
 })
 
-function getDateInputValue() {
-  return new Date().toISOString().slice(0, 10)
-}
-
 function getExpenseDate(date: string) {
   return new Date(date)
 }
 
-const financeEntriesPerPage = 10
-
-function getPageCount(totalEntries: number) {
-  return Math.max(1, Math.ceil(totalEntries / financeEntriesPerPage))
-}
-
-function getPaginatedExpenses(expenses: Expense[], page: number) {
-  const start = (page - 1) * financeEntriesPerPage
-
-  return expenses.slice(start, start + financeEntriesPerPage)
-}
-
 export default function ExpensesPage() {
-  const [expenses, setExpenses] = useState<Expense[]>([])
-  const [title, setTitle] = useState("")
-  const [amount, setAmount] = useState("")
-  const [kind, setKind] = useState<ExpenseKind>("expense")
-  const [category, setCategory] = useState("General")
-  const [spentAt, setSpentAt] = useState(getDateInputValue())
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
-  const [isCreating, setIsCreating] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null)
-  const [editTitle, setEditTitle] = useState("")
-  const [editAmount, setEditAmount] = useState("")
-  const [editKind, setEditKind] = useState<ExpenseKind>("expense")
-  const [editCategory, setEditCategory] = useState("")
-  const [editSpentAt, setEditSpentAt] = useState("")
-
-  const totalSpent = useMemo(
-    () =>
-      expenses.reduce(
-        (total, expense) =>
-          expense.kind === "expense" ? total + expense.amount : total,
-        0
-      ),
-    [expenses]
-  )
-
-  const totalPaidIn = useMemo(
-    () =>
-      expenses.reduce(
-        (total, expense) =>
-          expense.kind === "income" ? total + expense.amount : total,
-        0
-      ),
-    [expenses]
-  )
-
-  const balance = totalPaidIn - totalSpent
-
-  const filteredExpenses = expenses.filter((expense) => {
-    const search = searchTerm.toLowerCase()
-
-    return (
-      expense.title.toLowerCase().includes(search) ||
-      expense.category.toLowerCase().includes(search)
-    )
-  })
-  const pageCount = getPageCount(filteredExpenses.length)
-  const paginatedExpenses = getPaginatedExpenses(filteredExpenses, currentPage)
-
-  useEffect(() => {
-    async function loadExpenses() {
-      try {
-        setError("")
-        const loadedExpenses = await getExpenses()
-
-        setExpenses(loadedExpenses)
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Unable to load expenses")
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadExpenses()
-  }, [])
-
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchTerm])
-
-  useEffect(() => {
-    if (currentPage > pageCount) {
-      setCurrentPage(pageCount)
-    }
-  }, [currentPage, pageCount])
-
-  async function handleCreateExpense(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    try {
-      setError("")
-      setIsCreating(true)
-
-      const expense = await createExpense({
-        title,
-        amount: Number(amount),
-        kind,
-        category: category || undefined,
-        spentAt: spentAt ? new Date(`${spentAt}T00:00:00`).toISOString() : undefined,
-      })
-
-      setExpenses((currentExpenses) => [expense, ...currentExpenses])
-      setTitle("")
-      setAmount("")
-      setKind("expense")
-      setCategory("General")
-      setSpentAt(getDateInputValue())
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to create expense")
-    } finally {
-      setIsCreating(false)
-    }
-  }
-
-  async function handleDeleteExpense(expenseId: string) {
-    try {
-      setError("")
-
-      await deleteExpense(expenseId)
-
-      setExpenses((currentExpenses) =>
-        currentExpenses.filter((expense) => expense.id !== expenseId)
-      )
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to delete expense")
-    }
-  }
-
-  function startEditingExpense(expense: Expense) {
-    setEditingExpenseId(expense.id)
-    setEditTitle(expense.title)
-    setEditAmount(String(expense.amount))
-    setEditKind(expense.kind)
-    setEditCategory(
-      expense.category || (expense.kind === "income" ? "Paid in" : "General")
-    )
-    setEditSpentAt(expense.spentAt.slice(0, 10))
-  }
-
-  async function handleUpdateExpense(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    if (!editingExpenseId) {
-      return
-    }
-
-    try {
-      setError("")
-
-      const expense = await updateExpense(editingExpenseId, {
-        title: editTitle,
-        amount: Number(editAmount),
-        kind: editKind,
-        category: editCategory || undefined,
-        spentAt: editSpentAt
-          ? new Date(`${editSpentAt}T00:00:00`).toISOString()
-          : undefined,
-      })
-
-      setExpenses((currentExpenses) =>
-        currentExpenses.map((currentExpense) =>
-          currentExpense.id === expense.id ? expense : currentExpense
-        )
-      )
-
-      setEditingExpenseId(null)
-      setEditTitle("")
-      setEditAmount("")
-      setEditKind("expense")
-      setEditCategory("General")
-      setEditSpentAt("")
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to update expense")
-    }
-  }
+  const {
+    expenses,
+    title,
+    amount,
+    kind,
+    category,
+    spentAt,
+    error,
+    isLoading,
+    isCreating,
+    searchTerm,
+    currentPage,
+    editingExpenseId,
+    editTitle,
+    editAmount,
+    editKind,
+    editCategory,
+    editSpentAt,
+    totalSpent,
+    totalPaidIn,
+    balance,
+    filteredExpenses,
+    paginatedExpenses,
+    pageCount,
+    shouldShowPagination,
+    firstVisibleEntry,
+    lastVisibleEntry,
+    setTitle,
+    setAmount,
+    setKind,
+    setCategory,
+    setSpentAt,
+    setSearchTerm,
+    setCurrentPage,
+    setEditingExpenseId,
+    setEditTitle,
+    setEditAmount,
+    setEditKind,
+    setEditCategory,
+    setEditSpentAt,
+    handleCreateExpense,
+    handleDeleteExpense,
+    startEditingExpense,
+    handleUpdateExpense,
+  } = useExpenses()
 
   function renderPagination() {
-    if (filteredExpenses.length <= financeEntriesPerPage) {
+    if (!shouldShowPagination) {
       return null
     }
-
-    const firstVisibleEntry = (currentPage - 1) * financeEntriesPerPage + 1
-    const lastVisibleEntry = Math.min(
-      currentPage * financeEntriesPerPage,
-      filteredExpenses.length
-    )
 
     return (
       <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">

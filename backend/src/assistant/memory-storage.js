@@ -1,4 +1,4 @@
-// Temporary memory
+// Temporary global memory
 export const memory = 
     {
         messages:[],

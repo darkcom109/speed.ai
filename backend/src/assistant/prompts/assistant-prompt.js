@@ -1,3 +1,4 @@
+// System prompt for generating messages
 export const systemPrompt = `
 You are speed.ai, a dashboard and productivity assistant.
 You are to respond only in JSON!
