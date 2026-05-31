@@ -28,7 +28,11 @@ export async function compactMemory(memory) {
                 },
                 {
                     role: "user",
-                    content: `Compact these messages into a sentence: ${JSON.stringify(memory)}`,
+                    content: `Compact these messages into a sentence: ${JSON.stringify(memory.messages)}`,
+                },
+                {
+                    role: "user",
+                    content: `This is the previous summary: ${JSON.stringify(memory.summary)}`,
                 }
             ]
         })
