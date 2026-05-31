@@ -1,6 +1,6 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react"
 import { useState } from "react"
-import { PlusIcon, SearchIcon, Trash2Icon } from "lucide-react"
+import { DownloadIcon, PlusIcon, SearchIcon, Trash2Icon } from "lucide-react"
 
 import DeleteAllFinancesDialog from "@/app/expenses/components/DeleteAllFinancesDialog"
 import ExpenseFormDialog from "@/app/expenses/components/ExpenseFormDialog"
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 type ExpensesToolbarProps = {
   handleCreateExpense: (event: FormEvent<HTMLFormElement>) => Promise<void>
   handleDeleteAllExpenses: () => Promise<void>
+  onExportCsv: () => void
   title: string
   amount: string
   kind: ExpenseKind
@@ -29,6 +30,7 @@ type ExpensesToolbarProps = {
 export default function ExpensesToolbar({
   handleCreateExpense,
   handleDeleteAllExpenses,
+  onExportCsv,
   title,
   amount,
   kind,
@@ -65,6 +67,14 @@ export default function ExpensesToolbar({
       />
       <Button type="submit" variant="outline" className="shrink-0">
         <SearchIcon />
+      </Button>
+
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onExportCsv}
+      >
+        <DownloadIcon />
       </Button>
 
       <ExpenseFormDialog

@@ -25,6 +25,9 @@ import ExpenseSpendingChart from "@/app/expenses/components/ExpenseSpendingChart
 import ExpensesToolbar from "@/app/expenses/components/ExpensesToolbar"
 import { useExpenses } from "@/app/expenses/hooks/use-expenses"
 
+// Export to CSV related imports
+import { exportFinancesCsv } from "@/app/expenses/utils/export-finances-csv"
+
 const currencyFormatter = new Intl.NumberFormat("en-GB", {
   style: "currency",
   currency: "GBP",
@@ -196,6 +199,7 @@ export default function ExpensesPage() {
           <ExpensesToolbar
             handleCreateExpense={handleCreateExpense}
             handleDeleteAllExpenses={handleDeleteAllExpenses}
+            onExportCsv={() => exportFinancesCsv(filteredExpenses)}
             title={title}
             amount={amount}
             kind={kind}
