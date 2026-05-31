@@ -3,6 +3,7 @@ import { systemPrompt } from "./assistant-prompt.js"
 
 // Generate response through Ollama Cloud service and parse as JSON
 export async function generateResponse(memory) {
+    const summary = memory.summary ? memory.summary : "The conversation is just started"
     const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {
         method: "POST",
         headers: {
@@ -28,8 +29,6 @@ export async function generateResponse(memory) {
     })
 
     const data = await response.json()
-
-    console.log(data)
 
     if (!response.ok) {
         throw new Error(data.error || "AI assistant failed")

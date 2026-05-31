@@ -1,9 +1,11 @@
-import { systemPrompt } from "./assistant-prompt.js"
-
 const compactMemorySystemPrompt = `
 You are a memory system context compacter.
+If there has been a previous summary, then I want you to take that into account
+too of the conversation.
 You will summarise a total set of 6 messages between a user and AI,
-then return the summary as a string
+then add this summary ontop of the prior summary
+MAXIMUM ONE PARAGRAPH (3 - 4 sentences at max)
+
 `
 
 export async function compactMemory(memory) {
@@ -20,15 +22,11 @@ export async function compactMemory(memory) {
             messages: [
                 {
                     role: "system",
-                    content: systemPrompt
-                },
-                {
-                    role: "system",
                     content: `${compactMemorySystemPrompt}`,
                 },
                 {
                     role: "user",
-                    content: `Compact these messages into a sentence: ${JSON.stringify(memory.messages)}`,
+                    content: `Compact these messages into a sentence: ${JSON.stringify(memory.messages.slice(0, 6))}`,
                 },
                 {
                     role: "user",
@@ -39,6 +37,10 @@ export async function compactMemory(memory) {
     })
 
     const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.error || "Unable to compact memory")
+    }
 
     console.log(data.message.content)
 

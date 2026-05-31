@@ -31,9 +31,16 @@ assistantRouter.post("/chat", async (req, res) => {
     const memoryLength = memory.messages.length
 
     if (memoryLength > 12) {
-        const compactedContext = await compactMemory(memory.messages.slice(0, 6))
-        console.log(compactedContext)
-        memory.summary = compactedContext
+        try {
+            const compactedContext = await compactMemory(memory)
+            console.log(compactedContext)
+            memory.summary = compactedContext
+        }
+        catch {
+            return res.status(400).json({
+                error: "Could not compact context"
+            })
+        }
         memory.messages.splice(0, 6)
     }
 
