@@ -12,7 +12,19 @@ import type { Expense, ExpenseKind } from "@/app/expenses/types/expense"
 const financeEntriesPerPage = 10
 
 function getDateInputValue() {
-  return new Date().toISOString().slice(0, 10)
+  return getDateInputValueFromDate(new Date())
+}
+
+function getDateInputValueFromDate(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+
+  return `${year}-${month}-${day}`
+}
+
+function getStoredDateValue(date: string) {
+  return `${date}T12:00:00.000Z`
 }
 
 function getPageCount(totalEntries: number) {
@@ -123,7 +135,7 @@ export function useExpenses() {
         kind,
         category: category || undefined,
         spentAt: spentAt
-          ? new Date(`${spentAt}T00:00:00`).toISOString()
+          ? getStoredDateValue(spentAt)
           : undefined,
       })
 
@@ -162,7 +174,7 @@ export function useExpenses() {
     setEditCategory(
       expense.category || (expense.kind === "income" ? "Paid in" : "General")
     )
-    setEditSpentAt(expense.spentAt.slice(0, 10))
+    setEditSpentAt(getDateInputValueFromDate(new Date(expense.spentAt)))
   }
 
   async function handleUpdateExpense(event: FormEvent<HTMLFormElement>) {
@@ -181,7 +193,7 @@ export function useExpenses() {
         kind: editKind,
         category: editCategory || undefined,
         spentAt: editSpentAt
-          ? new Date(`${editSpentAt}T00:00:00`).toISOString()
+          ? getStoredDateValue(editSpentAt)
           : undefined,
       })
 

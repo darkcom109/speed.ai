@@ -41,31 +41,23 @@ export default function ExpensesToolbar({
   setSearchTerm,
 }: ExpensesToolbarProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [draftSearchTerm, setDraftSearchTerm] = useState(searchTerm)
 
   async function handleSubmitCreateExpense(event: FormEvent<HTMLFormElement>) {
     await handleCreateExpense(event)
     setIsCreateOpen(false)
   }
 
-  function handleSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setSearchTerm(draftSearchTerm)
-  }
-
   return (
     <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 lg:flex-row">
-      <form className="flex flex-1 gap-2" onSubmit={handleSearch}>
-        <Input
-          value={draftSearchTerm}
-          onChange={(event) => setDraftSearchTerm(event.target.value)}
-          placeholder="Search finances..."
-        />
-        <Button type="submit" variant="outline" className="shrink-0">
-          <SearchIcon />
-          Search
-        </Button>
-      </form>
+      <Input
+        value={searchTerm}
+        onChange={(event) => setSearchTerm(event.target.value)}
+        placeholder="Search finances..."
+      />
+      <Button type="submit" variant="outline" className="shrink-0">
+        <SearchIcon />
+        Search
+      </Button>
 
       <ExpenseFormDialog
         open={isCreateOpen}

@@ -11,7 +11,7 @@ export async function getTasks(userId) {
 
     const parsedTasks = tasks.length
         ? tasks.map((task, index) => `${index + 1}. ${task.title}`).join("\n")
-        : "You do not have any tasks yet."
+        : "This user does not have any tasks yet."
 
     return parsedTasks
 }

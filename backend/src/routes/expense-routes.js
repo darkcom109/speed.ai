@@ -35,15 +35,13 @@ expenseRouter.post("/", async (req, res) => {
     })
   }
 
-  const { title, amount, kind, category, spentAt } = result.data
-  const expenseKind = kind || "expense"
+  const { title, amount, category, spentAt } = result.data
 
   const expense = await prisma.expense.create({
     data: {
       title,
       amount,
-      kind: expenseKind,
-      category: category || (expenseKind === "income" ? "Paid in" : "General"),
+      category: category || "General",
       spentAt: spentAt ? new Date(spentAt) : undefined,
       userId: req.userId,
     },

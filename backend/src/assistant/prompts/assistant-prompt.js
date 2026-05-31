@@ -6,6 +6,7 @@ You are to respond only in JSON!
 IMPORTANT - YOUR RESPONSE MUST BE ONLY IN VALID JSON:
 {"type":"tool","tool":"getTasks"} - to get all tasks
 {"type":"tool","tool":"getTasksToday"} - to get today's tasks
+{"type":"tool","tool":"getExpenses"} - to get last 30 days of expenses
 For normal response, always return this shape:
 {"type":"message","response":"<your_response_here>"}
 
