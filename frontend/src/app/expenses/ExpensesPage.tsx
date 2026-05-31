@@ -51,6 +51,18 @@ function getExpenseDate(date: string) {
   return new Date(date)
 }
 
+const financeEntriesPerPage = 10
+
+function getPageCount(totalEntries: number) {
+  return Math.max(1, Math.ceil(totalEntries / financeEntriesPerPage))
+}
+
+function getPaginatedExpenses(expenses: Expense[], page: number) {
+  const start = (page - 1) * financeEntriesPerPage
+
+  return expenses.slice(start, start + financeEntriesPerPage)
+}
+
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [title, setTitle] = useState("")
@@ -62,6 +74,7 @@ export default function ExpensesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState("")
   const [editAmount, setEditAmount] = useState("")
@@ -99,6 +112,8 @@ export default function ExpensesPage() {
       expense.category.toLowerCase().includes(search)
     )
   })
+  const pageCount = getPageCount(filteredExpenses.length)
+  const paginatedExpenses = getPaginatedExpenses(filteredExpenses, currentPage)
 
   useEffect(() => {
     async function loadExpenses() {
@@ -116,6 +131,16 @@ export default function ExpensesPage() {
 
     loadExpenses()
   }, [])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm])
+
+  useEffect(() => {
+    if (currentPage > pageCount) {
+      setCurrentPage(pageCount)
+    }
+  }, [currentPage, pageCount])
 
   async function handleCreateExpense(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -205,6 +230,50 @@ export default function ExpensesPage() {
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to update expense")
     }
+  }
+
+  function renderPagination() {
+    if (filteredExpenses.length <= financeEntriesPerPage) {
+      return null
+    }
+
+    const firstVisibleEntry = (currentPage - 1) * financeEntriesPerPage + 1
+    const lastVisibleEntry = Math.min(
+      currentPage * financeEntriesPerPage,
+      filteredExpenses.length
+    )
+
+    return (
+      <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <p>
+          Showing {firstVisibleEntry}-{lastVisibleEntry} of{" "}
+          {filteredExpenses.length}
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <span>
+            Page {currentPage} of {pageCount}
+          </span>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === pageCount}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -298,7 +367,7 @@ export default function ExpensesPage() {
                 Your latest finance records.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               {isLoading && (
                 <p className="text-sm text-muted-foreground">
                   Loading expenses...
@@ -311,9 +380,9 @@ export default function ExpensesPage() {
                 </div>
               )}
 
-              {filteredExpenses.length > 0 && (
+              {paginatedExpenses.length > 0 && (
                 <div className="divide-y rounded-lg border">
-                  {filteredExpenses.map((expense) => (
+                  {paginatedExpenses.map((expense) => (
                     <div
                       key={expense.id}
                       className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between"
@@ -381,6 +450,8 @@ export default function ExpensesPage() {
                   ))}
                 </div>
               )}
+
+              {renderPagination()}
             </CardContent>
           </Card>
         </main>
