@@ -8,6 +8,7 @@ import {
   LoginPage,
   SignupPage,
   DashboardPage,
+  SettingsPage,
   TasksPage,
   CalendarPage,
   NotesPage,
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <DashboardPage />
+  },
+  {
+    path: "/settings",
+    element: <SettingsPage />
   },
   {
     path: "/tasks",
