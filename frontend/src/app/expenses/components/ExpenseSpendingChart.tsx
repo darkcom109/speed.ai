@@ -77,7 +77,7 @@ function isSamePeriod(firstDate: Date, secondDate: Date, range: ChartRange) {
 }
 
 function getChartPeriods(range: ChartRange) {
-  const length = range === "week" ? 7 : range === "month" ? 6 : 5
+  const length = range === "week" ? 7 : range === "month" ? 12 : 5
   const now = new Date()
 
   return Array.from({ length }, (_, index) => {
@@ -93,7 +93,7 @@ function getChartPeriods(range: ChartRange) {
     }
 
     if (range === "month") {
-      return new Date(now.getFullYear(), now.getMonth() - offset, 1)
+      return new Date(now.getFullYear(), index, 1)
     }
 
     return new Date(now.getFullYear() - offset, 0, 1)
