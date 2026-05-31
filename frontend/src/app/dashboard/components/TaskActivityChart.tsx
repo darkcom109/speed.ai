@@ -1,4 +1,4 @@
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import {
   Card,
@@ -22,8 +22,8 @@ type TaskActivityChartProps = {
 }
 
 const chartConfig = {
-  created: {
-    label: "Created",
+  current: {
+    label: "Current",
     color: "var(--primary)",
   },
   completed: {
@@ -40,10 +40,10 @@ function isSameDay(firstDate: Date, secondDate: Date) {
   )
 }
 
-function getLastSevenDays() {
+function getNextSevenDays() {
   return Array.from({ length: 7 }, (_, index) => {
     const date = new Date()
-    date.setDate(date.getDate() - (6 - index))
+    date.setDate(date.getDate() + index)
     date.setHours(0, 0, 0, 0)
 
     return date
@@ -55,29 +55,28 @@ export default function TaskActivityChart({
   error,
   isLoading,
 }: TaskActivityChartProps) {
-  const chartData = getLastSevenDays().map((date) => {
-    const created = tasks.filter((task) =>
-      isSameDay(new Date(task.createdAt), date)
-    ).length
-    const completed = tasks.filter((task) => {
-      return task.completed && isSameDay(new Date(task.updatedAt), date)
-    }).length
+  const chartData = getNextSevenDays().map((date) => {
+    const dueTasks = tasks.filter((task) => {
+      return task.dueDate && isSameDay(new Date(task.dueDate), date)
+    })
+    const current = dueTasks.filter((task) => !task.completed).length
+    const completed = dueTasks.filter((task) => task.completed).length
 
     return {
       day: date.toLocaleDateString(undefined, { weekday: "short" }),
-      created,
+      current,
       completed,
     }
   })
   const hasActivity = chartData.some(
-    (day) => day.created > 0 || day.completed > 0
+    (day) => day.current > 0 || day.completed > 0
   )
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Task activity</CardTitle>
-        <CardDescription>Created and completed tasks this week</CardDescription>
+        <CardTitle>Upcoming workload</CardTitle>
+        <CardDescription>Tasks due over the next 7 days</CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading && !error && (
@@ -92,7 +91,7 @@ export default function TaskActivityChart({
               config={chartConfig}
               className="aspect-auto h-64 w-full"
             >
-              <BarChart data={chartData}>
+              <AreaChart data={chartData}>
                 <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="day"
@@ -107,21 +106,27 @@ export default function TaskActivityChart({
                   width={28}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar
-                  dataKey="created"
-                  fill="var(--color-created)"
-                  radius={[4, 4, 0, 0]}
+                <Area
+                  dataKey="current"
+                  type="monotone"
+                  fill="var(--color-current)"
+                  fillOpacity={0.25}
+                  stroke="var(--color-current)"
+                  strokeWidth={2}
                 />
-                <Bar
+                <Area
                   dataKey="completed"
+                  type="monotone"
                   fill="var(--color-completed)"
-                  radius={[4, 4, 0, 0]}
+                  fillOpacity={0.15}
+                  stroke="var(--color-completed)"
+                  strokeWidth={2}
                 />
-              </BarChart>
+              </AreaChart>
             </ChartContainer>
             {!hasActivity && (
               <p className="mt-3 text-sm text-muted-foreground">
-                No task activity this week yet.
+                No tasks due in the next 7 days.
               </p>
             )}
           </>
