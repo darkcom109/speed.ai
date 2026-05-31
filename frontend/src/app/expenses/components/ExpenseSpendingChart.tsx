@@ -30,7 +30,7 @@ const chartConfig = {
     label: "Spent",
     color: "var(--primary)",
   },
-  paidIn: {
+  income: {
     label: "Income",
     color: "var(--chart-2)",
   },
@@ -139,7 +139,7 @@ export default function ExpenseSpendingChart({
         ? total + expense.amount
         : total
     }, 0)
-    const paidIn = expenses.reduce((total, expense) => {
+    const income = expenses.reduce((total, expense) => {
       const expenseDate = new Date(expense.spentAt)
 
       return expense.kind === "income" && isSamePeriod(expenseDate, date, range)
@@ -150,10 +150,10 @@ export default function ExpenseSpendingChart({
     return {
       period: getChartLabel(date, range),
       spent,
-      paidIn,
+      income,
     }
   })
-  const hasActivity = chartData.some((day) => day.spent > 0 || day.paidIn > 0)
+  const hasActivity = chartData.some((day) => day.spent > 0 || day.income > 0)
 
   return (
     <Card>
@@ -221,12 +221,12 @@ export default function ExpenseSpendingChart({
                   }}
                 />
                 <Line
-                  dataKey="paidIn"
+                  dataKey="income"
                   type="monotone"
-                  stroke="var(--color-paidIn)"
+                  stroke="var(--color-income)"
                   strokeWidth={2}
                   dot={{
-                    fill: "var(--color-paidIn)",
+                    fill: "var(--color-income)",
                     r: 3,
                   }}
                   activeDot={{
