@@ -6,6 +6,7 @@ import { chatSchema } from "../schemas/chat-schemas.js"
 // Assistant related imports
 import { getTasks, getTasksToday } from "../assistant/assistant-tools/index.js"
 import { generateResponse } from "../assistant/generate-response.js"
+import { systemPrompt } from "../assistant/assistant-prompt.js"
 
 const assistantRouter = Router()
 assistantRouter.use(requireAuth)
@@ -15,6 +16,15 @@ const tools = {
     "getTasks": getTasks,
     "getTasksToday": getTasksToday
 }
+
+// Temporary memory
+const memory = [
+    {
+        role: "system",
+        content: systemPrompt,
+    }
+]
+
 
 // Endpoint for communicating with AI assistant
 assistantRouter.post("/chat", async (req, res) => {
@@ -28,11 +38,21 @@ assistantRouter.post("/chat", async (req, res) => {
 
     const { message } = validationResult.data
 
+    memory.push({
+        role: "user",
+        content: message,
+    })
+
     try {
         // Send user message to Ollama Cloud service API
-        const data = await generateResponse(message)
+        const data = await generateResponse(memory)
 
         if (data.type === "message") {
+            memory.push({
+                role: "assistant",
+                content: data.response,
+            })
+
             return res.status(200).json({
                 message: data.response
             })
@@ -48,6 +68,11 @@ assistantRouter.post("/chat", async (req, res) => {
             }
 
             const toolResponse = await tool(req.userId)
+
+            memory.push({
+                role: "assistant",
+                content: toolResponse,
+            })
 
             return res.status(200).json({
                 message: toolResponse

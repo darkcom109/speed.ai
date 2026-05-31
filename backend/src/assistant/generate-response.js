@@ -1,8 +1,7 @@
-import { systemPrompt } from "./assistant-prompt.js"
 import { cleanJsonResponse } from "../assistant/helper-functions/clean-json-response.js"
 
 // Generate response through Ollama Cloud service and parse as JSON
-export async function generateResponse(message) {
+export async function generateResponse(memory) {
     const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {
         method: "POST",
         headers: {
@@ -12,20 +11,14 @@ export async function generateResponse(message) {
         body: JSON.stringify({
             model: process.env.OLLAMA_MODEL,
             stream: false,
-            messages: [
-                {
-                    role: "system",
-                    content: systemPrompt,
-                },
-                {
-                    role: "user",
-                    content: message,
-                }
-            ]
+            think: true,
+            messages: memory
         })
     })
 
     const data = await response.json()
+
+    console.log(data)
 
     if (!response.ok) {
         throw new Error(data.error || "AI assistant failed")
