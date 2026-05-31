@@ -8,27 +8,18 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { getDashboardSummary } from "@/app/dashboard/api/dashboard-summary-api"
-import { getNextHoliday } from "@/app/dashboard/api/holiday-api"
-import { getWeather } from "@/app/dashboard/api/weather-api"
-import DashboardQuickInfo from "@/app/dashboard/components/DashboardQuickInfo"
 import DashboardSummaryCard from "@/app/dashboard/components/DashboardSummaryCard"
 import DailyBriefCard from "@/app/dashboard/components/DailyBriefCard"
 import FinanceSnapshotCard from "@/app/dashboard/components/FinanceSnapshotCard"
 import TaskActivityChart from "@/app/dashboard/components/TaskActivityChart"
 import TaskSummaryCard from "@/app/dashboard/components/TaskSummaryCard"
 import TodayTasksCard from "@/app/dashboard/components/TodayTasksCard"
-import type { Holiday } from "@/app/dashboard/types/holiday"
-import type { Weather } from "@/app/dashboard/types/weather"
 import { getExpenses } from "@/app/expenses/api/expenses-api"
 import type { Expense } from "@/app/expenses/types/expense"
 import { getTasks } from "@/app/tasks/api/tasks-api"
 import type { Task } from "@/app/tasks/types/task"
 
 export default function DashboardPage() {
-  const [weather, setWeather] = useState<Weather | null>(null)
-  const [isWeatherLoading, setIsWeatherLoading] = useState(true)
-  const [holiday, setHoliday] = useState<Holiday | null>(null)
-  const [isHolidayLoading, setIsHolidayLoading] = useState(true)
   const [tasks, setTasks] = useState<Task[]>([])
   const [tasksError, setTasksError] = useState("")
   const [isTasksLoading, setIsTasksLoading] = useState(true)
@@ -40,40 +31,6 @@ export default function DashboardPage() {
   const [isDashboardSummaryLoading, setIsDashboardSummaryLoading] = useState(true)
 
   const navigate = useNavigate()
-
-  function loadWeather() {
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const weather = await getWeather(
-            position.coords.latitude,
-            position.coords.longitude
-          )
-
-          setWeather(weather)
-        } catch {
-          setWeather(null)
-        } finally {
-          setIsWeatherLoading(false)
-        }
-      },
-      () => {
-        setIsWeatherLoading(false)
-      }
-    )
-  }
-
-  async function loadHoliday() {
-    try {
-      const holiday = await getNextHoliday("US")
-
-      setHoliday(holiday)
-    } catch {
-      setHoliday(null)
-    } finally {
-      setIsHolidayLoading(false)
-    }
-  }
 
   async function loadTasks() {
     try {
@@ -129,8 +86,6 @@ export default function DashboardPage() {
         return
       }
 
-      loadWeather()
-      loadHoliday()
       loadTasks()
       loadExpenses()
       loadDashboardSummary()
@@ -172,19 +127,29 @@ export default function DashboardPage() {
       <SidebarInset>
         <SiteHeader title="Dashboard" />
         <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
-          <div className="flex flex-col gap-3">
-            <div>
-              <h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
-              <p className="text-sm text-muted-foreground">
-                A live overview of your workspace.
-              </p>
-            </div>
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
+            <p className="text-sm text-muted-foreground">
+              A live overview of your workspace.
+            </p>
+          </div>
 
-            <DashboardQuickInfo
-              weather={weather}
-              holiday={holiday}
-              isWeatherLoading={isWeatherLoading}
-              isHolidayLoading={isHolidayLoading}
+          <TaskActivityChart
+            tasks={tasks}
+            error={tasksError}
+            isLoading={isTasksLoading}
+          />
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <TaskSummaryCard
+              tasks={tasks}
+              error={tasksError}
+              isLoading={isTasksLoading}
+            />
+            <TodayTasksCard
+              tasks={tasks}
+              error={tasksError}
+              isLoading={isTasksLoading}
             />
           </div>
 
@@ -206,25 +171,6 @@ export default function DashboardPage() {
             error={dashboardSummaryError}
             isLoading={isDashboardSummaryLoading}
           />
-
-          <TaskActivityChart
-            tasks={tasks}
-            error={tasksError}
-            isLoading={isTasksLoading}
-          />
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <TaskSummaryCard
-              tasks={tasks}
-              error={tasksError}
-              isLoading={isTasksLoading}
-            />
-            <TodayTasksCard
-              tasks={tasks}
-              error={tasksError}
-              isLoading={isTasksLoading}
-            />
-          </div>
         </main>
       </SidebarInset>
     </SidebarProvider>

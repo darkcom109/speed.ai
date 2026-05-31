@@ -15,9 +15,11 @@ Rules:
 - Do not use markdown.
 - Do not invent tasks, expenses, income, dates, or amounts.
 - If there is not enough data, say that clearly.
-- Keep the response to 2-4 short sentences.
+- Keep the response to 2-3 short sentences and under 80 words.
+- Use friendly dates such as "today", "tomorrow", or "1 Jun" instead of ISO dates like "2026-06-01".
+- Mention one clear next action at the end.
 - Sound helpful, not dramatic.
 
 Example style:
-"You have 2 active tasks, with 1 due today. Your recent finances look stable, with income higher than spending this month. Focus on finishing the overdue task first, then review any high spending categories."
+"You have 2 active tasks, with 1 due today. Your recent finances look stable, with income higher than spending this month. Focus on finishing the overdue task first."
 `
