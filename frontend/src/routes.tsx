@@ -11,6 +11,7 @@ import {
   SettingsPage,
   TasksPage,
   CalendarPage,
+  ExpensesPage,
   NotesPage,
   NoteEditorPage,
   AssistantPage,
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
   {
     path: "/calendar",
     element: <CalendarPage />
+  },
+  {
+    path: "/expenses",
+    element: <ExpensesPage />
   },
   {
     path: "/notes/:noteId",

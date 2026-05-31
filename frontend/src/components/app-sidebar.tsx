@@ -18,6 +18,7 @@ import {
   LayoutDashboardIcon,
   MessageCircleIcon,
   NotebookTextIcon,
+  ReceiptTextIcon,
   Settings2Icon,
   SquareCheckBigIcon,
   TrainFrontIcon,
@@ -79,6 +80,14 @@ const data = {
           url: "/calendar",
           icon: (
             <CalendarDaysIcon
+            />
+          ),
+        },
+        {
+          title: "Finances",
+          url: "/expenses",
+          icon: (
+            <ReceiptTextIcon
             />
           ),
         },
