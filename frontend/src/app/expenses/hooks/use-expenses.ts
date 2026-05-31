@@ -3,6 +3,7 @@ import type { FormEvent } from "react"
 
 import {
   createExpense,
+  deleteAllExpenses,
   deleteExpense,
   getExpenses,
   updateExpense,
@@ -178,6 +179,17 @@ export function useExpenses() {
     }
   }
 
+  async function handleDeleteAllExpenses() {
+    try {
+      setError("")
+
+      await deleteAllExpenses()
+      setExpenses([])
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to delete all finances")
+    }
+  }
+
   function startEditingExpense(expense: Expense) {
     setEditingExpenseId(expense.id)
     setEditTitle(expense.title)
@@ -268,6 +280,7 @@ export function useExpenses() {
     setEditSpentAt,
     handleCreateExpense,
     handleDeleteExpense,
+    handleDeleteAllExpenses,
     startEditingExpense,
     handleUpdateExpense,
   }

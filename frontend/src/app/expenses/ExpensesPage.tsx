@@ -83,6 +83,7 @@ export default function ExpensesPage() {
     setEditSpentAt,
     handleCreateExpense,
     handleDeleteExpense,
+    handleDeleteAllExpenses,
     startEditingExpense,
     handleUpdateExpense,
   } = useExpenses()
@@ -194,6 +195,7 @@ export default function ExpensesPage() {
 
           <ExpensesToolbar
             handleCreateExpense={handleCreateExpense}
+            handleDeleteAllExpenses={handleDeleteAllExpenses}
             title={title}
             amount={amount}
             kind={kind}

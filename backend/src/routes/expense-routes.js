@@ -91,6 +91,25 @@ expenseRouter.patch("/:id", async (req, res) => {
   })
 })
 
+expenseRouter.delete("/delete_all", async (req, res) => {
+  try {
+    const result = await prisma.expense.deleteMany({
+      where: {
+        userId: req.userId,
+      },
+    })
+
+    return res.status(200).json({
+      message: "All finances deleted",
+      count: result.count,
+    })
+  } catch {
+    return res.status(500).json({
+      error: "Failed to delete all finances",
+    })
+  }
+})
+
 expenseRouter.delete("/:id", async (req, res) => {
   const expense = await prisma.expense.findFirst({
     where: {

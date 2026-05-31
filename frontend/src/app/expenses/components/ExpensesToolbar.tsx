@@ -1,7 +1,8 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react"
 import { useState } from "react"
-import { PlusIcon, SearchIcon } from "lucide-react"
+import { PlusIcon, SearchIcon, Trash2Icon } from "lucide-react"
 
+import DeleteAllFinancesDialog from "@/app/expenses/components/DeleteAllFinancesDialog"
 import ExpenseFormDialog from "@/app/expenses/components/ExpenseFormDialog"
 import type { ExpenseKind } from "@/app/expenses/types/expense"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input"
 
 type ExpensesToolbarProps = {
   handleCreateExpense: (event: FormEvent<HTMLFormElement>) => Promise<void>
+  handleDeleteAllExpenses: () => Promise<void>
   title: string
   amount: string
   kind: ExpenseKind
@@ -26,6 +28,7 @@ type ExpensesToolbarProps = {
 
 export default function ExpensesToolbar({
   handleCreateExpense,
+  handleDeleteAllExpenses,
   title,
   amount,
   kind,
@@ -41,10 +44,16 @@ export default function ExpensesToolbar({
   setSearchTerm,
 }: ExpensesToolbarProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false)
 
   async function handleSubmitCreateExpense(event: FormEvent<HTMLFormElement>) {
     await handleCreateExpense(event)
     setIsCreateOpen(false)
+  }
+
+  async function handleConfirmDeleteAllFinances() {
+    await handleDeleteAllExpenses()
+    setIsDeleteAllOpen(false)
   }
 
   return (
@@ -56,7 +65,6 @@ export default function ExpensesToolbar({
       />
       <Button type="submit" variant="outline" className="shrink-0">
         <SearchIcon />
-        Search
       </Button>
 
       <ExpenseFormDialog
@@ -84,6 +92,22 @@ export default function ExpensesToolbar({
         onSubmit={handleSubmitCreateExpense}
         onCancel={() => setIsCreateOpen(false)}
       />
+
+      <DeleteAllFinancesDialog
+        isDeleteAllOpen={isDeleteAllOpen}
+        setIsDeleteAllOpen={setIsDeleteAllOpen}
+        handleConfirmDeleteAllFinances={handleConfirmDeleteAllFinances}
+      />
+
+      <Button
+        type="button"
+        variant="destructive"
+        className="shrink-0 lg:w-40"
+        onClick={() => setIsDeleteAllOpen(true)}
+      >
+        <Trash2Icon />
+        Delete all
+      </Button>
     </div>
   )
 }

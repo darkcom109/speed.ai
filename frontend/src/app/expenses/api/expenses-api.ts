@@ -71,3 +71,16 @@ export async function deleteExpense(expenseId: string): Promise<void> {
     throw new Error(data.error || "Unable to delete expense")
   }
 }
+
+export async function deleteAllExpenses(): Promise<void> {
+  const response = await fetch("http://localhost:3001/api/expenses/delete_all", {
+    method: "DELETE",
+    credentials: "include",
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.error || "Unable to delete all finances")
+  }
+}
