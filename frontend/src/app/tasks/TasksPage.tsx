@@ -50,6 +50,7 @@ export default function TasksPage() {
     startEditingTask,
     handleUpdateTask,
     handleDeleteTask,
+    handleDeleteAllTasks,
     searchTerm,
     setSearchTerm,
   } = useTasks()
@@ -189,6 +190,7 @@ export default function TasksPage() {
 
           <TasksToolbar
             handleCreateTask={handleCreateTask}
+            handleDeleteAllTasks={handleDeleteAllTasks}
             title={title}
             description={description}
             dueDate={dueDate}

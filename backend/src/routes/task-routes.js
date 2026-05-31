@@ -82,6 +82,26 @@ taskRouter.patch("/:id", async (req, res) => {
     })
 })
 
+taskRouter.delete("/delete_all", async (req, res) => {
+    try {
+        const result = await prisma.task.deleteMany({
+            where: {
+                userId: req.userId
+            }
+        })
+
+        return res.status(200).json({
+            message: "All tasks deleted",
+            count: result.count,
+        })
+    }
+    catch {
+        return res.status(500).json({
+            error: "Failed to delete all tasks"
+        })
+    }
+})
+
 taskRouter.delete("/:id", async (req, res) => {
     const task = await prisma.task.findFirst({
         where: {

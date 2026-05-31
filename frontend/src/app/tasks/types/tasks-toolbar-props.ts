@@ -1,5 +1,6 @@
 export type TasksToolbarProps = {
   handleCreateTask: (event: React.FormEvent<HTMLFormElement>) => Promise<void>
+  handleDeleteAllTasks: () => Promise<void>
   title: string
   description: string
   dueDate: string

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router"
 
 import {
   createTask,
+  deleteAllTasks,
   deleteTask,
   getTasks,
   updateTask,
@@ -85,6 +86,18 @@ export function useTasks() {
       setDueDate("")
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to create task")
+    }
+  }
+
+  async function handleDeleteAllTasks() {
+    try {
+      setError("")
+
+      await deleteAllTasks()
+      setTasks([])
+    }
+    catch(error) {
+      setError(error instanceof Error ? error.message : "Unable to delete all tasks")
     }
   }
 
@@ -181,6 +194,7 @@ export function useTasks() {
     startEditingTask,
     handleUpdateTask,
     handleDeleteTask,
+    handleDeleteAllTasks,
     searchTerm,
     setSearchTerm,
   }
