@@ -1,4 +1,11 @@
-import { MonitorIcon, MoonIcon, SunIcon, UserRoundIcon } from "lucide-react"
+import {
+  LogOutIcon,
+  MonitorIcon,
+  MoonIcon,
+  SunIcon,
+  Trash2Icon,
+  UserRoundIcon,
+} from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import type { CSSProperties } from "react"
@@ -13,6 +20,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import {
   SidebarInset,
   SidebarProvider,
@@ -29,6 +48,44 @@ export default function SettingsPage() {
   const [error, setError] = useState("")
   const navigate = useNavigate()
   const { theme, setTheme } = useTheme()
+
+  async function handleLogout() {
+    try {
+      const response = await fetch("http://localhost:3001/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        setError(data.error || "Unable to log out")
+        return
+      }
+
+      navigate("/login")
+    } catch {
+      setError("Unable to log out")
+    }
+  }
+
+  async function handleDeleteAccount() {
+    try {
+      const response = await fetch("http://localhost:3001/api/auth/me", {
+        method: "DELETE",
+        credentials: "include",
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        setError(data.error || "Unable to delete account")
+        return
+      }
+
+      navigate("/signup")
+    } catch {
+      setError("Unable to delete account")
+    }
+  }
 
   useEffect(() => {
     async function loadUser() {
@@ -136,6 +193,52 @@ export default function SettingsPage() {
                       {user?.email || "Fetching account details"}
                     </p>
                   </div>
+                </div>
+
+                <div className="mt-4 grid gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="justify-start"
+                    onClick={handleLogout}
+                  >
+                    <LogOutIcon />
+                    Log out
+                  </Button>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        className="justify-start"
+                      >
+                        <Trash2Icon />
+                        Delete account
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogMedia className="bg-destructive/10 text-destructive">
+                          <Trash2Icon />
+                        </AlertDialogMedia>
+                        <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete your account and all
+                          related tasks and notes. This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          variant="destructive"
+                          onClick={handleDeleteAccount}
+                        >
+                          Delete account
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </CardContent>
             </Card>
