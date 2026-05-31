@@ -14,12 +14,10 @@ import {
 } from "@/components/ui/sidebar"
 import {
   CalendarDaysIcon,
-  CircleHelpIcon,
   CodeIcon,
   LayoutDashboardIcon,
   MessageCircleIcon,
   NotebookTextIcon,
-  SearchIcon,
   Settings2Icon,
   SquareCheckBigIcon,
   TrainFrontIcon,
@@ -140,22 +138,6 @@ const data = {
       url: "/settings",
       icon: (
         <Settings2Icon
-        />
-      ),
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: (
-        <CircleHelpIcon
-        />
-      ),
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: (
-        <SearchIcon
         />
       ),
     },
