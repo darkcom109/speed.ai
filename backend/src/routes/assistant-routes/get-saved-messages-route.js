@@ -1,9 +1,6 @@
 import prisma from "#prisma/client.js";
-import { Router } from "express";
-import { requireAuth } from "#middleware/require-auth.js";
-
-const savedMessagesRouter = Router()
-savedMessagesRouter.use(requireAuth)
+// Import router
+import { assistantRouter } from "./assistant-router.js"
 
 export async function getSavedMessages(userId) {
     const messages = await prisma.message.findMany({
@@ -23,7 +20,7 @@ export async function getSavedMessages(userId) {
     return messages
 }
 
-savedMessagesRouter.get("/messages", async (req, res) => {
+assistantRouter.get("/messages", async (req, res) => {
     try {
         const messages = await getSavedMessages(req.userId)
 
@@ -37,5 +34,3 @@ savedMessagesRouter.get("/messages", async (req, res) => {
         })
     }
 })
-
-export { savedMessagesRouter }

@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken"
 
 import { AUTH_COOKIE_NAME } from "#utils/auth-cookie.js"
 
+// Middleware for validating JWT token
 function requireAuth(req, res, next) {
   const token = req.cookies[AUTH_COOKIE_NAME]
 

@@ -1,10 +1,8 @@
 import prisma from "#prisma/client.js";
-import { Router } from "express";
-import { requireAuth } from "#middleware/require-auth.js";
 import { memory } from "#assistant/memory/memory-storage.js";
 
-const deleteMessagesRouter = Router()
-deleteMessagesRouter.use(requireAuth)
+// Import router
+import { assistantRouter } from "./assistant-router.js"
 
 async function deleteAllMessages(userId) {
     await prisma.message.deleteMany({
@@ -19,7 +17,7 @@ async function deleteAllMessages(userId) {
     return true
 }
 
-deleteMessagesRouter.delete("/messages", async (req, res) => {
+assistantRouter.delete("/messages", async (req, res) => {
     try {
         await deleteAllMessages(req.userId)
 
@@ -33,6 +31,4 @@ deleteMessagesRouter.delete("/messages", async (req, res) => {
         })
     }
 })
-
-export { deleteMessagesRouter }
 

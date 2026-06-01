@@ -1,5 +1,6 @@
 import prisma from "#prisma/client.js"
 
+// Assistant tool to create tasks
 export async function createTask(userId, args = {}) {
     const taskInputs = Array.isArray(args) ? args : [args]
     const createdTasks = []

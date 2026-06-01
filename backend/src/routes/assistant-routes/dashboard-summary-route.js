@@ -1,10 +1,8 @@
-import { Router } from "express"
 import { dashboardSummaryPrompt } from "#assistant/prompts/dashboard-summary-prompt.js"
-import { requireAuth } from "#middleware/require-auth.js"
 import prisma from "#prisma/client.js"
 
-const dashboardSummaryRouter = Router()
-dashboardSummaryRouter.use(requireAuth)
+// Import router
+import { assistantRouter } from "./assistant-router.js"
 
 async function getDashboardTasks(userId) {
   return prisma.task.findMany({
@@ -49,7 +47,7 @@ async function getDashboardFinances(userId) {
   })
 }
 
-dashboardSummaryRouter.get("/dashboard-summary", async (req, res) => {
+assistantRouter.get("/dashboard-summary", async (req, res) => {
     try {
         const tasks = await getDashboardTasks(req.userId)
         const finances = await getDashboardFinances(req.userId)
@@ -105,5 +103,3 @@ dashboardSummaryRouter.get("/dashboard-summary", async (req, res) => {
     }
 
 })
-
-export { dashboardSummaryRouter }
