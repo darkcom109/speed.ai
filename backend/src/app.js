@@ -4,16 +4,18 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 import express from "express"
 
-import { authRouter } from "#routes/auth-routes.js"
-import { holidayRouter } from "#routes/holiday-routes.js"
-import { noteRouter } from "#routes/note-routes.js"
-import { notificationRouter } from "#routes/notification-routes.js"
-import { taskRouter } from "#routes/task-routes.js"
-import { weatherRouter } from "#routes/weather-routes.js"
-import { assistantRouter } from "#routes/assistant-routes/index.js"
-import { expenseRouter } from "#routes/expense-routes.js"
-import { githubRouter } from "#routes/github-routes.js"
-import { tflRouter } from "#routes/tfl-routes.js"
+import {
+  authRouter,
+  taskRouter,
+  noteRouter,
+  notificationRouter,
+  expenseRouter,
+  weatherRouter,
+  holidayRouter,
+  assistantRouter,
+  githubRouter,
+  tflRouter
+} from "#routes/index.js"
 
 const app = express()
 
