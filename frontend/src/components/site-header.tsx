@@ -1,4 +1,3 @@
-import { GlobalAssistantSidebar } from "@/components/global-assistant-sidebar"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import NotificationBell from "@/app/notifications/component/NotificationBell"
@@ -14,7 +13,6 @@ export function SiteHeader({ title = "Documents" }: { title?: string }) {
         />
         <h1 className="text-base font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-1">
-          <GlobalAssistantSidebar />
           <NotificationBell />
         </div>
       </div>
