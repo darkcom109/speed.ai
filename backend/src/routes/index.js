@@ -1,5 +1,5 @@
-export { assistantRouter } from "./assistant-routes/assistant-router.js"
-export { authRouter } from "./auth-routes.js"
+export { assistantRouter } from "./assistant-routes/index.js"
+export { authRouter } from "./auth-routes/index.js"
 export { expenseRouter } from "./expense-routes.js"
 export { githubRouter } from "./github-routes.js"
 export { holidayRouter } from "./holiday-routes.js"
