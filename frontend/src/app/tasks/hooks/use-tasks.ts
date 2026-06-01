@@ -10,6 +10,7 @@ import {
   updateTask,
 } from "@/app/tasks/api/tasks-api"
 import type { Task } from "@/app/tasks/types/task"
+import { toDateTimeLocalValue } from "@/app/tasks/utils/task-date"
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -123,7 +124,7 @@ export function useTasks() {
     setEditingTaskId(task.id)
     setEditTitle(task.title)
     setEditDescription(task.description || "")
-    setEditDueDate(task.dueDate ? task.dueDate.slice(0, 10) : "")
+    setEditDueDate(task.dueDate ? toDateTimeLocalValue(task.dueDate) : "")
   }
 
   async function handleUpdateTask(event: FormEvent<HTMLFormElement>) {

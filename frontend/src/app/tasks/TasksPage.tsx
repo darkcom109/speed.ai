@@ -11,6 +11,7 @@ import TasksHeader from "@/app/tasks/components/TasksHeader"
 import TasksToolbar from "@/app/tasks/components/TasksToolbar"
 import RenderTask from "./components/RenderTask"
 import type { Task } from "@/app/tasks/types/task"
+import type { TaskFilter } from "@/app/tasks/types/tasks-toolbar-props"
 
 const tasksPerPage = 10
 
@@ -24,9 +25,55 @@ function getPaginatedTasks(tasks: Task[], page: number) {
   return tasks.slice(start, start + tasksPerPage)
 }
 
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+}
+
+function isSameDay(firstDate: Date, secondDate: Date) {
+  return (
+    firstDate.getFullYear() === secondDate.getFullYear() &&
+    firstDate.getMonth() === secondDate.getMonth() &&
+    firstDate.getDate() === secondDate.getDate()
+  )
+}
+
+function matchesTaskFilter(task: Task, taskFilter: TaskFilter) {
+  if (taskFilter === "all") {
+    return true
+  }
+
+  if (taskFilter === "no-date") {
+    return !task.dueDate
+  }
+
+  if (!task.dueDate) {
+    return false
+  }
+
+  const today = startOfDay(new Date())
+  const dueDate = startOfDay(new Date(task.dueDate))
+  const nextSevenDays = new Date(today)
+  nextSevenDays.setDate(today.getDate() + 7)
+
+  if (taskFilter === "due-today") {
+    return isSameDay(dueDate, today)
+  }
+
+  if (taskFilter === "overdue") {
+    return dueDate < today
+  }
+
+  if (taskFilter === "next-7-days") {
+    return dueDate >= today && dueDate <= nextSevenDays
+  }
+
+  return true
+}
+
 export default function TasksPage() {
   const [activePage, setActivePage] = useState(1)
   const [completedPage, setCompletedPage] = useState(1)
+  const [taskFilter, setTaskFilter] = useState<TaskFilter>("all")
   const {
     tasks,
     error,
@@ -55,7 +102,7 @@ export default function TasksPage() {
     setSearchTerm,
   } = useTasks()
 
-  const filteredTasks = tasks.filter((task) => {
+  const searchedTasks = tasks.filter((task) => {
     const search = searchTerm.toLowerCase()
 
     return (
@@ -63,6 +110,9 @@ export default function TasksPage() {
       task.description?.toLowerCase().includes(search)
     )
   })
+  const filteredTasks = searchedTasks.filter((task) =>
+    matchesTaskFilter(task, taskFilter)
+  )
   const activeTasks = filteredTasks.filter((task) => !task.completed)
   const completedTasks = filteredTasks.filter((task) => task.completed)
   const activePageCount = getPageCount(activeTasks.length)
@@ -76,7 +126,7 @@ export default function TasksPage() {
   useEffect(() => {
     setActivePage(1)
     setCompletedPage(1)
-  }, [searchTerm])
+  }, [searchTerm, taskFilter])
 
   useEffect(() => {
     if (activePage > activePageCount) {
@@ -199,6 +249,8 @@ export default function TasksPage() {
             setDueDate={setDueDate}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            taskFilter={taskFilter}
+            setTaskFilter={setTaskFilter}
           />
 
           {isLoading && <p>Loading tasks...</p>}

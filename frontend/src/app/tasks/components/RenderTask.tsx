@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { type Task } from "@/app/tasks/types/task"
 import DeleteTaskDialog from "@/app/tasks/components/DeleteTaskDialog"
 import EditTaskDialog from "@/app/tasks/components/EditTaskDialog"
+import { formatTaskDueDateTime } from "@/app/tasks/utils/task-date"
 
 export type RenderTaskProps = {
   task: Task
@@ -53,7 +54,7 @@ export default function RenderTask({
         )}
         {task.dueDate && (
           <p className="mt-1 text-xs text-muted-foreground">
-            Due {new Date(task.dueDate).toLocaleDateString()}
+            Due {formatTaskDueDateTime(task.dueDate)}
           </p>
         )}
       </div>

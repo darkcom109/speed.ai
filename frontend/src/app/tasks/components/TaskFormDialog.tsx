@@ -66,9 +66,10 @@ export default function TaskFormDialog({
               className="min-h-32 resize-y rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
             />
             <Input
-              type="date"
+              type="datetime-local"
               value={taskDueDate}
               onChange={(event) => setTaskDueDate(event.target.value)}
+              aria-label="Due date and time"
             />
             <div className="flex justify-end gap-2 border-t pt-4">
               <Button type="button" variant="outline" onClick={onCancel}>

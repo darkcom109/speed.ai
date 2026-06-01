@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { CalendarCheckIcon } from "lucide-react"
 
 import type { Task } from "@/app/tasks/types/task"
+import { formatTaskDueDateTime } from "@/app/tasks/utils/task-date"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -17,12 +18,6 @@ type CalendarTaskPreviewDialogProps = {
   task: Task | null
   onOpenChange: (open: boolean) => void
 }
-
-const dateFormatter = new Intl.DateTimeFormat("en-GB", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-})
 
 export default function CalendarTaskPreviewDialog({
   task,
@@ -54,7 +49,7 @@ export default function CalendarTaskPreviewDialog({
                   <p>
                     <span className="font-medium text-foreground">Due: </span>
                     {displayTask?.dueDate
-                      ? dateFormatter.format(new Date(displayTask.dueDate))
+                      ? formatTaskDueDateTime(displayTask.dueDate)
                       : "No due date"}
                   </p>
                   <p>

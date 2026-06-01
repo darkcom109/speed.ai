@@ -5,6 +5,7 @@ import {
 } from "lucide-react"
 
 import type { Task } from "@/app/tasks/types/task"
+import { formatTaskDueTime } from "@/app/tasks/utils/task-date"
 
 type TodayTasksCardProps = {
   tasks: Task[]
@@ -74,26 +75,30 @@ export default function TodayTasksCard({
                 const TaskIcon = task.completed ? CheckCircle2Icon : CircleIcon
 
                 return (
-                  <div
-                    key={task.id}
-                    className="flex min-w-0 items-center gap-2 text-xs"
-                  >
-                    <TaskIcon
-                      className={
-                        task.completed
-                          ? "size-3.5 shrink-0 text-muted-foreground"
-                          : "size-3.5 shrink-0 text-primary"
-                      }
-                    />
-                    <span
-                      className={
-                        task.completed
-                          ? "truncate text-muted-foreground line-through"
-                          : "truncate text-muted-foreground"
-                      }
-                    >
-                      {task.title}
-                    </span>
+                  <div key={task.id} className="flex min-w-0 items-center gap-2 text-xs">
+                    <div className="flex min-w-0 flex-1 items-center gap-2">
+                      <TaskIcon
+                        className={
+                          task.completed
+                            ? "size-3.5 shrink-0 text-muted-foreground"
+                            : "size-3.5 shrink-0 text-primary"
+                        }
+                      />
+                      <span
+                        className={
+                          task.completed
+                            ? "truncate text-muted-foreground line-through"
+                            : "truncate text-muted-foreground"
+                        }
+                      >
+                        {task.title}
+                      </span>
+                    </div>
+                    {task.dueDate ? (
+                      <span className="shrink-0 text-muted-foreground">
+                        {formatTaskDueTime(task.dueDate)}
+                      </span>
+                    ) : null}
                   </div>
                 )
               })}
