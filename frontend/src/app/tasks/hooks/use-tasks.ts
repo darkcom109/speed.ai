@@ -147,7 +147,7 @@ export function useTasks() {
       const updatedTask = await updateTask(editingTaskId, {
         title: editTitle,
         description: editDescription || undefined,
-        dueDate: editDueDate ? new Date(editDueDate).toISOString() : undefined,
+        dueDate: editDueDate ? new Date(editDueDate).toISOString() : null,
       })
 
       setTasks((currentTasks) =>

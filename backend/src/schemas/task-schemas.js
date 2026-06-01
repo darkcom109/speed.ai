@@ -10,7 +10,7 @@ const updateTaskSchema = z.object({
     title: z.string().min(1, "Title is required").optional(),
     description: z.string().optional(),
     completed: z.boolean().optional(),
-    dueDate: z.string().datetime().optional(),
+    dueDate: z.string().datetime().nullable().optional(),
 })
 
 export { createTaskSchema, updateTaskSchema }
