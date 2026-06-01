@@ -35,7 +35,5 @@ export async function compactMemory(memory) {
         throw new Error(data.error || "Unable to compact memory")
     }
 
-    console.log(data.message.content)
-
     return data.message.content
 }

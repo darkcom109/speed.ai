@@ -16,6 +16,7 @@ import {
 import { generateResponse } from "../../assistant/generate-response.js"
 import { memory } from "../../assistant/memory-storage.js"
 import { compactMemory } from "../../assistant/compact-memory.js"
+import { getSavedMessages } from "./get-saved-messages.js"
 
 const assistantRouter = Router()
 assistantRouter.use(requireAuth)
@@ -51,6 +52,19 @@ assistantRouter.post("/chat", async (req, res) => {
     }
 
     const memoryLength = memory.messages.length
+
+    if (memoryLength === 0) {
+        const savedMessages = await getSavedMessages(req.userId)
+
+        for(let i = 0 ; i < savedMessages.length ; i++) {
+            const message = savedMessages[i]
+
+            memory.messages.push({
+                role: message.role,
+                content: message.content,
+            })
+        }
+    }
 
     if (memoryLength > 12) {
         try {

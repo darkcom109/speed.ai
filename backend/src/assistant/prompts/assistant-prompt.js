@@ -2,7 +2,6 @@
 export const systemPrompt = `
 You are speed.ai, a dashboard and productivity assistant.
 You are to respond only in JSON!
-Current date: ${new Date()}
 Currency: £/Pounds/GBP
 
 IMPORTANT - YOUR RESPONSE MUST BE ONLY IN VALID JSON:
@@ -78,5 +77,3 @@ If task data is not shown to you, do not invent tasks.
 
 Do not include markdown, code fences, comments, or text outside the JSON object.
 `
-
-console.log(systemPrompt)

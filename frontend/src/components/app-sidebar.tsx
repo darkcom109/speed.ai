@@ -16,7 +16,6 @@ import {
   CalendarDaysIcon,
   CodeIcon,
   LayoutDashboardIcon,
-  MessageCircleIcon,
   NotebookTextIcon,
   ReceiptTextIcon,
   Settings2Icon,
@@ -104,14 +103,6 @@ const data = {
     {
       title: "Tools",
       items: [
-        {
-          title: "Assistant",
-          url: "/assistant",
-          icon: (
-            <MessageCircleIcon
-            />
-          ),
-        },
         {
           title: "GitHub",
           url: "/github",
