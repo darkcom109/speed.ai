@@ -4,47 +4,61 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router"
 import { getTasks } from "@/app/tasks/api/tasks-api"
 import type { Task } from "@/app/tasks/types/task"
 import { Button } from "@/components/ui/button"
+import CalendarTaskPreviewDialog from "@/app/calendar/components/CalendarTaskPreviewDialog"
 
 export default function CalendarPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
   const [currentDate, setCurrentDate] = useState(new Date())
+  const [previewTask, setPreviewTask] = useState<Task | null>(null)
 
   const navigate = useNavigate()
 
+  const loadTasks = useCallback(async () => {
+    try {
+      setError("")
+
+      const response = await fetch("http://localhost:3001/api/auth/me", {
+        credentials: "include",
+      })
+
+      if (!response.ok) {
+        navigate("/login")
+        return
+      }
+
+      const tasks = await getTasks()
+      setTasks(tasks)
+    }
+    catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to load tasks")
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }, [navigate])
+
   useEffect(() => {
-    async function loadTasks() {
-      try {
-        setError("")
+    void loadTasks()
+  }, [loadTasks])
 
-        const response = await fetch("http://localhost:3001/api/auth/me", {
-          credentials: "include",
-        })
-
-        if (!response.ok) {
-          navigate("/login")
-          return
-        }
-
-        const tasks = await getTasks()
-        setTasks(tasks)
-      }
-      catch (error) {
-        setError(error instanceof Error ? error.message : "Unable to load tasks")
-      }
-      finally {
-        setIsLoading(false)
-      }
+  useEffect(() => {
+    function handleTasksUpdated() {
+      void loadTasks()
     }
 
-    loadTasks()
-  }, [navigate])
+    window.addEventListener("tasks-updated", handleTasksUpdated)
+
+    return () => {
+      window.removeEventListener("tasks-updated", handleTasksUpdated)
+    }
+  }, [loadTasks])
 
   const tasksByDate = useMemo(() => {
     const groupedTasks: Record<string, Task[]> = {}
@@ -162,7 +176,7 @@ export default function CalendarPage() {
 
             {days.map((day) => {
               const tasksForDay = getTasksForDay(day)
-              const visibleTasks = tasksForDay.slice(0, 3)
+              const visibleTasks = tasksForDay.slice(0, 2)
               const hiddenTaskCount = tasksForDay.length - visibleTasks.length
 
               return (
@@ -174,27 +188,31 @@ export default function CalendarPage() {
                       : "h-36 overflow-hidden border p-2"
                   }
                 >
-                  <p
-                    className={
-                      isSameDay(day, today)
-                        ? "inline-flex size-7 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground"
-                        : "text-sm font-medium"
-                    }
-                  >
-                    {day.getDate()}
-                  </p>
-                  <div className="mt-2 space-y-1">
+                  <div className="mb-2 flex h-6 items-start">
+                    <p
+                      className={
+                        isSameDay(day, today)
+                          ? "grid size-6 place-items-center rounded-full bg-primary text-xs font-medium leading-none text-primary-foreground"
+                          : "h-6 text-sm font-medium leading-6"
+                      }
+                    >
+                      {day.getDate()}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
                     {visibleTasks.map((task) => (
-                      <div
+                      <button
+                        type="button"
                         key={task.id}
                         className={
                           task.completed
-                            ? "truncate rounded-md bg-muted px-2 py-1 text-xs leading-4 text-muted-foreground line-through"
-                            : "truncate rounded-md bg-primary px-2 py-1 text-xs leading-4 text-primary-foreground"
+                            ? "w-full cursor-pointer truncate rounded-md bg-muted px-2 py-0.5 text-left text-xs leading-4 text-muted-foreground line-through transition hover:bg-muted/80 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                            : "w-full cursor-pointer truncate rounded-md bg-primary px-2 py-0.5 text-left text-xs leading-4 text-primary-foreground transition hover:bg-primary/85 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                         }
+                        onClick={() => setPreviewTask(task)}
                       >
                         {task.title}
-                      </div>
+                      </button>
                     ))}
                     {hiddenTaskCount > 0 && (
                       <p className="px-1 text-xs leading-4 text-muted-foreground">
@@ -206,6 +224,15 @@ export default function CalendarPage() {
               )
             })}
           </div>
+
+          <CalendarTaskPreviewDialog
+            task={previewTask}
+            onOpenChange={(open) => {
+              if (!open) {
+                setPreviewTask(null)
+              }
+            }}
+          />
         </main>
       </SidebarInset>
     </SidebarProvider>

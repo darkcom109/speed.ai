@@ -10,6 +10,11 @@ import {
   updateTask,
 } from "@/app/tasks/api/tasks-api"
 import type { Task } from "@/app/tasks/types/task"
+import { toDateTimeLocalValue } from "@/app/tasks/utils/task-date"
+
+function emitTasksUpdated() {
+  window.dispatchEvent(new Event("tasks-updated"))
+}
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -84,6 +89,7 @@ export function useTasks() {
       setTitle("")
       setDescription("")
       setDueDate("")
+      emitTasksUpdated()
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to create task")
     }
@@ -94,7 +100,8 @@ export function useTasks() {
       setError("")
 
       await deleteAllTasks()
-      setTasks([])
+      setTasks(tasks.filter((task) => task.completed !== false))
+      emitTasksUpdated()
     }
     catch(error) {
       setError(error instanceof Error ? error.message : "Unable to delete all tasks")
@@ -114,6 +121,7 @@ export function useTasks() {
           currentTask.id === updatedTask.id ? updatedTask : currentTask
         )
       )
+      emitTasksUpdated()
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to update task")
     }
@@ -123,7 +131,7 @@ export function useTasks() {
     setEditingTaskId(task.id)
     setEditTitle(task.title)
     setEditDescription(task.description || "")
-    setEditDueDate(task.dueDate ? task.dueDate.slice(0, 10) : "")
+    setEditDueDate(task.dueDate ? toDateTimeLocalValue(task.dueDate) : "")
   }
 
   async function handleUpdateTask(event: FormEvent<HTMLFormElement>) {
@@ -139,7 +147,7 @@ export function useTasks() {
       const updatedTask = await updateTask(editingTaskId, {
         title: editTitle,
         description: editDescription || undefined,
-        dueDate: editDueDate ? new Date(editDueDate).toISOString() : undefined,
+        dueDate: editDueDate ? new Date(editDueDate).toISOString() : null,
       })
 
       setTasks((currentTasks) =>
@@ -152,6 +160,7 @@ export function useTasks() {
       setEditTitle("")
       setEditDescription("")
       setEditDueDate("")
+      emitTasksUpdated()
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to update task")
     }
@@ -166,6 +175,7 @@ export function useTasks() {
       setTasks((currentTasks) =>
         currentTasks.filter((task) => task.id !== taskId)
       )
+      emitTasksUpdated()
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to delete task")
     }

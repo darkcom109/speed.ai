@@ -15,7 +15,7 @@ export default function HolidayCard({
 }: HolidayCardProps) {
   return (
     <section className="min-h-36 w-full rounded-lg border bg-card p-3">
-      <h3 className="text-sm font-medium">Next holiday</h3>
+      <h3 className="text-sm font-medium">Next holidays</h3>
 
       {isLoading && (
         <p className="mt-2 text-sm text-muted-foreground">Loading...</p>

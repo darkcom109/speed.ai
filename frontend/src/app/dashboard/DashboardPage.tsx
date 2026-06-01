@@ -7,69 +7,30 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { getNextHoliday } from "@/app/dashboard/api/holiday-api"
-import { getWeather } from "@/app/dashboard/api/weather-api"
-import HolidayCard from "@/app/dashboard/components/HolidayCard"
+import { getDashboardSummary } from "@/app/dashboard/api/dashboard-summary-api"
+import DashboardSummaryCard from "@/app/dashboard/components/DashboardSummaryCard"
+import DailyBriefCard from "@/app/dashboard/components/DailyBriefCard"
+import FinanceSnapshotCard from "@/app/dashboard/components/FinanceSnapshotCard"
 import TaskActivityChart from "@/app/dashboard/components/TaskActivityChart"
 import TaskSummaryCard from "@/app/dashboard/components/TaskSummaryCard"
 import TodayTasksCard from "@/app/dashboard/components/TodayTasksCard"
-import WeatherCard from "@/app/dashboard/components/WeatherCard"
-import type { Holiday } from "@/app/dashboard/types/holiday"
-import type { Weather } from "@/app/dashboard/types/weather"
+import { getExpenses } from "@/app/expenses/api/expenses-api"
+import type { Expense } from "@/app/expenses/types/expense"
 import { getTasks } from "@/app/tasks/api/tasks-api"
 import type { Task } from "@/app/tasks/types/task"
 
 export default function DashboardPage() {
-  const [weather, setWeather] = useState<Weather | null>(null)
-  const [weatherError, setWeatherError] = useState("")
-  const [isWeatherLoading, setIsWeatherLoading] = useState(true)
-  const [holiday, setHoliday] = useState<Holiday | null>(null)
-  const [holidayError, setHolidayError] = useState("")
-  const [isHolidayLoading, setIsHolidayLoading] = useState(true)
   const [tasks, setTasks] = useState<Task[]>([])
   const [tasksError, setTasksError] = useState("")
   const [isTasksLoading, setIsTasksLoading] = useState(true)
+  const [expenses, setExpenses] = useState<Expense[]>([])
+  const [expensesError, setExpensesError] = useState("")
+  const [isExpensesLoading, setIsExpensesLoading] = useState(true)
+  const [dashboardSummary, setDashboardSummary] = useState("")
+  const [dashboardSummaryError, setDashboardSummaryError] = useState("")
+  const [isDashboardSummaryLoading, setIsDashboardSummaryLoading] = useState(true)
 
   const navigate = useNavigate()
-
-  function loadWeather() {
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const weather = await getWeather(
-            position.coords.latitude,
-            position.coords.longitude
-          )
-
-          setWeather(weather)
-        } catch (error) {
-          setWeatherError(
-            "Unable to load weather"
-          )
-        } finally {
-          setIsWeatherLoading(false)
-        }
-      },
-      () => {
-        setWeatherError("Location permission denied")
-        setIsWeatherLoading(false)
-      }
-    )
-  }
-
-  async function loadHoliday() {
-    try {
-      const holiday = await getNextHoliday("US")
-
-      setHoliday(holiday)
-    } catch (error) {
-      setHolidayError(
-        "Unable to load holiday"
-      )
-    } finally {
-      setIsHolidayLoading(false)
-    }
-  }
 
   async function loadTasks() {
     try {
@@ -80,6 +41,37 @@ export default function DashboardPage() {
       setTasksError("Unable to load tasks")
     } finally {
       setIsTasksLoading(false)
+    }
+  }
+
+  async function loadExpenses() {
+    try {
+      const expenses = await getExpenses()
+
+      setExpenses(expenses)
+    } catch (error) {
+      setExpensesError("Unable to load finances")
+    } finally {
+      setIsExpensesLoading(false)
+    }
+  }
+
+  async function loadDashboardSummary() {
+    try {
+      setDashboardSummaryError("")
+      setIsDashboardSummaryLoading(true)
+
+      const summary = await getDashboardSummary()
+
+      setDashboardSummary(summary)
+    } catch (error) {
+      setDashboardSummaryError(
+        error instanceof Error
+          ? error.message
+          : "Unable to load dashboard summary"
+      )
+    } finally {
+      setIsDashboardSummaryLoading(false)
     }
   }
 
@@ -94,13 +86,33 @@ export default function DashboardPage() {
         return
       }
 
-      loadWeather()
-      loadHoliday()
       loadTasks()
+      loadExpenses()
+      loadDashboardSummary()
     }
 
     checkAuth()
   }, [navigate])
+
+  useEffect(() => {
+    function handleTasksUpdated() {
+      void loadTasks()
+      void loadDashboardSummary()
+    }
+
+    function handleFinancesUpdated() {
+      void loadExpenses()
+      void loadDashboardSummary()
+    }
+
+    window.addEventListener("tasks-updated", handleTasksUpdated)
+    window.addEventListener("finances-updated", handleFinancesUpdated)
+
+    return () => {
+      window.removeEventListener("tasks-updated", handleTasksUpdated)
+      window.removeEventListener("finances-updated", handleFinancesUpdated)
+    }
+  }, [])
 
   return (
     <SidebarProvider
@@ -118,7 +130,7 @@ export default function DashboardPage() {
           <div>
             <h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
             <p className="text-sm text-muted-foreground">
-              Your personal overview will live here.
+              A live overview of your workspace.
             </p>
           </div>
 
@@ -128,17 +140,7 @@ export default function DashboardPage() {
             isLoading={isTasksLoading}
           />
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <WeatherCard
-              weather={weather}
-              error={weatherError}
-              isLoading={isWeatherLoading}
-            />
-            <HolidayCard
-              holiday={holiday}
-              error={holidayError}
-              isLoading={isHolidayLoading}
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
             <TaskSummaryCard
               tasks={tasks}
               error={tasksError}
@@ -150,6 +152,25 @@ export default function DashboardPage() {
               isLoading={isTasksLoading}
             />
           </div>
+
+          <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
+            <DailyBriefCard
+              tasks={tasks}
+              expenses={expenses}
+              isLoading={isTasksLoading || isExpensesLoading}
+            />
+            <FinanceSnapshotCard
+              expenses={expenses}
+              error={expensesError}
+              isLoading={isExpensesLoading}
+            />
+          </div>
+
+          <DashboardSummaryCard
+            summary={dashboardSummary}
+            error={dashboardSummaryError}
+            isLoading={isDashboardSummaryLoading}
+          />
         </main>
       </SidebarInset>
     </SidebarProvider>

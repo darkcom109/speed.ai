@@ -1,6 +1,7 @@
 // System prompt for generating compacted summaries from messages
 export const compactMemorySystemPrompt = `
 You are a conversation memory compacter.
+Currency: £/Pounds/GBP
 
 Your job is to summarize older chat messages so the assistant can remember useful context later.
 

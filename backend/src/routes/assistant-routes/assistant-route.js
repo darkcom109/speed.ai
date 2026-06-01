@@ -1,7 +1,7 @@
 import { Router } from "express"
 
-import { requireAuth } from "../middleware/require-auth.js"
-import { chatSchema } from "../schemas/chat-schemas.js"
+import { requireAuth } from "../../middleware/require-auth.js"
+import { chatSchema } from "../../schemas/chat-schemas.js"
 
 // Assistant related imports
 import {
@@ -11,10 +11,10 @@ import {
     getTasksToday,
     getExpenses,
     getIncomes,
-} from "../assistant/assistant-tools/index.js"
-import { generateResponse } from "../assistant/generate-response.js"
-import { memory } from "../assistant/memory-storage.js"
-import { compactMemory } from "../assistant/compact-memory.js"
+} from "../../assistant/assistant-tools/index.js"
+import { generateResponse } from "../../assistant/generate-response.js"
+import { memory } from "../../assistant/memory-storage.js"
+import { compactMemory } from "../../assistant/compact-memory.js"
 
 const assistantRouter = Router()
 assistantRouter.use(requireAuth)
