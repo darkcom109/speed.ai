@@ -1,5 +1,5 @@
 import { compactMemory } from "#assistant/memory/compact-memory.js"
-import { getSavedMessages } from "#routes/assistant-routes/get-saved-messages-route.js"
+import { getSavedMessages } from "#routes/assistant-routes/get-saved-messages/helper-functions/get-saved-messages-helper.js"
 import { memory } from "#assistant/memory/memory-storage.js"
 
 // Check if memory length exceeds 12 or equals 0
