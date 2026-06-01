@@ -3,7 +3,10 @@ import { systemPrompt } from "./prompts/assistant-prompt.js"
 
 // Generate response through Ollama Cloud service and parse as JSON
 export async function generateResponse(memory) {
+    const currentTime = `Current date: ${new Date()}`
+
     const summary = memory.summary ? memory.summary : "The conversation has just started"
+    
     const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {
         method: "POST",
         headers: {
@@ -18,6 +21,10 @@ export async function generateResponse(memory) {
                 {
                     role: "system",
                     content: systemPrompt
+                },
+                {
+                    role: "system",
+                    content: currentTime,
                 },
                 {
                     role: "system",

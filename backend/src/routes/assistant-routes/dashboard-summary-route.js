@@ -54,6 +54,8 @@ dashboardSummaryRouter.get("/dashboard-summary", async (req, res) => {
         const tasks = await getDashboardTasks(req.userId)
         const finances = await getDashboardFinances(req.userId)
 
+        const currentTime = `Current date: ${new Date()}`
+
         const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {
             method: "POST",
             headers: {
@@ -68,6 +70,10 @@ dashboardSummaryRouter.get("/dashboard-summary", async (req, res) => {
                     {
                         role: "system",
                         content: dashboardSummaryPrompt,
+                    },
+                    {
+                        role: "system",
+                        content: currentTime,
                     },
                     {
                         role: "user",
