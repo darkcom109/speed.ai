@@ -27,7 +27,7 @@ deleteMessagesRouter.delete("/messages", async (req, res) => {
             message: "Chat cleared",
         })
     }
-    catch (error) {
+    catch {
         return res.status(500).json({
             error: "Failed to clear chat"
         })

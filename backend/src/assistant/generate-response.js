@@ -32,7 +32,7 @@ export async function generateResponse(memory) {
                 },
                 {
                     role: "system",
-                    content: `Here is the summary of the conversation so far: ${memory.summary}`
+                    content: `Here is the summary of the conversation so far: ${summary}`
                 },
                 ...memory.messages
             ]
