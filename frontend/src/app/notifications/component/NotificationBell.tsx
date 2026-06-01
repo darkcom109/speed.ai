@@ -62,7 +62,7 @@ export default function NotificationBell() {
           </p>
         </div>
 
-        <div className="max-h-80 overflow-y-auto p-2">
+        <div className="notification-scroll max-h-48 overflow-y-auto p-2">
           {isLoading && (
             <p className="p-3 text-sm text-muted-foreground">
               Loading notifications...
