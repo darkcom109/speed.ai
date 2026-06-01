@@ -1,8 +1,8 @@
 import { Router } from "express"
 
-import prisma from "../../prisma/client.js"
-import { requireAuth } from "../middleware/require-auth.js"
-import { createTaskSchema, updateTaskSchema } from "../schemas/task-schemas.js"
+import prisma from "#prisma/client.js"
+import { requireAuth } from "#middleware/require-auth.js"
+import { createTaskSchema, updateTaskSchema } from "#schemas/task-schemas.js"
 
 const taskRouter = Router()
 

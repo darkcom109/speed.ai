@@ -1,8 +1,8 @@
 import { Router } from "express"
 
-import prisma from "../../prisma/client.js"
-import { requireAuth } from "../middleware/require-auth.js"
-import { createNoteSchema, updateNoteSchema } from "../schemas/note-schemas.js"
+import prisma from "#prisma/client.js"
+import { requireAuth } from "#middleware/require-auth.js"
+import { createNoteSchema, updateNoteSchema } from "#schemas/note-schemas.js"
 
 const noteRouter = Router()
 

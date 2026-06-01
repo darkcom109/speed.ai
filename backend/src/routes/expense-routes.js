@@ -1,12 +1,12 @@
 import { Router } from "express"
 
-import prisma from "../../prisma/client.js"
-import { requireAuth } from "../middleware/require-auth.js"
+import prisma from "#prisma/client.js"
+import { requireAuth } from "#middleware/require-auth.js"
 import {
   createExpenseSchema,
   importExpensesSchema,
   updateExpenseSchema,
-} from "../schemas/expense-schemas.js"
+} from "#schemas/expense-schemas.js"
 
 const expenseRouter = Router()
 

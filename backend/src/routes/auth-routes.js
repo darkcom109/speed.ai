@@ -1,14 +1,14 @@
 import argon2 from "argon2"
 import { Router } from "express"
 
-import prisma from "../../prisma/client.js"
-import { requireAuth } from "../middleware/require-auth.js"
-import { loginSchema, signupSchema } from "../schemas/auth-schemas.js"
+import prisma from "#prisma/client.js"
+import { requireAuth } from "#middleware/require-auth.js"
+import { loginSchema, signupSchema } from "#schemas/auth-schemas.js"
 import {
   clearAuthCookie,
   createAuthToken,
   setAuthCookie,
-} from "../utils/auth-cookie.js"
+} from "#utils/auth-cookie.js"
 
 import { OAuth2Client } from "google-auth-library"
 

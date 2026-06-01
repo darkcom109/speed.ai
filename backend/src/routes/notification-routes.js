@@ -1,7 +1,7 @@
 import { Router } from "express"
 
-import prisma from "../../prisma/client.js"
-import { requireAuth } from "../middleware/require-auth.js"
+import prisma from "#prisma/client.js"
+import { requireAuth } from "#middleware/require-auth.js"
 
 const notificationRouter = Router()
 notificationRouter.use(requireAuth)

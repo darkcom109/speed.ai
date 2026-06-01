@@ -1,4 +1,4 @@
-import prisma from "../../../prisma/client.js"
+import prisma from "#prisma/client.js"
 
 // Assistant tool to get most recent tasks
 export async function getTasks(userId) {

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken"
 
-import { AUTH_COOKIE_NAME } from "../utils/auth-cookie.js"
+import { AUTH_COOKIE_NAME } from "#utils/auth-cookie.js"
 
 function requireAuth(req, res, next) {
   const token = req.cookies[AUTH_COOKIE_NAME]

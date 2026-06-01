@@ -1,9 +1,9 @@
-import { cleanJsonResponse } from "../assistant/helper-functions/clean-json-response.js"
-import { systemPrompt } from "./prompts/assistant-prompt.js"
+import { cleanJsonResponse } from "#assistant/helper-functions/clean-json-response.js"
+import { systemPrompt } from "#assistant/prompts/assistant-prompt.js"
 
 // Generate response through Ollama Cloud service and parse as JSON
 export async function generateResponse(memory) {
-    
+
     // Ensures each response has the most recent time
     const currentTime = `Current date: ${new Date()}`
 

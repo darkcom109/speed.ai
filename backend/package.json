@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "imports": {
+    "#utils/*": "./src/utils/*",
+    "#assistant/*": "./src/assistant/*",
+    "#routes/*": "./src/routes/*",
+    "#middleware/*": "./src/middleware/*",
+    "#schemas/*": "./src/schemas/*",
+    "#prisma/*": "./prisma/*"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",

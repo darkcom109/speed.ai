@@ -1,8 +1,8 @@
 import { Router } from "express"
 
-import { requireAuth } from "../../middleware/require-auth.js"
-import { chatSchema } from "../../schemas/chat-schemas.js"
-import prisma from "../../../prisma/client.js"
+import { requireAuth } from "#middleware/require-auth.js"
+import { chatSchema } from "#schemas/chat-schemas.js"
+import prisma from "#prisma/client.js"
 
 // Assistant related imports
 import {
@@ -12,11 +12,11 @@ import {
     getTasksToday,
     getExpenses,
     getIncomes,
-} from "../../assistant/assistant-tools/index.js"
-import { generateResponse } from "../../assistant/generate-response.js"
-import { memory } from "../../assistant/memory-storage.js"
-import { compactMemory } from "../../assistant/memory/compact-memory.js"
-import { getSavedMessages } from "./get-saved-messages.js"
+} from "#assistant/assistant-tools/index.js"
+import { generateResponse } from "#assistant/generate-response.js"
+import { memory } from "#assistant/memory/memory-storage.js"
+import { compactMemory } from "#assistant/memory/compact-memory.js"
+import { getSavedMessages } from "#routes/assistant-routes/get-saved-messages.js"
 
 const assistantRouter = Router()
 assistantRouter.use(requireAuth)

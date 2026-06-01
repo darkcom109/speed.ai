@@ -1,4 +1,4 @@
-import prisma from "../../../prisma/client.js"
+import prisma from "#prisma/client.js"
 
 export async function createTask(userId, args = {}) {
     const taskInputs = Array.isArray(args) ? args : [args]

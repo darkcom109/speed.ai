@@ -1,7 +1,7 @@
 import { Router } from "express"
-import { dashboardSummaryPrompt } from "../../assistant/prompts/dashboard-summary-prompt.js"
-import { requireAuth } from "../../middleware/require-auth.js"
-import prisma from "../../../prisma/client.js"
+import { dashboardSummaryPrompt } from "#assistant/prompts/dashboard-summary-prompt.js"
+import { requireAuth } from "#middleware/require-auth.js"
+import prisma from "#prisma/client.js"
 
 const dashboardSummaryRouter = Router()
 dashboardSummaryRouter.use(requireAuth)

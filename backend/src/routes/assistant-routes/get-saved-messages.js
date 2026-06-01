@@ -1,6 +1,6 @@
-import prisma from "../../../prisma/client.js";
+import prisma from "#prisma/client.js";
 import { Router } from "express";
-import { requireAuth } from "../../middleware/require-auth.js";
+import { requireAuth } from "#middleware/require-auth.js";
 
 const savedMessagesRouter = Router()
 savedMessagesRouter.use(requireAuth)

@@ -1,7 +1,7 @@
-import prisma from "../../../prisma/client.js";
+import prisma from "#prisma/client.js";
 import { Router } from "express";
-import { requireAuth } from "../../middleware/require-auth.js";
-import { memory } from "../../assistant/memory-storage.js";
+import { requireAuth } from "#middleware/require-auth.js";
+import { memory } from "#assistant/memory/memory-storage.js";
 
 const deleteMessagesRouter = Router()
 deleteMessagesRouter.use(requireAuth)

@@ -1,4 +1,4 @@
-import { compactMemorySystemPrompt } from "../prompts/compact-memory-prompt.js"
+import { compactMemorySystemPrompt } from "#assistant/prompts/compact-memory-prompt.js"
 
 // Compact memory once total messages exceeds 12, then add summary to memory
 export async function compactMemory(memory) {
