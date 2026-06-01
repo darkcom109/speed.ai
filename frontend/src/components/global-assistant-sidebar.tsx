@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import type { FormEvent } from "react"
 import { BotIcon, RotateCcwIcon, SendIcon, UserIcon, XIcon } from "lucide-react"
+import { useLocation } from "react-router"
 
 import {
   deleteAllSavedMessages,
@@ -18,9 +19,13 @@ type AssistantMessage = {
 
 const initialMessages: AssistantMessage[] = []
 
+export const assistantToggleEvent = "speed-ai-assistant-toggle"
 const assistantOpenStorageKey = "speed-ai-assistant-open"
+const publicRoutes = ["/", "/login", "/signup"]
 
 export function GlobalAssistantSidebar() {
+  const location = useLocation()
+  const isPublicRoute = publicRoutes.includes(location.pathname)
   const [isOpen, setIsOpen] = useState(() => {
     return window.localStorage.getItem(assistantOpenStorageKey) === "true"
   })
@@ -38,7 +43,7 @@ export function GlobalAssistantSidebar() {
   }, [messages, isSending])
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !isPublicRoute) {
       document.body.dataset.assistantOpen = "true"
     } else {
       delete document.body.dataset.assistantOpen
@@ -47,14 +52,38 @@ export function GlobalAssistantSidebar() {
     return () => {
       delete document.body.dataset.assistantOpen
     }
-  }, [isOpen])
+  }, [isOpen, isPublicRoute])
 
   useEffect(() => {
     window.localStorage.setItem(assistantOpenStorageKey, String(isOpen))
   }, [isOpen])
 
   useEffect(() => {
+    if (isPublicRoute) {
+      setIsOpen(false)
+    }
+  }, [isPublicRoute])
+
+  useEffect(() => {
+    function handleAssistantToggle() {
+      if (!isPublicRoute) {
+        setIsOpen((current) => !current)
+      }
+    }
+
+    window.addEventListener(assistantToggleEvent, handleAssistantToggle)
+
+    return () => {
+      window.removeEventListener(assistantToggleEvent, handleAssistantToggle)
+    }
+  }, [isPublicRoute])
+
+  useEffect(() => {
     async function loadMessages() {
+      if (isPublicRoute) {
+        return
+      }
+
       try {
         const savedMessages = await getAllSavedMessages()
 
@@ -71,7 +100,7 @@ export function GlobalAssistantSidebar() {
     }
 
     loadMessages()
-  }, [])
+  }, [isPublicRoute])
 
   async function handleClearChat() {
     try {
@@ -128,20 +157,7 @@ export function GlobalAssistantSidebar() {
 
   return (
     <>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        aria-label={isOpen ? "Close assistant" : "Open assistant"}
-        title={isOpen ? "Close assistant" : "Open assistant"}
-        data-state={isOpen ? "open" : "closed"}
-        className="data-[state=open]:bg-muted"
-        onClick={() => setIsOpen((current) => !current)}
-      >
-        <BotIcon />
-      </Button>
-
-      {isOpen && (
+      {isOpen && !isPublicRoute && (
         <aside
           className="fixed inset-y-0 right-0 z-40 flex w-[min(var(--assistant-sidebar-width),calc(100vw-1rem))] flex-col border-l bg-sidebar text-sidebar-foreground shadow-sm md:z-20 md:w-(--assistant-sidebar-width)"
           aria-label="Assistant sidebar"
