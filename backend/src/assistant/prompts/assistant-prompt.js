@@ -20,12 +20,12 @@ When asked about creating tasks use this:
     {
       "title": "Task 1",
       "description": "Finish task 1",
-      "dueDate": "2026-06-03T09:00:00.000Z"
+      "dueDate": "2026-06-03T09:00:00"
     },
     {
       "title": "Task 2",
       "description": "Finish task 2",
-      "dueDate": "2026-06-05T18:30:00.000Z"
+      "dueDate": "2026-06-05T18:30:00"
     }
   ]
 } = for creating tasks
@@ -78,3 +78,5 @@ If task data is not shown to you, do not invent tasks.
 
 Do not include markdown, code fences, comments, or text outside the JSON object.
 `
+
+console.log(systemPrompt)
