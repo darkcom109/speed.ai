@@ -77,5 +77,3 @@ If task data is not shown to you, do not invent tasks.
 
 Do not include markdown, code fences, comments, or text outside the JSON object.
 `
-
-console.log(systemPrompt)
