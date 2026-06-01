@@ -12,6 +12,10 @@ import {
 import type { Task } from "@/app/tasks/types/task"
 import { toDateTimeLocalValue } from "@/app/tasks/utils/task-date"
 
+function emitTasksUpdated() {
+  window.dispatchEvent(new Event("tasks-updated"))
+}
+
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [error, setError] = useState("")
@@ -85,6 +89,7 @@ export function useTasks() {
       setTitle("")
       setDescription("")
       setDueDate("")
+      emitTasksUpdated()
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to create task")
     }
@@ -96,6 +101,7 @@ export function useTasks() {
 
       await deleteAllTasks()
       setTasks(tasks.filter((task) => task.completed !== false))
+      emitTasksUpdated()
     }
     catch(error) {
       setError(error instanceof Error ? error.message : "Unable to delete all tasks")
@@ -115,6 +121,7 @@ export function useTasks() {
           currentTask.id === updatedTask.id ? updatedTask : currentTask
         )
       )
+      emitTasksUpdated()
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to update task")
     }
@@ -153,6 +160,7 @@ export function useTasks() {
       setEditTitle("")
       setEditDescription("")
       setEditDueDate("")
+      emitTasksUpdated()
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to update task")
     }
@@ -167,6 +175,7 @@ export function useTasks() {
       setTasks((currentTasks) =>
         currentTasks.filter((task) => task.id !== taskId)
       )
+      emitTasksUpdated()
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to delete task")
     }
