@@ -7,6 +7,7 @@ import express from "express"
 import { authRouter } from "./routes/auth-routes.js"
 import { holidayRouter } from "./routes/holiday-routes.js"
 import { noteRouter } from "./routes/note-routes.js"
+import { notificationRouter } from "./routes/notification-routes.js"
 import { taskRouter } from "./routes/task-routes.js"
 import { weatherRouter } from "./routes/weather-routes.js"
 import { assistantRouter } from "./routes/assistant-routes/assistant-route.js"
@@ -65,6 +66,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRouter)
 app.use("/api/tasks", taskRouter)
 app.use("/api/notes", noteRouter)
+app.use("/api/notifications", notificationRouter)
 app.use("/api/expenses", expenseRouter)
 app.use("/api/weather", weatherRouter)
 app.use("/api/holidays", holidayRouter)
