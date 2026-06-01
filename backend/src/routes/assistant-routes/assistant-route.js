@@ -15,7 +15,7 @@ import {
 } from "../../assistant/assistant-tools/index.js"
 import { generateResponse } from "../../assistant/generate-response.js"
 import { memory } from "../../assistant/memory-storage.js"
-import { compactMemory } from "../../assistant/compact-memory.js"
+import { compactMemory } from "../../assistant/memory/compact-memory.js"
 import { getSavedMessages } from "./get-saved-messages.js"
 
 const assistantRouter = Router()
