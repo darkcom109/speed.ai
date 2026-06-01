@@ -2,12 +2,16 @@ import { useEffect, useRef, useState } from "react"
 import type { FormEvent } from "react"
 import { BotIcon, RotateCcwIcon, SendIcon, UserIcon, XIcon } from "lucide-react"
 
-import { sendAssistantMessage, getAllSavedMessages, deleteAllSavedMessages } from "@/app/assistant/api/assistant-api"
+import {
+  deleteAllSavedMessages,
+  getAllSavedMessages,
+  sendAssistantMessage,
+} from "@/app/assistant/api/assistant-api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 type AssistantMessage = {
-  id: number
+  id: number | string
   role: "assistant" | "user"
   content: string
 }
@@ -51,15 +55,19 @@ export function GlobalAssistantSidebar() {
 
   useEffect(() => {
     async function loadMessages() {
-      const savedMessages = await getAllSavedMessages()
+      try {
+        const savedMessages = await getAllSavedMessages()
 
-      setMessages(
-        savedMessages.map((message) => ({
-          id: message.id,
-          role: message.role,
-          content: message.content,
-        }))
-      )
+        setMessages(
+          savedMessages.map((message) => ({
+            id: message.id,
+            role: message.role,
+            content: message.content,
+          }))
+        )
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to load messages")
+      }
     }
 
     loadMessages()

@@ -1,3 +1,9 @@
+export type SavedAssistantMessage = {
+  id: string
+  role: "assistant" | "user"
+  content: string
+}
+
 export async function sendAssistantMessage(message: string): Promise<string> {
   const response = await fetch("http://localhost:3001/api/assistant/chat", {
     method: "POST",
@@ -23,7 +29,7 @@ export async function sendAssistantMessage(message: string): Promise<string> {
   return data.message
 }
 
-export async function getAllSavedMessages() {
+export async function getAllSavedMessages(): Promise<SavedAssistantMessage[]> {
   const response = await fetch("http://localhost:3001/api/assistant/messages", {
     credentials: "include"
   })
