@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTasks } from "@/app/tasks/hooks/use-tasks"
 
 import TasksHeader from "@/app/tasks/components/TasksHeader"
+import TaskOverviewStats from "@/app/tasks/components/TaskOverviewStats"
 import TasksToolbar from "@/app/tasks/components/TasksToolbar"
 import RenderTask from "./components/RenderTask"
 import type { Task } from "@/app/tasks/types/task"
@@ -237,6 +238,8 @@ export default function TasksPage() {
 
         <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
           <TasksHeader />
+
+          <TaskOverviewStats tasks={tasks} isLoading={isLoading} />
 
           <TasksToolbar
             handleCreateTask={handleCreateTask}

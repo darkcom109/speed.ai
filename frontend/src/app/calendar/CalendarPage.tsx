@@ -176,7 +176,7 @@ export default function CalendarPage() {
 
             {days.map((day) => {
               const tasksForDay = getTasksForDay(day)
-              const visibleTasks = tasksForDay.slice(0, 3)
+              const visibleTasks = tasksForDay.slice(0, 2)
               const hiddenTaskCount = tasksForDay.length - visibleTasks.length
 
               return (
@@ -188,24 +188,26 @@ export default function CalendarPage() {
                       : "h-36 overflow-hidden border p-2"
                   }
                 >
-                  <p
-                    className={
-                      isSameDay(day, today)
-                        ? "inline-flex size-7 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground"
-                        : "text-sm font-medium"
-                    }
-                  >
-                    {day.getDate()}
-                  </p>
-                  <div className="mt-2 space-y-1">
+                  <div className="mb-2 flex h-6 items-start">
+                    <p
+                      className={
+                        isSameDay(day, today)
+                          ? "grid size-6 place-items-center rounded-full bg-primary text-xs font-medium leading-none text-primary-foreground"
+                          : "h-6 text-sm font-medium leading-6"
+                      }
+                    >
+                      {day.getDate()}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
                     {visibleTasks.map((task) => (
                       <button
                         type="button"
                         key={task.id}
                         className={
                           task.completed
-                            ? "w-full cursor-pointer truncate rounded-md bg-muted px-2 py-1 text-left text-xs leading-4 text-muted-foreground line-through transition hover:bg-muted/80 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                            : "w-full cursor-pointer truncate rounded-md bg-primary px-2 py-1 text-left text-xs leading-4 text-primary-foreground transition hover:bg-primary/85 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                            ? "w-full cursor-pointer truncate rounded-md bg-muted px-2 py-0.5 text-left text-xs leading-4 text-muted-foreground line-through transition hover:bg-muted/80 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                            : "w-full cursor-pointer truncate rounded-md bg-primary px-2 py-0.5 text-left text-xs leading-4 text-primary-foreground transition hover:bg-primary/85 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                         }
                         onClick={() => setPreviewTask(task)}
                       >
