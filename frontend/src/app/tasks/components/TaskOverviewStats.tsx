@@ -43,7 +43,6 @@ export default function TaskOverviewStats({
     return task.dueDate && startOfDay(new Date(task.dueDate)) < todayStart
   })
   const visibleTodayTasks = dueTodayTasks.slice(0, 2)
-  const hiddenTodayTaskCount = dueTodayTasks.length - visibleTodayTasks.length
 
   return (
     <section className="grid gap-3 lg:grid-cols-2">
@@ -146,11 +145,6 @@ export default function TaskOverviewStats({
                     </div>
                   )
                 })}
-                {hiddenTodayTaskCount > 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    +{hiddenTodayTaskCount} more
-                  </p>
-                )}
               </div>
             ) : (
               <p className="mt-3 text-xs text-muted-foreground">
