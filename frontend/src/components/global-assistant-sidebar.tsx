@@ -1,28 +1,31 @@
 import { useEffect, useRef, useState } from "react"
 import type { FormEvent } from "react"
 import { BotIcon, RotateCcwIcon, SendIcon, UserIcon, XIcon } from "lucide-react"
+import { useLocation } from "react-router"
 
-import { sendAssistantMessage } from "@/app/assistant/api/assistant-api"
+import {
+  deleteAllSavedMessages,
+  getAllSavedMessages,
+  sendAssistantMessage,
+} from "@/app/assistant/api/assistant-api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 type AssistantMessage = {
-  id: number
+  id: number | string
   role: "assistant" | "user"
   content: string
 }
 
-const initialMessages: AssistantMessage[] = [
-  {
-    id: 1,
-    role: "assistant",
-    content: "Ask me about your workspace.",
-  },
-]
+const initialMessages: AssistantMessage[] = []
 
+export const assistantToggleEvent = "speed-ai-assistant-toggle"
 const assistantOpenStorageKey = "speed-ai-assistant-open"
+const publicRoutes = ["/", "/login", "/signup"]
 
 export function GlobalAssistantSidebar() {
+  const location = useLocation()
+  const isPublicRoute = publicRoutes.includes(location.pathname)
   const [isOpen, setIsOpen] = useState(() => {
     return window.localStorage.getItem(assistantOpenStorageKey) === "true"
   })
@@ -40,7 +43,7 @@ export function GlobalAssistantSidebar() {
   }, [messages, isSending])
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !isPublicRoute) {
       document.body.dataset.assistantOpen = "true"
     } else {
       delete document.body.dataset.assistantOpen
@@ -49,16 +52,66 @@ export function GlobalAssistantSidebar() {
     return () => {
       delete document.body.dataset.assistantOpen
     }
-  }, [isOpen])
+  }, [isOpen, isPublicRoute])
 
   useEffect(() => {
     window.localStorage.setItem(assistantOpenStorageKey, String(isOpen))
   }, [isOpen])
 
-  function handleClearChat() {
-    setMessages(initialMessages)
-    setMessage("")
-    setError("")
+  useEffect(() => {
+    if (isPublicRoute) {
+      setIsOpen(false)
+    }
+  }, [isPublicRoute])
+
+  useEffect(() => {
+    function handleAssistantToggle() {
+      if (!isPublicRoute) {
+        setIsOpen((current) => !current)
+      }
+    }
+
+    window.addEventListener(assistantToggleEvent, handleAssistantToggle)
+
+    return () => {
+      window.removeEventListener(assistantToggleEvent, handleAssistantToggle)
+    }
+  }, [isPublicRoute])
+
+  useEffect(() => {
+    async function loadMessages() {
+      if (isPublicRoute) {
+        return
+      }
+
+      try {
+        const savedMessages = await getAllSavedMessages()
+
+        setMessages(
+          savedMessages.map((message) => ({
+            id: message.id,
+            role: message.role,
+            content: message.content,
+          }))
+        )
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to load messages")
+      }
+    }
+
+    loadMessages()
+  }, [isPublicRoute])
+
+  async function handleClearChat() {
+    try {
+      await deleteAllSavedMessages()
+      setMessages(initialMessages)
+      setMessage("")
+      setError("")
+    }
+    catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to clear chat")
+    }
   }
 
   async function handleSendMessage(event: FormEvent<HTMLFormElement>) {
@@ -104,20 +157,7 @@ export function GlobalAssistantSidebar() {
 
   return (
     <>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        aria-label={isOpen ? "Close assistant" : "Open assistant"}
-        title={isOpen ? "Close assistant" : "Open assistant"}
-        data-state={isOpen ? "open" : "closed"}
-        className="data-[state=open]:bg-muted"
-        onClick={() => setIsOpen((current) => !current)}
-      >
-        <BotIcon />
-      </Button>
-
-      {isOpen && (
+      {isOpen && !isPublicRoute && (
         <aside
           className="fixed inset-y-0 right-0 z-40 flex w-[min(var(--assistant-sidebar-width),calc(100vw-1rem))] flex-col border-l bg-sidebar text-sidebar-foreground shadow-sm md:z-20 md:w-(--assistant-sidebar-width)"
           aria-label="Assistant sidebar"
@@ -181,6 +221,23 @@ export function GlobalAssistantSidebar() {
 
           <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
+              {messages.length === 0 && !isSending && (
+                <div className="flex h-full items-center justify-center px-4 text-center">
+                  <div className="max-w-60">
+                    <div className="mx-auto flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <BotIcon className="size-5" />
+                    </div>
+                    <p className="mt-3 text-sm font-medium">
+                      Ask me about your workspace.
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      I can help with tasks, notes, finances, and your daily
+                      overview.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {messages.map((message) => {
                 const MessageIcon =
                   message.role === "assistant" ? BotIcon : UserIcon

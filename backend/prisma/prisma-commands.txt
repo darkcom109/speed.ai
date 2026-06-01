@@ -1,0 +1,40 @@
+Prisma command cheat sheet
+
+Run these commands from the backend folder:
+
+cd backend
+
+Generate Prisma Client after schema changes:
+npx prisma generate
+
+Create and apply a new migration:
+npx prisma migrate dev --name your_migration_name
+
+Apply existing migrations only:
+npx prisma migrate deploy
+
+Open Prisma Studio:
+npx prisma studio
+
+Check migration/database status:
+npx prisma migrate status
+
+Pull the current database schema into schema.prisma:
+npx prisma db pull
+
+Push schema changes directly to the database without creating a migration:
+npx prisma db push
+
+Reset the local database and rerun all migrations:
+npx prisma migrate reset
+
+Useful workflow for normal model changes:
+1. Edit prisma/schema.prisma
+2. Run: npx prisma migrate dev --name describe_change
+3. Run: npx prisma generate
+
+Notes:
+- Use migrate dev for normal local development.
+- Use migrate deploy for production or shared environments.
+- Avoid db push if you want migration history.
+- migrate reset deletes local database data.

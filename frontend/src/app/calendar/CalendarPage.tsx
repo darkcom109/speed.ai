@@ -176,8 +176,6 @@ export default function CalendarPage() {
 
             {days.map((day) => {
               const tasksForDay = getTasksForDay(day)
-              const visibleTasks = tasksForDay.slice(0, 2)
-              const hiddenTaskCount = tasksForDay.length - visibleTasks.length
 
               return (
                 <div
@@ -199,8 +197,8 @@ export default function CalendarPage() {
                       {day.getDate()}
                     </p>
                   </div>
-                  <div className="space-y-1">
-                    {visibleTasks.map((task) => (
+                  <div className="calendar-task-scroll max-h-[5.75rem] space-y-1 overflow-y-auto pr-1">
+                    {tasksForDay.map((task) => (
                       <button
                         type="button"
                         key={task.id}
@@ -214,11 +212,6 @@ export default function CalendarPage() {
                         {task.title}
                       </button>
                     ))}
-                    {hiddenTaskCount > 0 && (
-                      <p className="px-1 text-xs leading-4 text-muted-foreground">
-                        +{hiddenTaskCount} more
-                      </p>
-                    )}
                   </div>
                 </div>
               )
