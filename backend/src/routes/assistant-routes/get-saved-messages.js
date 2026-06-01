@@ -5,7 +5,7 @@ import { requireAuth } from "../../middleware/require-auth.js";
 const savedMessagesRouter = Router()
 savedMessagesRouter.use(requireAuth)
 
-export async function getSavedMessages(userId) {
+async function getSavedMessages(userId) {
     const messages = await prisma.message.findMany({
         where: {
             userId: userId

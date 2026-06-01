@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import type { FormEvent } from "react"
 import { BotIcon, RotateCcwIcon, SendIcon, UserIcon, XIcon } from "lucide-react"
 
-import { sendAssistantMessage } from "@/app/assistant/api/assistant-api"
+import { sendAssistantMessage, getAllSavedMessages, deleteAllSavedMessages } from "@/app/assistant/api/assistant-api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -12,13 +12,7 @@ type AssistantMessage = {
   content: string
 }
 
-const initialMessages: AssistantMessage[] = [
-  {
-    id: 1,
-    role: "assistant",
-    content: "Ask me about your workspace.",
-  },
-]
+const initialMessages: AssistantMessage[] = []
 
 const assistantOpenStorageKey = "speed-ai-assistant-open"
 
@@ -55,10 +49,32 @@ export function GlobalAssistantSidebar() {
     window.localStorage.setItem(assistantOpenStorageKey, String(isOpen))
   }, [isOpen])
 
-  function handleClearChat() {
-    setMessages(initialMessages)
-    setMessage("")
-    setError("")
+  useEffect(() => {
+    async function loadMessages() {
+      const savedMessages = await getAllSavedMessages()
+
+      setMessages(
+        savedMessages.map((message) => ({
+          id: message.id,
+          role: message.role,
+          content: message.content,
+        }))
+      )
+    }
+
+    loadMessages()
+  }, [])
+
+  async function handleClearChat() {
+    try {
+      await deleteAllSavedMessages()
+      setMessages(initialMessages)
+      setMessage("")
+      setError("")
+    }
+    catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to clear chat")
+    }
   }
 
   async function handleSendMessage(event: FormEvent<HTMLFormElement>) {
@@ -181,6 +197,23 @@ export function GlobalAssistantSidebar() {
 
           <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
+              {messages.length === 0 && !isSending && (
+                <div className="flex h-full items-center justify-center px-4 text-center">
+                  <div className="max-w-60">
+                    <div className="mx-auto flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <BotIcon className="size-5" />
+                    </div>
+                    <p className="mt-3 text-sm font-medium">
+                      Ask me about your workspace.
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      I can help with tasks, notes, finances, and your daily
+                      overview.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {messages.map((message) => {
                 const MessageIcon =
                   message.role === "assistant" ? BotIcon : UserIcon
