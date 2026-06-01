@@ -15,6 +15,7 @@ import { dashboardSummaryRouter } from "./routes/assistant-routes/dashboard-summ
 import { expenseRouter } from "./routes/expense-routes.js"
 import { githubRouter } from "./routes/github-routes.js"
 import { tflRouter } from "./routes/tfl-routes.js"
+import { savedMessagesRouter } from "./routes/assistant-routes/get-saved-messages.js"
 
 const app = express()
 
@@ -72,6 +73,7 @@ app.use("/api/weather", weatherRouter)
 app.use("/api/holidays", holidayRouter)
 app.use("/api/assistant", assistantRouter)
 app.use("/api/assistant", dashboardSummaryRouter)
+app.use("/api/assistant", savedMessagesRouter)
 app.use("/api/github", githubRouter)
 app.use("/api/tfl", tflRouter)
 

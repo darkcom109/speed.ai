@@ -2,6 +2,7 @@ import { Router } from "express"
 
 import { requireAuth } from "../../middleware/require-auth.js"
 import { chatSchema } from "../../schemas/chat-schemas.js"
+import prisma from "../../../prisma/client.js"
 
 // Assistant related imports
 import {
@@ -27,6 +28,16 @@ const tools = {
     "createFinances": createFinances,
     "getExpenses": getExpenses,
     "getIncomes": getIncomes,
+}
+
+async function createMessage(message, userId) {
+    await prisma.message.create({
+        data: {
+            role: message.role,
+            content: message.content,
+            userId: userId,
+        }
+    })
 }
 
 // Endpoint for communicating with AI assistant
@@ -57,20 +68,30 @@ assistantRouter.post("/chat", async (req, res) => {
 
     const { message } = validationResult.data
 
-    memory.messages.push({
+    const userMessage = {
         role: "user",
         content: message,
-    })
+    }
 
     try {
+        // Create user message
+        await createMessage(userMessage, req.userId)
+
+        memory.messages.push(userMessage)
+
         // Send user message to Ollama Cloud service API
         const data = await generateResponse(memory)
 
         if (data.type === "message") {
-            memory.messages.push({
+
+            const assistantMessage = {
                 role: "assistant",
                 content: data.response,
-            })
+            }
+
+            await createMessage(assistantMessage, req.userId)
+
+            memory.messages.push(assistantMessage)
 
             return res.status(200).json({
                 message: data.response
@@ -88,10 +109,14 @@ assistantRouter.post("/chat", async (req, res) => {
 
             const toolResponse = await tool(req.userId, data.args || {})
 
-            memory.messages.push({
+            const assistantMessage = {
                 role: "assistant",
                 content: toolResponse,
-            })
+            }
+
+            await createMessage(assistantMessage, req.userId)
+
+            memory.messages.push(assistantMessage)
 
             let event
 
