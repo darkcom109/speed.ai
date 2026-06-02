@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/sidebar"
 import { getDashboardSummary } from "@/app/dashboard/api/dashboard-summary-api"
 import DashboardSummaryCard from "@/app/dashboard/components/DashboardSummaryCard"
-import DailyBriefCard from "@/app/dashboard/components/DailyBriefCard"
 import FinanceSnapshotCard from "@/app/dashboard/components/FinanceSnapshotCard"
 import TaskActivityChart from "@/app/dashboard/components/TaskActivityChart"
 import TaskSummaryCard from "@/app/dashboard/components/TaskSummaryCard"
@@ -153,18 +152,11 @@ export default function DashboardPage() {
             />
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
-            <DailyBriefCard
-              tasks={tasks}
-              expenses={expenses}
-              isLoading={isTasksLoading || isExpensesLoading}
-            />
-            <FinanceSnapshotCard
-              expenses={expenses}
-              error={expensesError}
-              isLoading={isExpensesLoading}
-            />
-          </div>
+          <FinanceSnapshotCard
+            expenses={expenses}
+            error={expensesError}
+            isLoading={isExpensesLoading}
+          />
 
           <DashboardSummaryCard
             summary={dashboardSummary}
