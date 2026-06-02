@@ -2,6 +2,7 @@ import { Router } from "express"
 
 const githubRouter = Router()
 
+// Route for searching GitHub profiles and repositories
 githubRouter.get("/:username", async (req, res) => {
     const { username } = req.params
 

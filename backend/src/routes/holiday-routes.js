@@ -2,6 +2,7 @@ import { Router } from "express"
 
 const holidayRouter = Router()
 
+// Route for obtaining the next national holiday
 holidayRouter.get("/", async (req, res) => {
   const countryCode =
     typeof req.query.countryCode === "string"
