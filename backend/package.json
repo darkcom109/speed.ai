@@ -3,10 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "imports": {
+    "#utils/*": "./src/utils/*",
+    "#assistant/*": "./src/assistant/*",
+    "#routes/*": "./src/routes/*",
+    "#middleware/*": "./src/middleware/*",
+    "#schemas/*": "./src/schemas/*",
+    "#prisma/*": "./prisma/*"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "lint": "eslint src server.js"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +35,9 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "globals": "^17.6.0",
     "nodemon": "^3.1.14",
     "prisma": "^6.19.3"
   }

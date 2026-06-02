@@ -37,6 +37,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { useTheme } from "@/components/theme-provider"
+import { clearGoogleSession } from "@/app/login/utils/clear-google-session"
 
 type User = {
   name: string
@@ -62,6 +63,7 @@ export default function SettingsPage() {
         return
       }
 
+      clearGoogleSession()
       navigate("/login")
     } catch {
       setError("Unable to log out")
@@ -81,6 +83,7 @@ export default function SettingsPage() {
         return
       }
 
+      clearGoogleSession()
       navigate("/signup")
     } catch {
       setError("Unable to delete account")

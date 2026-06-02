@@ -36,12 +36,23 @@ export default function TaskOverviewStats({
   const dueTodayTasks = tasks
     .filter((task) => task.dueDate && isSameDay(new Date(task.dueDate), today))
     .sort((firstTask, secondTask) => {
-      return Number(firstTask.completed) - Number(secondTask.completed)
+      const completedOrder =
+        Number(firstTask.completed) - Number(secondTask.completed)
+
+      if (completedOrder !== 0) {
+        return completedOrder
+      }
+
+      return (
+        new Date(firstTask.dueDate || "").getTime() -
+        new Date(secondTask.dueDate || "").getTime()
+      )
     })
   const activeDueTodayTasks = dueTodayTasks.filter((task) => !task.completed)
   const overdueTasks = activeTasks.filter((task) => {
     return task.dueDate && startOfDay(new Date(task.dueDate)) < todayStart
   })
+  
   const visibleTodayTasks = dueTodayTasks.slice(0, 2)
 
   return (

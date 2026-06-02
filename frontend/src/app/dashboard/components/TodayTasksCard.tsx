@@ -32,11 +32,20 @@ export default function TodayTasksCard({
       return task.dueDate && isSameDay(new Date(task.dueDate), today)
     })
     .sort((firstTask, secondTask) => {
-      return Number(firstTask.completed) - Number(secondTask.completed)
-    })
+      const completedOrder =
+        Number(firstTask.completed) - Number(secondTask.completed)
+
+      if (completedOrder !== 0) {
+        return completedOrder
+      }
+
+      return (
+        new Date(firstTask.dueDate || "").getTime() -
+        new Date(secondTask.dueDate || "").getTime()
+      )
+  })
   const activeTodayTasks = todayTasks.filter((task) => !task.completed)
   const visibleTasks = todayTasks.slice(0, 2)
-  const hiddenTaskCount = todayTasks.length - visibleTasks.length
 
   return (
     <section className="min-h-36 w-full rounded-lg border bg-card p-3">
@@ -102,11 +111,6 @@ export default function TodayTasksCard({
                   </div>
                 )
               })}
-              {hiddenTaskCount > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  +{hiddenTaskCount} more
-                </p>
-              )}
             </div>
           ) : (
             <p className="mt-2 text-xs text-muted-foreground">

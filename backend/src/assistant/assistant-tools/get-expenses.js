@@ -1,4 +1,4 @@
-import prisma from "../../../prisma/client.js"
+import prisma from "#prisma/client.js"
 
 // Assistant tool to get expenses from the last 30 days.
 export async function getExpenses(userId) {

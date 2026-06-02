@@ -1,38 +1,9 @@
-import { Router } from "express"
+import { formatDateTime } from "./format-date-time.js"
+import { buildDateTime } from "./build-date-time.js"
 
-import prisma from "../../prisma/client.js"
-import { requireAuth } from "../middleware/require-auth.js"
-
-const notificationRouter = Router()
-notificationRouter.use(requireAuth)
-
-function formatDateTime(date) {
-    return new Intl.DateTimeFormat("en-GB", {
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-    }).format(date)
-}
-
-function buildTaskNotifications(tasks) {
-    const now = new Date()
-
-    // Get today's date
-    const todayStart = new Date(now)
-    todayStart.setHours(0, 0, 0, 0)
-
-    // Get tomorrow's date
-    const tomorrowStart = new Date(todayStart)
-    tomorrowStart.setDate(tomorrowStart.getDate() + 1)
-
-    // Get the day after tomorrow's date
-    const dayAfterTomorrowStart = new Date(todayStart)
-    dayAfterTomorrowStart.setDate(dayAfterTomorrowStart.getDate() + 2)
-
-    // Get today's date + 1 hour ahead
-    const nextHour = new Date(now)
-    nextHour.setHours(nextHour.getHours() + 1)
+// Helper function to build notifications queue
+export function buildTaskNotifications(tasks) {
+    const { now, todayStart, tomorrowStart, dayAfterTomorrowStart, nextHour} = buildDateTime()
 
     const notifications = []
 
@@ -101,40 +72,3 @@ function buildTaskNotifications(tasks) {
 
     return notifications
 }
-
-notificationRouter.get("/", async (req, res) => {
-    try {
-        const tasks = await prisma.task.findMany({
-            where: {
-                userId: req.userId,
-                completed: false,
-                dueDate: {
-                    not: null,
-                },
-            },
-            select: {
-                id: true,
-                title: true,
-                dueDate: true,
-                completed: true,
-            },
-            orderBy: {
-                dueDate: "asc",
-            },
-        })
-
-        const notifications = buildTaskNotifications(tasks)
-
-        return res.status(200).json({
-            notifications,
-        })
-    } catch (error) {
-        console.error("Failed to load notifications:", error)
-
-        return res.status(500).json({
-            error: "Failed to load notifications",
-        })
-    }
-})
-
-export { notificationRouter }

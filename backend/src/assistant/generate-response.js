@@ -1,12 +1,16 @@
-import { cleanJsonResponse } from "../assistant/helper-functions/clean-json-response.js"
-import { systemPrompt } from "./prompts/assistant-prompt.js"
+import { cleanJsonResponse } from "#assistant/helper-functions/clean-json-response.js"
+import { systemPrompt } from "#assistant/prompts/assistant-prompt.js"
 
 // Generate response through Ollama Cloud service and parse as JSON
 export async function generateResponse(memory) {
+
+    // Ensures each response has the most recent time
     const currentTime = `Current date: ${new Date()}`
 
+    // memory.summary = "" if the backend server has just started/restarted
     const summary = memory.summary ? memory.summary : "The conversation has just started"
     
+    // Call Ollama API
     const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {
         method: "POST",
         headers: {
@@ -28,7 +32,7 @@ export async function generateResponse(memory) {
                 },
                 {
                     role: "system",
-                    content: `Here is the summary of the conversation so far: ${memory.summary}`
+                    content: `Here is the summary of the conversation so far: ${summary}`
                 },
                 ...memory.messages
             ]

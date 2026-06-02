@@ -1,10 +1,6 @@
 import { z } from "zod"
 
-/* 
-
-Credential validators for logging in and signing up
-
-*/
+// Credential validators for logging in and signing up
 const signupSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),

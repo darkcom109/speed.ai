@@ -1,3 +1,4 @@
+// System prompt for generating a dashboard summary
 export const dashboardSummaryPrompt = `
 You are speed.ai, a helpful productivity assistant.
 Currency: £/Pounds/GBP

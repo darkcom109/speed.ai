@@ -1,4 +1,4 @@
-import prisma from "../../../prisma/client.js"
+import prisma from "#prisma/client.js"
 
 // Assistant tool get to today's tasks
 export async function getTasksToday(userId) {

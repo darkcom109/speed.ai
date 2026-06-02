@@ -3,7 +3,7 @@ export default function TasksHeader() {
         <div>
             <h2 className="text-xl font-semibold tracking-tight">Tasks</h2>
             <p className="text-sm text-muted-foreground">
-              A basic task tracker will live here.
+              Your Personal Task Tracker
             </p>
         </div>
     )

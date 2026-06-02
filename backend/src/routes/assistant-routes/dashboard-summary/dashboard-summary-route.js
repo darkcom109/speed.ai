@@ -1,55 +1,14 @@
-import { Router } from "express"
-import { dashboardSummaryPrompt } from "../../assistant/prompts/dashboard-summary-prompt.js"
-import { requireAuth } from "../../middleware/require-auth.js"
-import prisma from "../../../prisma/client.js"
+// Dashboard summary prompt
+import { dashboardSummaryPrompt } from "#assistant/prompts/dashboard-summary-prompt.js"
 
-const dashboardSummaryRouter = Router()
-dashboardSummaryRouter.use(requireAuth)
+// Import router
+import { assistantRouter } from "../assistant-router.js"
 
-async function getDashboardTasks(userId) {
-  return prisma.task.findMany({
-    where: {
-      userId,
-    },
-    select: {
-      title: true,
-      description: true,
-      completed: true,
-      dueDate: true,
-    },
-    orderBy: {
-      dueDate: "asc",
-    },
-    take: 10,
-  })
-}
+// Helper functions
+import { getDashboardTasks, getDashboardFinances } from "./helper-functions/index.js"
 
-async function getDashboardFinances(userId) {
-  const startDate = new Date()
-  startDate.setDate(startDate.getDate() - 30)
-
-  return prisma.expense.findMany({
-    where: {
-      userId,
-      spentAt: {
-        gte: startDate,
-      },
-    },
-    select: {
-      title: true,
-      amount: true,
-      kind: true,
-      category: true,
-      spentAt: true,
-    },
-    orderBy: {
-      spentAt: "desc",
-    },
-    take: 20,
-  })
-}
-
-dashboardSummaryRouter.get("/dashboard-summary", async (req, res) => {
+// Generate dashboard summary route
+assistantRouter.get("/dashboard-summary", async (req, res) => {
     try {
         const tasks = await getDashboardTasks(req.userId)
         const finances = await getDashboardFinances(req.userId)
@@ -105,5 +64,3 @@ dashboardSummaryRouter.get("/dashboard-summary", async (req, res) => {
     }
 
 })
-
-export { dashboardSummaryRouter }

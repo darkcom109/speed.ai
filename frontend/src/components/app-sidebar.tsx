@@ -41,14 +41,13 @@ async function getUserData() {
   }
 }
 
-const userData = await getUserData()
+type SidebarUser = {
+  name: string
+  email: string
+  avatar: string
+}
 
 const data = {
-  user: {
-    name: userData?.name || "Guest",
-    email: userData?.email || "Not signed in",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Overview",
@@ -145,6 +144,36 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [user, setUser] = React.useState<SidebarUser>({
+    name: "Guest",
+    email: "Not signed in",
+    avatar: "/avatars/shadcn.jpg",
+  })
+
+  React.useEffect(() => {
+    let isMounted = true
+
+    async function loadUser() {
+      const userData = await getUserData()
+
+      if (!isMounted) {
+        return
+      }
+
+      setUser({
+        name: userData?.name || "Guest",
+        email: userData?.email || "Not signed in",
+        avatar: "/avatars/shadcn.jpg",
+      })
+    }
+
+    loadUser()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -168,7 +197,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   )

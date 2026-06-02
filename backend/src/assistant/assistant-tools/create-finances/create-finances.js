@@ -1,29 +1,7 @@
-import prisma from "../../../prisma/client.js"
+import prisma from "#prisma/client.js"
+import { allowedCategories } from "#assistant/assistant-tools/create-finances/allowed-categories.js"
 
-const allowedCategories = {
-    expense: [
-        "General",
-        "Food",
-        "Transport",
-        "Bills",
-        "Subscriptions",
-        "Shopping",
-        "Health",
-        "Entertainment",
-        "Work",
-        "Other",
-    ],
-    income: [
-        "Income",
-        "Salary",
-        "Freelance",
-        "Refund",
-        "Gift",
-        "Investment",
-        "Other",
-    ],
-}
-
+// Assistant tool to create either expenses or incomes.
 export async function createFinances(userId, args = {}) {
     const financeInputs = Array.isArray(args) ? args : [args]
     const createdFinances = []

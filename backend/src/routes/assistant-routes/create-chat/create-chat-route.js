@@ -1,45 +1,15 @@
-import { Router } from "express"
+import { chatSchema } from "#schemas/chat-schemas.js"
+import { generateResponse } from "#assistant/generate-response.js"
+import { memory } from "#assistant/memory/memory-storage.js"
 
-import { requireAuth } from "../../middleware/require-auth.js"
-import { chatSchema } from "../../schemas/chat-schemas.js"
-import prisma from "../../../prisma/client.js"
+// Import router
+import { assistantRouter } from "../assistant-router.js"
 
-// Assistant related imports
-import {
-    createFinances,
-    createTask,
-    getTasks,
-    getTasksToday,
-    getExpenses,
-    getIncomes,
-} from "../../assistant/assistant-tools/index.js"
-import { generateResponse } from "../../assistant/generate-response.js"
-import { memory } from "../../assistant/memory-storage.js"
-import { compactMemory } from "../../assistant/compact-memory.js"
-import { getSavedMessages } from "./get-saved-messages.js"
+// Import tools
+import { tools } from "./tools.js"
 
-const assistantRouter = Router()
-assistantRouter.use(requireAuth)
-
-// Available tools for AI assistant 
-const tools = {
-    "getTasks": getTasks,
-    "getTasksToday": getTasksToday,
-    "createTask": createTask,
-    "createFinances": createFinances,
-    "getExpenses": getExpenses,
-    "getIncomes": getIncomes,
-}
-
-async function createMessage(message, userId) {
-    await prisma.message.create({
-        data: {
-            role: message.role,
-            content: message.content,
-            userId: userId,
-        }
-    })
-}
+// Helper functions
+import { createMessage, checkMemoryLength } from "#routes/assistant-routes/create-chat/helper-functions/index.js"
 
 // Endpoint for communicating with AI assistant
 assistantRouter.post("/chat", async (req, res) => {
@@ -51,33 +21,16 @@ assistantRouter.post("/chat", async (req, res) => {
         })
     }
 
-    const memoryLength = memory.messages.length
+    // Check if memory length is 0 or greater than 12
+    try {
+        const memoryLength = memory.messages.length
 
-    if (memoryLength === 0) {
-        const savedMessages = await getSavedMessages(req.userId)
-
-        for(let i = 0 ; i < savedMessages.length ; i++) {
-            const message = savedMessages[i]
-
-            memory.messages.push({
-                role: message.role,
-                content: message.content,
-            })
-        }
+        await checkMemoryLength(memoryLength, req.userId)
     }
-
-    if (memoryLength > 12) {
-        try {
-            const compactedContext = await compactMemory(memory)
-            console.log(compactedContext)
-            memory.summary = compactedContext
-        }
-        catch {
-            return res.status(400).json({
-                error: "Could not compact context"
-            })
-        }
-        memory.messages.splice(0, 6)
+    catch {
+        return res.status(400).json({
+            error: "Could not compact context",
+        })
     }
 
     const { message } = validationResult.data
@@ -156,5 +109,3 @@ assistantRouter.post("/chat", async (req, res) => {
         })
     }
 })
-
-export { assistantRouter }

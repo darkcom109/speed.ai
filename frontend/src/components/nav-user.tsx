@@ -20,6 +20,8 @@ import {
 import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
 import { useNavigate } from "react-router"
 
+import { clearGoogleSession } from "@/app/login/utils/clear-google-session"
+
 export function NavUser({
   user,
 }: {
@@ -46,6 +48,7 @@ export function NavUser({
         return
       }
 
+      clearGoogleSession()
       navigate("/login")
     }
     catch(error) {
