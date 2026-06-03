@@ -1,6 +1,5 @@
 import { chatSchema } from "#schemas/chat-schemas.js"
 import { generateResponse } from "#assistant/generate-response.js"
-import { memory } from "#assistant/memory/memory-storage.js"
 
 // Import router
 import { assistantRouter } from "../assistant-router.js"
@@ -9,7 +8,11 @@ import { assistantRouter } from "../assistant-router.js"
 import { tools } from "./tools.js"
 
 // Helper functions
-import { createMessage, checkMemoryLength } from "#routes/assistant-routes/create-chat/helper-functions/index.js"
+import { createMessage } from "#routes/assistant-routes/create-chat/helper-functions/index.js"
+import { getSavedMessages } from "../get-saved-messages/helper-functions/get-saved-messages-helper.js"
+import { getSavedSummary } from "../get-saved-messages/helper-functions/get-saved-summary-helper.js"
+import { compactMemory } from "#assistant/memory/compact-memory.js"
+import { createOrUpdateSummary } from "./helper-functions/create-or-update-summary-helper.js"
 
 // Endpoint for communicating with AI assistant
 assistantRouter.post("/chat", async (req, res) => {
@@ -21,11 +24,64 @@ assistantRouter.post("/chat", async (req, res) => {
         })
     }
 
-    // Check if memory length is 0 or greater than 12
-    try {
-        const memoryLength = memory.messages.length
+    const memory = {
+        messages: [],
+        summary: "",
+    }
 
-        await checkMemoryLength(memoryLength, req.userId)
+    try {
+        const savedMessages = await getSavedMessages(req.userId)
+
+        for(let i = 0 ; i < savedMessages.length ; i++) {
+            memory.messages.push({
+                role: savedMessages[i].role,
+                content: savedMessages[i].content,
+            })
+        }
+
+        const savedSummary = await getSavedSummary(req.userId)
+
+        memory.summary = savedSummary
+    }
+    catch {
+        return res.status(400).json({
+            error: "Could not update memory buffer",
+        })
+    }
+
+    // Amount of messages stored
+    const memoryLength = memory.messages.length
+
+    console.log(memoryLength)
+
+    // Check if memory length is greater than 12
+    try {
+        if (memoryLength >= 12) {
+            const leftOvers = memory.messages.slice(memoryLength - 6, memoryLength)
+            const requireCompacting = memory.messages.slice(memoryLength - 12, memoryLength - 6)
+
+            // Ensures every 12 messages, we are compacting the first 6
+            const modLength = memoryLength % 6
+
+            if (modLength === 0) {
+                try {
+                    const compactedContext = await compactMemory(requireCompacting, memory.summary)
+                    console.log(compactedContext)
+                    
+                    await createOrUpdateSummary(req.userId, compactedContext)
+
+                    memory.summary = compactedContext
+                    memory.messages = leftOvers
+                }
+                catch {
+                    throw new Error("Could not compact context")
+                }
+            }
+            else {
+                const modLeftOvers = (memoryLength % 6) + 6
+                memory.messages = memory.messages.slice(memoryLength - modLeftOvers, memoryLength)
+            }
+        }
     }
     catch {
         return res.status(400).json({
@@ -47,7 +103,7 @@ assistantRouter.post("/chat", async (req, res) => {
         memory.messages.push(userMessage)
 
         // Send user message to Ollama Cloud service API
-        const data = await generateResponse(memory)
+        const data = await generateResponse(memory.messages, memory.summary)
 
         if (data.type === "message") {
 
@@ -57,8 +113,6 @@ assistantRouter.post("/chat", async (req, res) => {
             }
 
             await createMessage(assistantMessage, req.userId)
-
-            memory.messages.push(assistantMessage)
 
             return res.status(200).json({
                 message: data.response
@@ -82,8 +136,6 @@ assistantRouter.post("/chat", async (req, res) => {
             }
 
             await createMessage(assistantMessage, req.userId)
-
-            memory.messages.push(assistantMessage)
 
             let event
 
