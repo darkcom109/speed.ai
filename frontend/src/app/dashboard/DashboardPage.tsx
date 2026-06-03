@@ -36,7 +36,7 @@ export default function DashboardPage() {
       const tasks = await getTasks()
 
       setTasks(tasks)
-    } catch (error) {
+    } catch {
       setTasksError("Unable to load tasks")
     } finally {
       setIsTasksLoading(false)

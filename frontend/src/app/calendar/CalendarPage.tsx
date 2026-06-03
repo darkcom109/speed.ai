@@ -4,10 +4,11 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
 import CalendarTaskPreviewDialog from "@/app/calendar/components/CalendarTaskPreviewDialog"
 import useCalendar from "./hooks/use-calendar"
 import RenderCalendar from "./components/RenderCalendar"
+import RenderDaysOfWeek from "./components/RenderDaysOfWeek"
+import RenderNextAndPreviousButtons from "./components/RenderNextAndPreviousButtons"
 
 export default function CalendarPage() {
   const {
@@ -42,17 +43,11 @@ export default function CalendarPage() {
         <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <div className="flex items-center justify-between gap-3">
-            <Button type="button" variant="outline" onClick={goToPreviousMonth}>
-              Previous
-            </Button>
-
-            <h3 className="text-base font-semibold">{currentMonthLabel}</h3>
-
-            <Button type="button" variant="outline" onClick={goToNextMonth}>
-              Next
-            </Button>
-          </div>
+          <RenderNextAndPreviousButtons 
+            goToPreviousMonth={goToPreviousMonth}
+            currentMonthLabel={currentMonthLabel}
+            goToNextMonth={goToNextMonth}
+          />
 
           {!isLoading && !error && !hasTasksDueThisMonth && (
             <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
@@ -60,16 +55,9 @@ export default function CalendarPage() {
             </p>
           )}
           
-          <div className="grid grid-cols-7">
-            {weekDays.map((weekDay) => (
-              <div
-                key={weekDay}
-                className="px-2 py-2 text-xs font-medium text-muted-foreground"
-              >
-                {weekDay}
-              </div>
-            ))}
-          </div>
+          <RenderDaysOfWeek 
+            weekDays={weekDays}
+          />
 
           <RenderCalendar 
             blankDays={blankDays}
