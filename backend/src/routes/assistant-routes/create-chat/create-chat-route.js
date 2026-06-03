@@ -53,6 +53,7 @@ assistantRouter.post("/chat", async (req, res) => {
     const memoryLength = memory.messages.length
 
     // Check if memory length is greater than 12
+    // NEXT STEP - Refactor into a seperate file ~40 lines long
     try {
         if (memoryLength >= 12) {
             const leftOvers = memory.messages.slice(memoryLength - 6, memoryLength)
