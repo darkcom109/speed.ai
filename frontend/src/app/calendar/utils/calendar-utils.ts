@@ -30,7 +30,7 @@ export function getMonthDays(year: number, month: number) {
 export function getBlankDays(year: number, month: number) {
   const firstDayOfMonth = new Date(year, month, 1).getDay()
 
-  return Array.from({ length: firstDayOfMonth })
+  return Array.from({ length: firstDayOfMonth }, (_, index) => index)
 }
 
 export function isSameDay(firstDate: Date, secondDate: Date) {
