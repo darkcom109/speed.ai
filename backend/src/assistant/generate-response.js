@@ -46,7 +46,16 @@ export async function generateResponse(messages, summary) {
     }
 
     try {
-        return JSON.parse(cleanJsonResponse(data.message.content))
+        const parsedData = JSON.parse(cleanJsonResponse(data.message.content))
+
+        if(!parsedData.type) {
+            return {
+                type: "message",
+                response: data.message.content,
+            }
+        }
+        
+        return parsedData
     }
     catch {
         return {
