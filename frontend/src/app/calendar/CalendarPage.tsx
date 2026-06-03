@@ -4,11 +4,14 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import CalendarTaskPreviewDialog from "@/app/calendar/components/CalendarTaskPreviewDialog"
 import useCalendar from "./hooks/use-calendar"
-import CalendarGrid from "./components/CalendarGrid"
-import CalendarWeekDays from "./components/CalendarWeekDays"
-import CalendarMonthControls from "./components/CalendarMonthControls"
+
+import {
+  CalendarGrid,
+  CalendarMonthControls,
+  CalendarTaskPreviewDialog,
+  CalendarWeekDays,
+} from "@/app/calendar/components"
 
 export default function CalendarPage() {
   const {
