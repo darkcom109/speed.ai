@@ -1,6 +1,4 @@
-import { Router } from "express"
-
-const holidayRouter = Router()
+import { holidayRouter } from "../holiday-router.js"
 
 // Route for obtaining the next national holiday
 holidayRouter.get("/", async (req, res) => {
@@ -46,5 +44,3 @@ holidayRouter.get("/", async (req, res) => {
     holiday,
   })
 })
-
-export { holidayRouter }

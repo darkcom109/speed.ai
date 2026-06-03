@@ -1,6 +1,4 @@
-import { Router } from "express"
-
-const weatherRouter = Router()
+import { weatherRouter } from "../weather-router.js"
 
 weatherRouter.get("/", async (req, res) => {
   const { latitude, longitude } = req.query
@@ -10,7 +8,7 @@ weatherRouter.get("/", async (req, res) => {
 
   if (!Number.isFinite(latitudeNumber) || !Number.isFinite(longitudeNumber)) {
     return res.status(400).json({
-        error: "Latitude and longitude are required",
+      error: "Latitude and longitude are required",
     })
   }
 
@@ -20,7 +18,7 @@ weatherRouter.get("/", async (req, res) => {
 
   if (!response.ok) {
     return res.status(502).json({
-        error: "Unable to fetch weather",
+      error: "Unable to fetch weather",
     })
   }
 
@@ -34,7 +32,5 @@ weatherRouter.get("/", async (req, res) => {
     timezone: data.timezone,
   }
 
-  res.json({ weather })
+  return res.json({ weather })
 })
-
-export { weatherRouter }
