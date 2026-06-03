@@ -68,6 +68,11 @@ assistantRouter.post("/chat", async (req, res) => {
             if (modLength === 0) {
                 try {
                     const compactedContext = await compactMemory(requireCompacting, memory.summary)
+
+                    if (!compactedContext || typeof compactedContext !== "string") {
+                        throw new Error("Invalid compacted context")
+                    }
+
                     console.log(compactedContext)
                     
                     await createOrUpdateSummary(req.userId, compactedContext)
@@ -99,8 +104,6 @@ assistantRouter.post("/chat", async (req, res) => {
     }
 
     try {
-        // Create user message
-        await createMessage(userMessage, req.userId)
 
         memory.messages.push(userMessage)
 
@@ -114,6 +117,8 @@ assistantRouter.post("/chat", async (req, res) => {
                 content: data.response,
             }
 
+            // Create user and assistant messages after succeeding
+            await createMessage(userMessage, req.userId)
             await createMessage(assistantMessage, req.userId)
 
             return res.status(200).json({
@@ -136,7 +141,9 @@ assistantRouter.post("/chat", async (req, res) => {
                 role: "assistant",
                 content: toolResponse,
             }
-
+            
+            // Create user and assistant messages after succeeding
+            await createMessage(userMessage, req.userId)
             await createMessage(assistantMessage, req.userId)
 
             let event
