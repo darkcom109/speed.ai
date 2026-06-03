@@ -2,7 +2,7 @@ import prisma from "#prisma/client.js"
 
 // Get saved summary helper function
 export async function getSavedSummary(userId) {
-    const summary = await prisma.assistant.findFirst({
+    const data = await prisma.assistant.findFirst({
         where: {
             userId: userId,
         },
@@ -10,6 +10,12 @@ export async function getSavedSummary(userId) {
             summary: true,
         },
     })
+
+    if (!data) {
+        return "No summary is available yet"
+    }
+
+    const summary = data.summary
 
     return summary
 }
