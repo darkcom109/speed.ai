@@ -41,6 +41,8 @@ export async function generateResponse(messages, summary) {
 
     const data = await response.json()
 
+    console.log(data)
+
     if (!response.ok) {
         throw new Error(data.error || "AI assistant failed")
     }
@@ -54,7 +56,7 @@ export async function generateResponse(messages, summary) {
                 response: data.message.content,
             }
         }
-        
+
         return parsedData
     }
     catch {
