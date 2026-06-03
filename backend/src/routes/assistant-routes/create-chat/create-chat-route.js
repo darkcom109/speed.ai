@@ -52,8 +52,6 @@ assistantRouter.post("/chat", async (req, res) => {
     // Amount of messages stored
     const memoryLength = memory.messages.length
 
-    console.log(memoryLength)
-
     // Check if memory length is greater than 12
     try {
         if (memoryLength >= 12) {

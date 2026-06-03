@@ -9,8 +9,6 @@ export async function generateResponse(messages, summary) {
 
     // memory.summary = "" if the backend server has just started/restarted
     const overallSummary = summary ? summary : "The conversation has just started"
-
-    console.log(overallSummary)
     
     // Call Ollama API
     const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {
