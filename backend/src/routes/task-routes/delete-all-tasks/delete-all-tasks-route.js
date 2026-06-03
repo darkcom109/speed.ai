@@ -2,6 +2,7 @@ import prisma from "#prisma/client.js"
 
 import { taskRouter } from "../task-router.js"
 
+// Delete all current tasks for the signed-in user
 taskRouter.delete("/delete_all", async (req, res) => {
   try {
     const result = await prisma.task.deleteMany({

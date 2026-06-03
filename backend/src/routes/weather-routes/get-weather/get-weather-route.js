@@ -1,5 +1,6 @@
 import { weatherRouter } from "../weather-router.js"
 
+// Get current weather for a latitude and longitude
 weatherRouter.get("/", async (req, res) => {
   const { latitude, longitude } = req.query
 

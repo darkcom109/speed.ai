@@ -1,5 +1,6 @@
 import { tflRouter } from "../tfl-router.js"
 
+// Search TfL stations by name
 tflRouter.get("/stations/search", async (req, res) => {
   const appKey = process.env.TFL_APP_KEY
   const query = String(req.query.query || "").trim()

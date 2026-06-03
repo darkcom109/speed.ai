@@ -1,5 +1,6 @@
 import { tflRouter } from "../tfl-router.js"
 
+// Get live arrivals for a TfL station
 tflRouter.get("/stations/:stationId/arrivals", async (req, res) => {
   const appKey = process.env.TFL_APP_KEY
   const { stationId } = req.params

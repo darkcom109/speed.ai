@@ -2,6 +2,7 @@ import prisma from "#prisma/client.js"
 
 import { taskRouter } from "../task-router.js"
 
+// Delete a specific task owned by the signed-in user
 taskRouter.delete("/:id", async (req, res) => {
   const task = await prisma.task.findFirst({
     where: {

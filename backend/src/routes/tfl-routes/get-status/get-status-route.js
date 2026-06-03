@@ -2,6 +2,7 @@ import { tflRouter } from "../tfl-router.js"
 
 const tflModes = "tube,dlr,elizabeth-line,overground,tram"
 
+// Get status for supported TfL transport modes
 tflRouter.get("/status", async (req, res) => {
   const appKey = process.env.TFL_APP_KEY
 

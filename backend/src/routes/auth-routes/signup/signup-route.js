@@ -6,6 +6,7 @@ import { createAuthToken, setAuthCookie } from "#utils/auth-cookie.js"
 
 import { authRouter } from "../auth-router.js"
 
+// Create a new user account
 authRouter.post("/signup", async (req, res) => {
   const result = signupSchema.safeParse(req.body)
 
