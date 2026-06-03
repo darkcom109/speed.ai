@@ -1,16 +1,16 @@
 import { Button } from "@/components/ui/button"
 
-export type RenderNextAndPreviousButtonsProps = {
+export type CalendarMonthControlsProps = {
   goToPreviousMonth: () => void
   currentMonthLabel: string
   goToNextMonth: () => void
 }
 
-export default function RenderNextAndPreviousButtons({
+export default function CalendarMonthControls({
     goToPreviousMonth,
     currentMonthLabel,
     goToNextMonth,
-} : RenderNextAndPreviousButtonsProps) {
+} : CalendarMonthControlsProps) {
     return (
         <div className="flex items-center justify-between gap-3">
             <Button type="button" variant="outline" onClick={goToPreviousMonth}>

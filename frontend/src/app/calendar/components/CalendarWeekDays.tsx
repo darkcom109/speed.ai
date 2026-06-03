@@ -1,8 +1,8 @@
-export type RenderDaysOfWeekProps = {
+export type CalendarWeekDaysProps = {
     weekDays: string[]
 }
 
-export default function RenderDaysOfWeek({ weekDays } : RenderDaysOfWeekProps) {
+export default function CalendarWeekDays({ weekDays } : CalendarWeekDaysProps) {
     return (
         <div className="grid grid-cols-7">
             {weekDays.map((weekDay) => (

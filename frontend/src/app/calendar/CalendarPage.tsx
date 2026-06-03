@@ -6,9 +6,9 @@ import {
 } from "@/components/ui/sidebar"
 import CalendarTaskPreviewDialog from "@/app/calendar/components/CalendarTaskPreviewDialog"
 import useCalendar from "./hooks/use-calendar"
-import RenderCalendar from "./components/RenderCalendar"
-import RenderDaysOfWeek from "./components/RenderDaysOfWeek"
-import RenderNextAndPreviousButtons from "./components/RenderNextAndPreviousButtons"
+import CalendarGrid from "./components/CalendarGrid"
+import CalendarWeekDays from "./components/CalendarWeekDays"
+import CalendarMonthControls from "./components/CalendarMonthControls"
 
 export default function CalendarPage() {
   const {
@@ -43,7 +43,7 @@ export default function CalendarPage() {
         <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <RenderNextAndPreviousButtons 
+          <CalendarMonthControls 
             goToPreviousMonth={goToPreviousMonth}
             currentMonthLabel={currentMonthLabel}
             goToNextMonth={goToNextMonth}
@@ -55,11 +55,11 @@ export default function CalendarPage() {
             </p>
           )}
           
-          <RenderDaysOfWeek 
+          <CalendarWeekDays 
             weekDays={weekDays}
           />
 
-          <RenderCalendar 
+          <CalendarGrid 
             blankDays={blankDays}
             days={days}
             today={today}

@@ -1,6 +1,6 @@
 import type { Task } from "@/app/tasks/types/task"
 
-export type RenderCalendarProps = {
+export type CalendarGridProps = {
     blankDays: number[]
     days: Date[]
     today: Date
@@ -9,14 +9,14 @@ export type RenderCalendarProps = {
     setPreviewTask: (task: Task | null) => void
 }
 
-export default function RenderCalendar({
+export default function CalendarGrid({
     blankDays,
     days,
     today,
     isSameDay,
     getTasksForDay,
     setPreviewTask,
-} : RenderCalendarProps) {
+} : CalendarGridProps) {
     return (
         <div className="grid grid-cols-7 rounded-lg border bg-card">
             {blankDays.map((_, index) => (
