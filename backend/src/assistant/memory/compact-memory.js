@@ -1,7 +1,7 @@
 import { compactMemorySystemPrompt } from "#assistant/prompts/compact-memory-prompt.js"
 
 // Compact memory once total messages exceeds 12, then add summary to memory
-export async function compactMemory(memory) {
+export async function compactMemory(memory, summary) {
     const response = await fetch(`${process.env.OLLAMA_URL}/api/chat`, {
         method: "POST",
         headers: {
@@ -19,11 +19,11 @@ export async function compactMemory(memory) {
                 },
                 {
                     role: "user",
-                    content: `Compact these messages into a sentence: ${JSON.stringify(memory.messages.slice(0, 6))}`,
+                    content: `Compact these messages into a sentence: ${JSON.stringify(memory)}`,
                 },
                 {
                     role: "user",
-                    content: `This is the previous summary: ${JSON.stringify(memory.summary)}`,
+                    content: `This is the previous summary: ${JSON.stringify(summary)}`,
                 }
             ]
         })

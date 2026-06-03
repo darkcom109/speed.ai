@@ -25,6 +25,7 @@ model User {
   notes        Note[]
   expenses     Expense[]
   messages     Message[]
+  assistant    Assistant?
 }
 
 model Task {
@@ -75,3 +76,14 @@ model Message {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model Assistant {
+  id        String   @id @default(uuid())
+  summary   String   @default("")
+  updatedAt DateTime @updatedAt
+
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+

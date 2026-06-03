@@ -4,6 +4,7 @@ import { assistantRouter } from "../assistant-router.js"
 // Import helper functions
 import { deleteAllMessages } from "./helper-functions/delete-all-messages-helper.js"
 
+// Clear saved assistant chat messages and summary
 assistantRouter.delete("/messages", async (req, res) => {
     try {
         await deleteAllMessages(req.userId)

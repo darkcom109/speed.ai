@@ -1,6 +1,6 @@
 import prisma from "#prisma/client.js"
-import { memory } from "#assistant/memory/memory-storage.js"
 
+// Clear all messages and summary
 export async function deleteAllMessages(userId) {
     await prisma.message.deleteMany({
         where: {
@@ -8,8 +8,17 @@ export async function deleteAllMessages(userId) {
         }
     })
 
-    memory.messages.splice(0)
-    memory.summary = ""
+    const summaryExists = await prisma.assistant.findFirst({
+        where: {
+            userId: userId
+        }
+    })
 
-    return true
+    if (summaryExists) {
+        await prisma.assistant.delete({
+            where: {
+                userId: userId
+            }
+        })
+    }
 }

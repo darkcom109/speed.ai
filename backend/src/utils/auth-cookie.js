@@ -9,6 +9,7 @@ const authCookieOptions = {
   maxAge: 7 * 24 * 60 * 60 * 1000
 }
 
+// Create a signed JWT for the authenticated user
 function createAuthToken(userId) {
   return jwt.sign(
     { userId }, 
@@ -17,12 +18,14 @@ function createAuthToken(userId) {
   )
 }
 
+// Store the auth token as an HTTP-only cookie
 function setAuthCookie(res, token) {
   res.cookie(AUTH_COOKIE_NAME, token,
     authCookieOptions,
   )
 }
 
+// Remove the auth cookie from the response
 function clearAuthCookie(res) {
   res.clearCookie(AUTH_COOKIE_NAME, authCookieOptions)
 }
