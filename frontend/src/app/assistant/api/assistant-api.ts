@@ -1,9 +1,6 @@
-export type SavedAssistantMessage = {
-  id: string
-  role: "assistant" | "user"
-  content: string
-}
+import type { SavedChatMessage } from "../types/saved-assistant-message"
 
+// Sends user message to backend and returns assistant response
 export async function sendAssistantMessage(message: string): Promise<string> {
   const response = await fetch("http://localhost:3001/api/assistant/chat", {
     method: "POST",
@@ -29,7 +26,8 @@ export async function sendAssistantMessage(message: string): Promise<string> {
   return data.message
 }
 
-export async function getAllSavedMessages(): Promise<SavedAssistantMessage[]> {
+// Retrieves all saved messages stored if page refreshes during a conversation
+export async function getAllSavedMessages(): Promise<SavedChatMessage[]> {
   const response = await fetch("http://localhost:3001/api/assistant/messages", {
     credentials: "include"
   })
@@ -43,6 +41,7 @@ export async function getAllSavedMessages(): Promise<SavedAssistantMessage[]> {
   return data.messages
 }
 
+// Deletes all saved messages and removes context
 export async function deleteAllSavedMessages() {
   const response = await fetch("http://localhost:3001/api/assistant/messages", {
     method: "DELETE",
