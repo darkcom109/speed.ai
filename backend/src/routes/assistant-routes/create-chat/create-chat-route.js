@@ -60,7 +60,11 @@ assistantRouter.post("/chat", async (req, res) => {
             const leftOvers = memory.messages.slice(memoryLength - 6, memoryLength)
             const requireCompacting = memory.messages.slice(memoryLength - 12, memoryLength - 6)
 
-            // Ensures every 12 messages, we are compacting the first 6
+            // Ensure for the last 12 messages, we compact the first 6 and leave the last 6
+            // For example: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
+            // 1. [1,2,3,4,5,6] is compacted already, so we ignore this
+            // 2. [7,8,9,10,11,12] needs to be compacted
+            // 3. [13,14,15,16,17,18] is the leftover values we will assign to memory
             const modLength = memoryLength % 6
 
             if (modLength === 0) {
