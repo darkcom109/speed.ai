@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
+import { TaskItem, TaskList } from "@tiptap/extension-list"
 
 import { NoteFormattingToolbar } from "@/app/notes/components/NoteFormattingToolbar"
 
@@ -39,12 +40,25 @@ function normalizeContent(content: string) {
 
 export function RichNoteEditor({ content, onChange }: RichNoteEditorProps) {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      TaskList.configure({
+        HTMLAttributes: {
+          class: "note-task-list",
+        },
+      }),
+      TaskItem.configure({
+        nested: true,
+        HTMLAttributes: {
+          class: "note-task-item",
+        },
+      }),
+    ],
     content: normalizeContent(content),
     editorProps: {
       attributes: {
         class:
-          "min-h-[44rem] w-full rounded-md border bg-background px-10 py-8 text-base leading-7 shadow-sm outline-none",
+          "note-editor-content min-h-[44rem] w-full rounded-md border bg-background px-10 py-8 text-base leading-7 shadow-sm outline-none",
       },
     },
     onUpdate({ editor }) {

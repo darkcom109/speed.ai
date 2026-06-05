@@ -4,11 +4,13 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import DashboardSummaryCard from "@/app/dashboard/components/DashboardSummaryCard"
-import FinanceSnapshotCard from "@/app/dashboard/components/FinanceSnapshotCard"
-import TaskActivityChart from "@/app/dashboard/components/TaskActivityChart"
-import TaskSummaryCard from "@/app/dashboard/components/TaskSummaryCard"
-import TodayTasksCard from "@/app/dashboard/components/TodayTasksCard"
+import {
+  DashboardSummaryCard,
+  FinanceSnapshotCard,
+  TaskActivityChart,
+  TaskSummaryCard,
+  TodayTasksCard,
+} from "./components"
 
 import useDashboard from "./hooks/use-dashboard"
 
