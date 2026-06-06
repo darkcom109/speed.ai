@@ -10,9 +10,6 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import {
   SidebarInset,
@@ -28,6 +25,7 @@ import RenderPagination from "@/app/expenses/components/RenderPagination"
 import { exportFinancesCsv } from "@/app/expenses/utils/export-finances-csv"
 import { currencyFormatter, dateFormatter, getExpenseDate } from "./utils/expense-utils"
 import ExpenseCards from "./components/ExpenseCards"
+import ExpenseHeader from "./components/ExpenseHeader"
 
 export default function ExpensesPage() {
   const {
@@ -154,12 +152,7 @@ export default function ExpensesPage() {
           />
 
           <Card>
-            <CardHeader>
-              <CardTitle>Recent transactions</CardTitle>
-              <CardDescription>
-                Your latest finance records.
-              </CardDescription>
-            </CardHeader>
+            <ExpenseHeader />
             <CardContent className="space-y-3">
               {isLoading && (
                 <p className="text-sm text-muted-foreground">
