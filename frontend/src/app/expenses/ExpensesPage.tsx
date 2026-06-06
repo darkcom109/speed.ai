@@ -1,9 +1,7 @@
 import type { CSSProperties } from "react"
 import {
   ReceiptTextIcon,
-  TrendingUpIcon,
   Trash2Icon,
-  WalletCardsIcon,
 } from "lucide-react"
 
 import { AppSidebar } from "@/components/app-sidebar"
@@ -24,24 +22,12 @@ import EditExpenseDialog from "@/app/expenses/components/EditExpenseDialog"
 import ExpenseSpendingChart from "@/app/expenses/components/ExpenseSpendingChart"
 import ExpensesToolbar from "@/app/expenses/components/ExpensesToolbar"
 import { useExpenses } from "@/app/expenses/hooks/use-expenses"
+import RenderPagination from "@/app/expenses/components/RenderPagination"
 
 // Export to CSV related imports
 import { exportFinancesCsv } from "@/app/expenses/utils/export-finances-csv"
-
-const currencyFormatter = new Intl.NumberFormat("en-GB", {
-  style: "currency",
-  currency: "GBP",
-})
-
-const dateFormatter = new Intl.DateTimeFormat("en-GB", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-})
-
-function getExpenseDate(date: string) {
-  return new Date(date)
-}
+import { currencyFormatter, dateFormatter, getExpenseDate } from "./utils/expense-utils"
+import ExpenseCards from "./components/ExpenseCards"
 
 export default function ExpensesPage() {
   const {
@@ -99,35 +85,14 @@ export default function ExpensesPage() {
     }
 
     return (
-      <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <p>
-          Showing {firstVisibleEntry}-{lastVisibleEntry} of{" "}
-          {filteredExpenses.length}
-        </p>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <span>
-            Page {currentPage} of {pageCount}
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(currentPage + 1)}
-            disabled={currentPage === pageCount}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <RenderPagination 
+        firstVisibleEntry={firstVisibleEntry}
+        lastVisibleEntry={lastVisibleEntry}
+        filteredExpenses={filteredExpenses}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        pageCount={pageCount}
+      />
     )
   }
 
@@ -154,43 +119,12 @@ export default function ExpensesPage() {
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card>
-              <CardHeader className="flex flex-row items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                  <WalletCardsIcon className="size-5" />
-                </div>
-                <div>
-                  <CardTitle>{currencyFormatter.format(totalSpent)}</CardTitle>
-                  <CardDescription>Total spent</CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                  <TrendingUpIcon className="size-5" />
-                </div>
-                <div>
-                  <CardTitle>{currencyFormatter.format(totalIncome)}</CardTitle>
-                  <CardDescription>Income</CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                  <ReceiptTextIcon className="size-5" />
-                </div>
-                <div>
-                  <CardTitle>{currencyFormatter.format(balance)}</CardTitle>
-                  <CardDescription>Balance</CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-          </div>
+          <ExpenseCards 
+            currencyFormatter={currencyFormatter}
+            totalSpent={totalSpent}
+            totalIncome={totalIncome}
+            balance={balance}
+          />
 
           <ExpenseSpendingChart
             expenses={expenses}
