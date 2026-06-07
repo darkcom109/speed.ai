@@ -8,6 +8,7 @@ export async function deleteAllMessages(userId) {
         }
     })
 
+    // Delete the context binded as well
     const summaryExists = await prisma.assistant.findFirst({
         where: {
             userId: userId

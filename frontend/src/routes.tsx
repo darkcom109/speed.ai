@@ -1,9 +1,8 @@
 // React Router
 import {
   createBrowserRouter,
-  Outlet,
 } from "react-router"
-import { GlobalAssistantSidebar } from "@/components/global-assistant-sidebar"
+import AppLayout from "./AppLayout"
 
 import {
   HomePage,
@@ -20,15 +19,6 @@ import {
   TransportPage,
   TransportStationsPage,
 } from "@/app/index"
-
-function AppLayout() {
-  return (
-    <>
-      <Outlet />
-      <GlobalAssistantSidebar />
-    </>
-  )
-}
 
 const router = createBrowserRouter([
   {

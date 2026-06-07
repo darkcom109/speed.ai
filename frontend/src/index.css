@@ -163,6 +163,97 @@ input[type="number"] {
     display: none;
 }
 
+.note-task-list {
+    list-style: none !important;
+    margin: 0.75rem 0;
+    padding-left: 0 !important;
+}
+
+.note-task-item {
+    display: grid !important;
+    grid-template-columns: 1.1rem minmax(0, 1fr);
+    column-gap: 0.7rem;
+    align-items: center;
+    margin: 0.3rem 0;
+}
+
+.note-task-item > label {
+    display: flex !important;
+    grid-column: 1;
+    grid-row: 1;
+    align-items: center;
+    justify-content: center;
+    height: 1.5rem;
+    padding-top: 0;
+    cursor: pointer;
+}
+
+.note-task-item > label > span {
+    display: none !important;
+}
+
+.note-task-item input[type="checkbox"] {
+    display: grid !important;
+    width: 1.05rem !important;
+    height: 1.05rem !important;
+    margin: 0 !important;
+    cursor: pointer;
+    appearance: none !important;
+    place-content: center;
+    border: 1px solid var(--border) !important;
+    border-radius: 0.275rem !important;
+    background: var(--background) !important;
+    transition:
+        background-color 120ms ease,
+        border-color 120ms ease,
+        box-shadow 120ms ease;
+}
+
+.note-task-item input[type="checkbox"]::before {
+    width: 0.55rem;
+    height: 0.55rem;
+    content: "";
+    background: var(--primary-foreground);
+    clip-path: polygon(14% 44%, 0 63%, 43% 100%, 100% 17%, 82% 0, 39% 62%);
+    transform: scale(0);
+    transition: transform 120ms ease;
+}
+
+.note-task-item input[type="checkbox"]:checked {
+    border-color: var(--primary) !important;
+    background: var(--primary) !important;
+}
+
+.note-task-item input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+.note-task-item input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+}
+
+.note-task-item > div {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+}
+
+.note-task-item > div > p {
+    min-height: 1.5rem;
+    margin: 0 !important;
+    line-height: 1.5rem;
+}
+
+.note-task-item > div > p + p {
+    margin-top: 0.25rem;
+}
+
+.note-task-item[data-checked="true"] > div {
+    color: var(--muted-foreground);
+    text-decoration: line-through;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

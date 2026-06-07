@@ -9,6 +9,7 @@ import {
   ItalicIcon,
   ListIcon,
   ListOrderedIcon,
+  ListTodoIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -78,6 +79,12 @@ export function NoteFormattingToolbar({ editor }: NoteFormattingToolbarProps) {
       icon: ListOrderedIcon,
       isActive: () => editor.isActive("orderedList"),
       onClick: () => editor.chain().focus().toggleOrderedList().run(),
+    },
+    {
+      label: "Checklist",
+      icon: ListTodoIcon,
+      isActive: () => editor.isActive("taskList"),
+      onClick: () => editor.chain().focus().toggleTaskList().run(),
     },
   ]
 
