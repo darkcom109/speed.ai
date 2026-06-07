@@ -86,7 +86,7 @@ export default function ExpensesPage() {
       <RenderPagination 
         firstVisibleEntry={firstVisibleEntry}
         lastVisibleEntry={lastVisibleEntry}
-        filteredExpenses={filteredExpenses}
+        totalEntries={filteredExpenses.length}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         pageCount={pageCount}

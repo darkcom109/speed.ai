@@ -88,6 +88,16 @@ const data = {
             <ReceiptTextIcon
             />
           ),
+          items: [
+            {
+              title: "Overview",
+              url: "/expenses",
+            },
+            {
+              title: "Savings",
+              url: "/expenses/savings",
+            },
+          ],
         },
         {
           title: "Notes",

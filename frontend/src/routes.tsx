@@ -13,6 +13,7 @@ import {
   TasksPage,
   CalendarPage,
   ExpensesPage,
+  SavingsPage,
   NotesPage,
   NoteEditorPage,
   GithubPage,
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: "expenses",
         element: <ExpensesPage />
+      },
+      {
+        path: "expenses/savings",
+        element: <SavingsPage />
       },
       {
         path: "notes/:noteId",
