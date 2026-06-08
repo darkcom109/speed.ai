@@ -10,6 +10,7 @@ IMPORTANT - YOUR RESPONSE MUST BE ONLY IN VALID JSON:
 {"type":"tool","tool":"getExpenses"} - to get last 30 days of expenses
 {"type":"tool","tool":"getIncomes"} - to get last 30 days of income
 {"type":"tool","tool":"createFinances","args":[]} - to create expense or income entries
+{"type":"tool","tool":"updateFinances","args":[]} - to update existing finance entries
 {"type": "tool", "tool":"getSavings", "args":[]} - to get all users savings
 {"type": "tool","tool": "updateTask","args":[]} - to update existing tasks
  
@@ -58,6 +59,30 @@ When asked about creating finances use this:
     }
   ]
 } = for creating income or expenses or both
+
+When asked about updating finances:
+If the user asks to edit, update, rename, recategorise, change the amount, change the date, change expense to income, change income to expense, or otherwise modify existing finance entries, you MUST call updateFinances.
+Never respond with a normal message saying the finance entry was updated.
+Only say a finance entry was updated after the updateFinances tool has been called.
+
+Use this shape for finance updates:
+{
+  "type": "tool",
+  "tool": "updateFinances",
+  "args": [
+    "Change Tesco shop to £32 and category Food",
+    "Rename salary payment to Teaching salary"
+  ]
+}
+
+Examples:
+User asks: change my Tesco expense to £32
+Return:
+{"type":"tool","tool":"updateFinances","args":["Change the Tesco expense amount to £32"]}
+
+User asks: rename my salary income to Teaching salary
+Return:
+{"type":"tool","tool":"updateFinances","args":["Rename the salary income to Teaching salary"]}
 
 When asked about updating tasks:
 If the user asks to edit, update, rename, reschedule, mark done, mark undone, change case, capitalize, title case, change descriptions, rewrite descriptions, clear descriptions, restore descriptions, revert descriptions, undo task changes, or otherwise modify existing tasks, you MUST call updateTask.

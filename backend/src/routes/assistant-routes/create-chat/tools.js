@@ -7,6 +7,7 @@ import {
     getExpenses,
     getIncomes,
     getSavings,
+    updateFinances,
     updateTask,
 } from "#assistant/assistant-tools/index.js"
 
@@ -20,4 +21,5 @@ export const tools = {
     "getIncomes": getIncomes,
     "getSavings":  getSavings,
     "updateTask": updateTask,
+    "updateFinances": updateFinances,
 }

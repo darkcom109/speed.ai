@@ -153,7 +153,7 @@ assistantRouter.post("/chat", async (req, res) => {
                 event = "tasks-updated"
             }
 
-            if (data.tool === "createFinances" && toolResponse.startsWith("Finance")) {
+            if ((data.tool === "createFinances" || data.tool === "updateFinances") && toolResponse.startsWith("Finance")) {
                 event = "finances-updated"
             }
 
