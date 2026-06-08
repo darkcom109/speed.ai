@@ -1,12 +1,8 @@
 import type { CSSProperties } from "react"
-import {
-  ReceiptTextIcon,
-  Trash2Icon,
-} from "lucide-react"
+import { ReceiptTextIcon } from "lucide-react"
 
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -15,6 +11,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import DeleteFinanceDialog from "@/app/expenses/components/DeleteFinanceDialog"
 import EditExpenseDialog from "@/app/expenses/components/EditExpenseDialog"
 import ExpenseSpendingChart from "@/app/expenses/components/ExpenseSpendingChart"
 import ExpensesToolbar from "@/app/expenses/components/ExpensesToolbar"
@@ -222,15 +219,10 @@ export default function ExpensesPage() {
                           setEditSpentAt={setEditSpentAt}
                           setEditingExpenseId={setEditingExpenseId}
                         />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteExpense(expense.id)}
-                          aria-label={`Delete ${expense.title}`}
-                        >
-                          <Trash2Icon className="text-destructive" />
-                        </Button>
+                        <DeleteFinanceDialog
+                          finance={expense}
+                          onDelete={handleDeleteExpense}
+                        />
                       </div>
                     </div>
                   ))}
