@@ -5,8 +5,9 @@ export async function getDashboardTasks(userId) {
   const startDate = new Date()
   startDate.setHours(0, 0, 0, 0)
 
-  const endDate = new Date(startDate.getDate() + 2)
-  endDate.setHours(23, 59, 59, 99)
+  const endDate = new Date(startDate)
+  endDate.setDate(endDate.getDate() + 2)
+  endDate.setHours(23, 59, 59, 999)
 
   return prisma.task.findMany({
     where: {
