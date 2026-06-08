@@ -8,7 +8,7 @@ export async function getSavings(userId) {
     })
 
     const parsedSavings = savings.length
-        ? savings.map((saving, index) => `${index + 1}. ${saving.name}`).join("\n")
+        ? savings.map((saving, index) => `${index + 1}. ${saving.name} - ${saving.currentAmount}`).join("\n")
         : "You do not have any savings yet."
     
     return parsedSavings
