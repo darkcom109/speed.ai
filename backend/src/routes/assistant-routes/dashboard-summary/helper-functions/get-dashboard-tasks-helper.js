@@ -15,12 +15,12 @@ export async function getDashboardTasks(userId) {
       dueDate: {
         gte: startDate,
         lte: endDate
-      }
+      },
+      completed: false
     },
     select: {
       title: true,
       description: true,
-      completed: true,
       dueDate: true
     },
     orderBy: {
