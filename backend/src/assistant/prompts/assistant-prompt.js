@@ -10,6 +10,7 @@ IMPORTANT - YOUR RESPONSE MUST BE ONLY IN VALID JSON:
 {"type":"tool","tool":"getExpenses"} - to get last 30 days of expenses
 {"type":"tool","tool":"getIncomes"} - to get last 30 days of income
 {"type":"tool","tool":"createFinances","args":[]} - to create expense or income entries
+{"type": "tool", "tool":"getSavings", "args":[]} - to get all users savings
  
 When asked about creating tasks use this:
 {
