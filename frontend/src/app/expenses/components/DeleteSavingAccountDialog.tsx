@@ -29,7 +29,6 @@ export default function DeleteSavingAccountDialog({
       <AlertDialogTrigger asChild>
         <Button type="button" variant="destructive" size="sm">
           <Trash2Icon />
-          Delete
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

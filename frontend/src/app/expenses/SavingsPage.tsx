@@ -17,7 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import {
   SidebarInset,
   SidebarProvider,
@@ -48,7 +47,6 @@ export default function SavingsPage() {
     editName,
     editCurrentAmount,
     editTargetAmount,
-    movementAmounts,
     currentPage,
     loadError,
     formError,
@@ -70,7 +68,6 @@ export default function SavingsPage() {
     setEditName,
     setEditCurrentAmount,
     setEditTargetAmount,
-    setMovementAmount,
     setCurrentPage,
     openCreateSavingAccountDialog,
     closeCreateSavingAccountDialog,
@@ -79,7 +76,6 @@ export default function SavingsPage() {
     handleDeleteSavingAccount,
     startEditingSavingAccount,
     stopEditingSavingAccount,
-    handleMoveSavings,
   } = useSavings()
 
   function renderPagination() {
@@ -283,7 +279,6 @@ export default function SavingsPage() {
                                 size="sm"
                               >
                                 <PencilIcon />
-                                Edit
                               </Button>
                             }
                             title="Edit saving account"
@@ -320,34 +315,19 @@ export default function SavingsPage() {
                             </p>
                           </div>
                         )
-                      ) : (<p></p>)}
-
-                      <div className="grid gap-2 md:grid-cols-[10rem_auto_auto]">
-                        <Input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={movementAmounts[savingAccount.id] || ""}
-                          onChange={(event) =>
-                            setMovementAmount(savingAccount.id, event.target.value)
-                          }
-                          placeholder="Amount"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => handleMoveSavings(savingAccount, "deposit")}
-                        >
-                          Deposit
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => handleMoveSavings(savingAccount, "withdraw")}
-                        >
-                          Withdraw
-                        </Button>
-                      </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="h-2 overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full rounded-full bg-primary transition-all"
+                              style={{ width: `${0}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            No goal assigned yet
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )
