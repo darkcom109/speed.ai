@@ -13,6 +13,9 @@ If no task confidently matches the request, return [].
 Only include fields that should be changed plus the task id.
 Do not invent task ids.
 Use null for dueDate only when the user asks to remove/clear the due date.
+If the request asks to change, restore, revert, clear, or rewrite descriptions, update the "description" field.
+If the request asks to revert descriptions but no previous description values are provided, return [].
+If previous description values are provided in the request, use those exact values.
 
 1. You will receive an array of descriptions such as:
 
@@ -50,6 +53,28 @@ If the user asks to title case all current task titles, return one object per ta
   {
     "id": "task-id-2",
     "title": "Complete Project Report"
+  }
+]
+
+If the user asks to clear all current task descriptions, return one object per task:
+
+[
+  {
+    "id": "task-id-1",
+    "description": null
+  },
+  {
+    "id": "task-id-2",
+    "description": null
+  }
+]
+
+If the user asks to restore a previous description and the previous description is given, return:
+
+[
+  {
+    "id": "task-id",
+    "description": "Previous task description"
   }
 ]
 
