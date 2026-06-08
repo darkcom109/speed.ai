@@ -1,4 +1,4 @@
-import { TriangleAlertIcon } from "lucide-react"
+import { Trash2Icon, TriangleAlertIcon } from "lucide-react"
 
 import {
   AlertDialog,
@@ -26,8 +26,14 @@ export default function DeleteTaskDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button type="button" variant="destructive" size="sm">
-          Delete
+        <Button
+          type="button"
+          variant="destructive"
+          size="icon-sm"
+          aria-label={`Delete ${taskTitle}`}
+          title="Delete"
+        >
+          <Trash2Icon />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

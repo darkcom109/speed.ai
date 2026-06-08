@@ -1,4 +1,5 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react"
+import { PencilIcon } from "lucide-react"
 
 import TaskFormDialog from "@/app/tasks/components/TaskFormDialog"
 import { type Task } from "@/app/tasks/types/task"
@@ -36,8 +37,14 @@ export default function EditTaskDialog({
       open={isOpen}
       onOpenChange={onOpenChange}
       trigger={
-        <Button type="button" variant="outline" size="sm">
-          Edit
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-sm"
+          aria-label={`Edit ${task.title}`}
+          title="Edit"
+        >
+          <PencilIcon />
         </Button>
       }
       title="Edit task"
