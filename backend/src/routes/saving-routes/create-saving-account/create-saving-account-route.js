@@ -16,7 +16,7 @@ savingRouter.post("/", async (req, res) => {
   const savingAccount = await prisma.savingAccount.create({
     data: {
       name: result.data.name,
-      currentAmount: result.data.currentAmount || 0,
+      currentAmount: result.data.currentAmount ?? 0,
       targetAmount: result.data.targetAmount,
       userId: req.userId,
     },

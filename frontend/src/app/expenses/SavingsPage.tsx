@@ -50,7 +50,9 @@ export default function SavingsPage() {
     editTargetAmount,
     movementAmounts,
     currentPage,
-    error,
+    loadError,
+    formError,
+    pageError,
     isLoading,
     isCreating,
     totalSaved,
@@ -65,12 +67,13 @@ export default function SavingsPage() {
     setName,
     setCurrentAmount,
     setTargetAmount,
-    setIsCreateDialogOpen,
     setEditName,
     setEditCurrentAmount,
     setEditTargetAmount,
     setMovementAmount,
     setCurrentPage,
+    openCreateSavingAccountDialog,
+    closeCreateSavingAccountDialog,
     handleCreateSavingAccount,
     handleUpdateSavingAccount,
     handleDeleteSavingAccount,
@@ -120,7 +123,14 @@ export default function SavingsPage() {
 
             <SavingAccountFormDialog
               open={isCreateDialogOpen}
-              onOpenChange={setIsCreateDialogOpen}
+              onOpenChange={(open) => {
+                if (open) {
+                  openCreateSavingAccountDialog()
+                  return
+                }
+
+                closeCreateSavingAccountDialog()
+              }}
               trigger={
                 <Button type="button">
                   <PlusIcon />
@@ -137,12 +147,17 @@ export default function SavingsPage() {
               setCurrentAmount={setCurrentAmount}
               setTargetAmount={setTargetAmount}
               onSubmit={handleCreateSavingAccount}
-              onCancel={() => setIsCreateDialogOpen(false)}
+              onCancel={closeCreateSavingAccountDialog}
+              error={formError}
               isSubmitting={isCreating}
             />
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {(loadError || pageError) && (
+            <p className="text-sm text-destructive">
+              {loadError || pageError}
+            </p>
+          )}
 
           <div className="grid gap-4 md:grid-cols-3">
             <Card>
@@ -184,7 +199,7 @@ export default function SavingsPage() {
 
           <SavingsGoalChart
             savingAccounts={savingAccounts}
-            error={error}
+            error={loadError}
             isLoading={isLoading}
           />
 
@@ -282,6 +297,7 @@ export default function SavingsPage() {
                             setTargetAmount={setEditTargetAmount}
                             onSubmit={handleUpdateSavingAccount}
                             onCancel={stopEditingSavingAccount}
+                            error={formError}
                           />
                           <DeleteSavingAccountDialog
                             savingAccount={savingAccount}
@@ -290,19 +306,21 @@ export default function SavingsPage() {
                         </div>
                       </div>
 
-                      {savingAccount.targetAmount && (
-                        <div className="space-y-2">
-                          <div className="h-2 overflow-hidden rounded-full bg-muted">
-                            <div
-                              className="h-full rounded-full bg-primary transition-all"
-                              style={{ width: `${progress}%` }}
-                            />
+                      {savingAccount.targetAmount ? (
+                        (
+                          <div className="space-y-2">
+                            <div className="h-2 overflow-hidden rounded-full bg-muted">
+                              <div
+                                className="h-full rounded-full bg-primary transition-all"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {Math.round(progress)}% complete
+                            </p>
                           </div>
-                          <p className="text-xs text-muted-foreground">
-                            {Math.round(progress)}% complete
-                          </p>
-                        </div>
-                      )}
+                        )
+                      ) : (<p></p>)}
 
                       <div className="grid gap-2 md:grid-cols-[10rem_auto_auto]">
                         <Input

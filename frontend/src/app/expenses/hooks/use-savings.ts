@@ -45,7 +45,9 @@ export function useSavings() {
   const [editTargetAmount, setEditTargetAmount] = useState("")
   const [movementAmounts, setMovementAmounts] = useState<Record<string, string>>({})
   const [currentPage, setCurrentPage] = useState(1)
-  const [error, setError] = useState("")
+  const [loadError, setLoadError] = useState("")
+  const [formError, setFormError] = useState("")
+  const [pageError, setPageError] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
 
@@ -70,13 +72,13 @@ export function useSavings() {
 
   const loadSavingAccounts = useCallback(async () => {
     try {
-      setError("")
+      setLoadError("")
 
       const loadedSavingAccounts = await getSavingAccounts()
 
       setSavingAccounts(loadedSavingAccounts)
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to load saving accounts")
+      setLoadError(error instanceof Error ? error.message : "Unable to load saving accounts")
     } finally {
       setIsLoading(false)
     }
@@ -94,7 +96,8 @@ export function useSavings() {
     event.preventDefault()
 
     try {
-      setError("")
+      setFormError("")
+      setPageError("")
       setIsCreating(true)
 
       const savingAccount = await createSavingAccount({
@@ -113,13 +116,14 @@ export function useSavings() {
       setIsCreateDialogOpen(false)
       setCurrentPage(1)
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to create saving account")
+      setFormError(error instanceof Error ? error.message : "Unable to create saving account")
     } finally {
       setIsCreating(false)
     }
   }
 
   function startEditingSavingAccount(savingAccount: SavingAccount) {
+    setFormError("")
     setEditingSavingAccountId(savingAccount.id)
     setEditName(savingAccount.name)
     setEditCurrentAmount(String(savingAccount.currentAmount))
@@ -129,6 +133,7 @@ export function useSavings() {
   }
 
   function stopEditingSavingAccount() {
+    setFormError("")
     setEditingSavingAccountId(null)
     setEditName("")
     setEditCurrentAmount("")
@@ -143,7 +148,8 @@ export function useSavings() {
     }
 
     try {
-      setError("")
+      setFormError("")
+      setPageError("")
 
       const savingAccount = await updateSavingAccount(editingSavingAccountId, {
         name: editName,
@@ -160,13 +166,13 @@ export function useSavings() {
       )
       stopEditingSavingAccount()
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to update saving account")
+      setFormError(error instanceof Error ? error.message : "Unable to update saving account")
     }
   }
 
   async function handleDeleteSavingAccount(savingAccountId: string) {
     try {
-      setError("")
+      setPageError("")
 
       await deleteSavingAccount(savingAccountId)
 
@@ -182,7 +188,7 @@ export function useSavings() {
         return nextSavingAccounts
       })
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to delete saving account")
+      setPageError(error instanceof Error ? error.message : "Unable to delete saving account")
     }
   }
 
@@ -200,6 +206,7 @@ export function useSavings() {
     const amount = Number(movementAmounts[savingAccount.id] || 0)
 
     if (amount <= 0) {
+      setPageError("Enter an amount greater than 0")
       return
     }
 
@@ -208,12 +215,12 @@ export function useSavings() {
       : savingAccount.currentAmount - amount
 
     if (nextAmount < 0) {
-      setError("You cannot withdraw more than the current balance")
+      setPageError("You cannot withdraw more than the current balance")
       return
     }
 
     try {
-      setError("")
+      setPageError("")
 
       const updatedSavingAccount = await updateSavingAccount(savingAccount.id, {
         currentAmount: nextAmount,
@@ -228,8 +235,18 @@ export function useSavings() {
       )
       setMovementAmount(savingAccount.id, "")
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to update saving balance")
+      setPageError(error instanceof Error ? error.message : "Unable to update saving balance")
     }
+  }
+
+  function openCreateSavingAccountDialog() {
+    setFormError("")
+    setIsCreateDialogOpen(true)
+  }
+
+  function closeCreateSavingAccountDialog() {
+    setFormError("")
+    setIsCreateDialogOpen(false)
   }
 
   return {
@@ -244,7 +261,9 @@ export function useSavings() {
     editTargetAmount,
     movementAmounts,
     currentPage,
-    error,
+    loadError,
+    formError,
+    pageError,
     isLoading,
     isCreating,
     totalSaved,
@@ -259,12 +278,13 @@ export function useSavings() {
     setName,
     setCurrentAmount,
     setTargetAmount,
-    setIsCreateDialogOpen,
     setEditName,
     setEditCurrentAmount,
     setEditTargetAmount,
     setMovementAmount,
     setCurrentPage,
+    openCreateSavingAccountDialog,
+    closeCreateSavingAccountDialog,
     handleCreateSavingAccount,
     handleUpdateSavingAccount,
     handleDeleteSavingAccount,

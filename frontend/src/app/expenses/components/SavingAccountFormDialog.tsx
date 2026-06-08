@@ -20,6 +20,7 @@ type SavingAccountFormDialogProps = {
   setTargetAmount: Dispatch<SetStateAction<string>>
   onSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>
   onCancel: () => void
+  error?: string
   isSubmitting?: boolean
 }
 
@@ -38,6 +39,7 @@ export default function SavingAccountFormDialog({
   setTargetAmount,
   onSubmit,
   onCancel,
+  error,
   isSubmitting = false,
 }: SavingAccountFormDialogProps) {
   return (
@@ -90,6 +92,7 @@ export default function SavingAccountFormDialog({
                 placeholder="1000"
               />
             </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
             <div className="flex justify-end gap-2 border-t pt-4">
               <Button type="button" variant="outline" onClick={onCancel}>
                 Cancel

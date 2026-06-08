@@ -8,7 +8,7 @@ const createSavingAccountSchema = z.object({
     .optional(),
   targetAmount: z.coerce
     .number()
-    .positive("Target amount must be greater than 0")
+    .nonnegative("Target amount cannot be negative")
     .optional(),
 })
 
@@ -20,7 +20,7 @@ const updateSavingAccountSchema = z.object({
     .optional(),
   targetAmount: z.coerce
     .number()
-    .positive("Target amount must be greater than 0")
+    .nonnegative("Target amount cannot be negative")
     .nullable()
     .optional(),
 })
