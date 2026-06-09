@@ -97,6 +97,10 @@ const data = {
               title: "Savings",
               url: "/expenses/savings",
             },
+            {
+              title: "Forecast",
+              url: "/expenses/forecast",
+            },
           ],
         },
         {

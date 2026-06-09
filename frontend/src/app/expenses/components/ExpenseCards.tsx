@@ -50,7 +50,7 @@ export default function ExpenseCards({
                 </div>
                 <div>
                   <CardTitle>{currencyFormatter.format(balance)}</CardTitle>
-                  <CardDescription>Balance</CardDescription>
+                  <CardDescription>Saved</CardDescription>
                 </div>
               </CardHeader>
             </Card>
