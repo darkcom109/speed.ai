@@ -1,4 +1,4 @@
-import { futurePredictionRouter } from "./future-prediction-router.js";
+import { futurePredictionRouter } from "../future-prediction-router.js";
 import prisma from "#prisma/client.js";
 
 futurePredictionRouter.get("/forecast-basic", async (req, res) => {

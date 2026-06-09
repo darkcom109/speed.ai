@@ -49,8 +49,10 @@ export default function ExpenseCards({
                   <ReceiptTextIcon className="size-5" />
                 </div>
                 <div>
-                  <CardTitle>{currencyFormatter.format(balance)}</CardTitle>
-                  <CardDescription>Saved</CardDescription>
+                  <CardTitle className={balance < 0 ? "text-destructive" : "text-emerald-500"}>
+                    {currencyFormatter.format(Math.abs(balance))}
+                  </CardTitle>
+                  <CardDescription className={balance < 0 ? "text-destructive" : "text-emerald-500"}>{balance < 0 ? "Lost" : "Saved"}</CardDescription>
                 </div>
               </CardHeader>
             </Card>

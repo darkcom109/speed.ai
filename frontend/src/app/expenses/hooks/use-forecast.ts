@@ -6,8 +6,7 @@ export function useForecast() {
     const [error, setError] = useState("")
     const [isLoading, setIsLoading] = useState(true)
 
-    useEffect(() => {
-        async function loadForecast() {
+    async function loadForecast() {
         try {
             setError("")
             const data = await getForecast()
@@ -18,10 +17,23 @@ export function useForecast() {
         } finally {
             setIsLoading(false)
         }
-        }
+    }
 
+    useEffect(() => {
         void loadForecast()
     }, [])
+
+    useEffect(() => {
+        function handleForecastUpdated() {
+            void loadForecast()
+        }
+
+        window.addEventListener("finances-updated", handleForecastUpdated)
+        
+        return () => {
+            window.removeEventListener("finances-updated", handleForecastUpdated)
+        }
+    })
 
     return {
         forecast,

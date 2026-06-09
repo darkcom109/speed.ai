@@ -1,4 +1,4 @@
-import "./basic-forecast-route.js"
-import "./intermediate-forecast-route.js"
+import "./forecast-algorithms/basic-forecast-route.js"
+import "./forecast-algorithms/intermediate-forecast-route.js"
 
 export { futurePredictionRouter } from "./future-prediction-router.js"
