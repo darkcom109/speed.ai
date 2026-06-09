@@ -15,7 +15,8 @@ import {
   assistantRouter,
   githubRouter,
   savingRouter,
-  tflRouter
+  tflRouter,
+  futurePredictionRouter,
 } from "#routes/index.js"
 
 const app = express()
@@ -76,5 +77,6 @@ app.use("/api/holidays", holidayRouter)
 app.use("/api/assistant", assistantRouter)
 app.use("/api/github", githubRouter)
 app.use("/api/tfl", tflRouter)
+app.use("/api/prediction", futurePredictionRouter)
 
 export { app }
