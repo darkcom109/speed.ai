@@ -1,7 +1,7 @@
 import { futurePredictionRouter } from "./future-prediction-router.js";
 import prisma from "#prisma/client.js";
 
-futurePredictionRouter.get("/forecast", async (req, res) => {
+futurePredictionRouter.get("/forecast-basic", async (req, res) => {
     try {
         const now = new Date()
 
