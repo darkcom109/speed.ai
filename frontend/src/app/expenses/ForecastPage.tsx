@@ -1,11 +1,11 @@
-import type { CSSProperties } from "react"
+import { type CSSProperties } from "react"
 import {
   CalculatorIcon,
-  ChartLineIcon,
   PiggyBankIcon,
   TrendingUpIcon,
 } from "lucide-react"
-
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+import { currencyFormatter } from "@/app/expenses/utils/expense-utils"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import {
@@ -16,11 +16,53 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart"
+import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
 
+import { useForecast } from "./hooks/use-forecast"
+
+const chartConfig = {
+  savings: {
+    label: "Savings",
+    color: "var(--primary)",
+  },
+} satisfies ChartConfig
+
 export default function ForecastPage() {
+  const {
+    forecast,
+    error,
+    isLoading,
+  } = useForecast()
+
+  const chartData = forecast
+    ? [
+        {
+          period: "Now",
+          savings: forecast.currentSavings,
+        },
+        {
+          period: "3 months",
+          savings: forecast.projections.threeMonths,
+        },
+        {
+          period: "6 months",
+          savings: forecast.projections.sixMonths,
+        },
+        {
+          period: "12 months",
+          savings: forecast.projections.twelveMonths,
+        },
+      ]
+    : []
+
   return (
     <SidebarProvider
       style={
@@ -43,38 +85,58 @@ export default function ForecastPage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            <Card>
-              <CardHeader className="flex flex-row items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                  <PiggyBankIcon className="size-5" />
+            <Card className="gap-0 py-0">
+              <CardHeader className="flex flex-row items-center gap-2.5 px-3 py-2.5">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                  <PiggyBankIcon className="size-3.5" />
                 </div>
-                <div>
-                  <CardTitle>£0</CardTitle>
-                  <CardDescription>Current savings</CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                  <TrendingUpIcon className="size-5" />
-                </div>
-                <div>
-                  <CardTitle>£0</CardTitle>
-                  <CardDescription>Projected monthly net</CardDescription>
+                <div className="min-w-0">
+                  <CardTitle className="whitespace-nowrap text-sm leading-none tracking-tight tabular-nums">
+                    {forecast
+                      ? currencyFormatter.format(forecast.currentSavings)
+                      : currencyFormatter.format(0)}
+                  </CardTitle>
+                  <CardDescription className="mt-0.5 whitespace-nowrap text-xs leading-none">
+                    Current savings
+                  </CardDescription>
                 </div>
               </CardHeader>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                  <CalculatorIcon className="size-5" />
+            <Card className="gap-0 py-0">
+              <CardHeader className="flex flex-row items-center gap-2.5 px-3 py-2.5">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                  <TrendingUpIcon className="size-3.5" />
                 </div>
-                <div>
-                  <CardTitle>Baseline</CardTitle>
-                  <CardDescription>Algorithm version</CardDescription>
+                <div className="min-w-0">
+                  <CardTitle className="whitespace-nowrap text-sm leading-none tracking-tight tabular-nums">
+                    {forecast
+                      ? currencyFormatter.format(forecast.monthlySavings)
+                      : currencyFormatter.format(0)}
+                  </CardTitle>
+                  <CardDescription className="mt-0.5 whitespace-nowrap text-xs leading-none">
+                    Monthly net
+                  </CardDescription>
+                </div>
+              </CardHeader>
+            </Card>
+
+            <Card className="gap-0 py-0">
+              <CardHeader className="flex flex-row items-center gap-2.5 px-3 py-2.5">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                  <CalculatorIcon className="size-3.5" />
+                </div>
+                <div className="min-w-0">
+                  <CardTitle className="whitespace-nowrap text-sm leading-none tracking-tight tabular-nums">
+                    {forecast
+                      ? currencyFormatter.format(
+                          forecast.projections.twelveMonths
+                        )
+                      : currencyFormatter.format(0)}
+                  </CardTitle>
+                  <CardDescription className="mt-0.5 whitespace-nowrap text-xs leading-none">
+                    12 month forecast
+                  </CardDescription>
                 </div>
               </CardHeader>
             </Card>
@@ -84,17 +146,76 @@ export default function ForecastPage() {
             <CardHeader>
               <CardTitle>Projected savings path</CardTitle>
               <CardDescription>
-                Your forecast chart will live here once the calculation logic is
-                ready.
+                A baseline projection from your current savings and monthly net.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex h-72 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-                <div className="text-center">
-                  <ChartLineIcon className="mx-auto size-8" />
-                  <p className="mt-3">Forecast output placeholder</p>
-                </div>
-              </div>
+              {isLoading && !error && (
+                <div className="h-72 animate-pulse rounded-lg bg-muted" />
+              )}
+
+              {error && <p className="text-sm text-destructive">{error}</p>}
+
+              {!isLoading && !error && (
+                <ChartContainer
+                  config={chartConfig}
+                  className="aspect-auto h-72 w-full"
+                >
+                  <LineChart
+                    data={chartData}
+                    margin={{
+                      left: 12,
+                      right: 12,
+                    }}
+                  >
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="period"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      width={72}
+                      tickFormatter={(value) =>
+                        currencyFormatter.format(Number(value))
+                      }
+                    />
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                          indicator="line"
+                          formatter={(value) => (
+                            <div className="flex w-full items-center gap-3">
+                              <span className="text-muted-foreground">
+                                Savings
+                              </span>
+                              <span className="ml-auto font-mono font-medium text-foreground tabular-nums">
+                                {currencyFormatter.format(Number(value))}
+                              </span>
+                            </div>
+                          )}
+                        />
+                      }
+                    />
+                    <Line
+                      dataKey="savings"
+                      type="monotone"
+                      stroke="var(--color-savings)"
+                      strokeWidth={2}
+                      dot={{
+                        fill: "var(--color-savings)",
+                        r: 4,
+                      }}
+                      activeDot={{
+                        r: 6,
+                      }}
+                    />
+                  </LineChart>
+                </ChartContainer>
+              )}
             </CardContent>
           </Card>
 
@@ -110,15 +231,27 @@ export default function ForecastPage() {
               <div className="grid gap-3 text-sm sm:grid-cols-3">
                 <div className="rounded-lg border p-3">
                   <p className="text-muted-foreground">Income input</p>
-                  <p className="mt-1 font-medium">Not calculated yet</p>
+                  <p className="mt-1 font-medium">
+                    {forecast
+                      ? currencyFormatter.format(forecast.totalIncome)
+                      : "Not calculated yet"}
+                  </p>
                 </div>
                 <div className="rounded-lg border p-3">
                   <p className="text-muted-foreground">Expense input</p>
-                  <p className="mt-1 font-medium">Not calculated yet</p>
+                  <p className="mt-1 font-medium">
+                    {forecast
+                      ? currencyFormatter.format(forecast.totalExpense)
+                      : "Not calculated yet"}
+                  </p>
                 </div>
                 <div className="rounded-lg border p-3">
                   <p className="text-muted-foreground">Savings input</p>
-                  <p className="mt-1 font-medium">Not calculated yet</p>
+                  <p className="mt-1 font-medium">
+                    {forecast
+                      ? currencyFormatter.format(forecast.currentSavings)
+                      : "Not calculated yet"}
+                  </p>
                 </div>
               </div>
             </CardContent>
