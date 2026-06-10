@@ -11,7 +11,7 @@ export type Forecast = {
 }
 
 export async function getForecast(): Promise<Forecast> {
-  const response = await fetch("http://localhost:3001/api/prediction/forecast-intermediate", {
+  const response = await fetch("http://localhost:3001/api/prediction/forecast-regression", {
     credentials: "include",
   })
 
