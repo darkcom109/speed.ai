@@ -9,7 +9,7 @@ import TransportLayout from "@/app/transport/components/TransportLayout"
 
 /**
  * Page shell for live TfL line status.
- * 
+ *
  * @returns The transport status page layout.
  */
 export default function TransportPage() {

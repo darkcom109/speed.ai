@@ -9,7 +9,7 @@ import TransportLayout from "@/app/transport/components/TransportLayout"
 
 /**
  * Page shell for searching TfL stations and checking arrival times
- * 
+ *
  * @returns The transport stations page layout.
  */
 export default function TransportStationsPage() {
@@ -30,7 +30,7 @@ export default function TransportStationsPage() {
   return (
     <TransportLayout>
       <StationHeader />
-      
+
       <StationSearchForm
         query={query}
         setQuery={setQuery}

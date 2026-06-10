@@ -1,4 +1,6 @@
-import type { Dispatch, FormEventHandler, SetStateAction } from "react"
+import type { 
+  Dispatch, FormEventHandler, SetStateAction 
+} from "react"
 import { SearchIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
