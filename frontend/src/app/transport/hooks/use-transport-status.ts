@@ -2,6 +2,11 @@ import { useEffect, useState } from "react"
 import { getTflStatus } from "@/app/transport/api/tfl-api"
 import type { TflLineStatus } from "@/app/transport/types/tfl-status"
 
+/**
+ * Loads live TfL line status and derives good/disrupted line groups.
+ *
+ * @returns TfL line status state, derived line groups, and a refresh handler.
+ */
 export default function useTransportStatus() {
   const [lines, setLines] = useState<TflLineStatus[]>([])
   const [error, setError] = useState("")

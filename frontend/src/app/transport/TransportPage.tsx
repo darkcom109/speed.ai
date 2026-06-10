@@ -10,6 +10,11 @@ import {
 } from "@/app/transport/components/status"
 import useTransportStatus from "@/app/transport/hooks/use-transport-status"
 
+/**
+ * Page shell for live TFL line status.
+ * 
+ * @returns The transport status page layout.
+ */
 export default function TransportPage() {
   const {
     lines,

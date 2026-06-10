@@ -6,6 +6,12 @@ import {
 } from "@/app/transport/api/tfl-api"
 import type { TflArrival, TflStation } from "@/app/transport/types/tfl-station"
 
+/**
+ * Manages TfL station search and arrival loading state.
+ *
+ * @returns Station search state, selected station arrivals, grouped arrivals,
+ * and handlers for searching/selecting stations.
+ */
 export default function useTransportStation() {
   const [query, setQuery] = useState("")
   const [stations, setStations] = useState<TflStation[]>([])

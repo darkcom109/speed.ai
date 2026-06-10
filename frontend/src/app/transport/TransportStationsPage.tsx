@@ -14,6 +14,11 @@ import {
 } from "@/app/transport/components/station"
 import useTransportStation from "@/app/transport/hooks/use-transport-station"
 
+/**
+ * Page shell for searching stations and checking arrival times
+ * 
+ * @returns The transport stations page layout.
+ */
 export default function TransportStationsPage() {
   const {
     query,
