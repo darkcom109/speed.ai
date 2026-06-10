@@ -11,7 +11,7 @@ import {
   StationList,
   StationSearchForm,
   StationHeader,
-} from "@/app/transport/components/TransportStationsPage"
+} from "@/app/transport/components/status"
 import useTransportStation from "@/app/transport/hooks/use-transport-station"
 
 export default function TransportStationsPage() {

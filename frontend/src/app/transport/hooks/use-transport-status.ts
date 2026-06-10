@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { getTflStatus } from "@/app/transport/api/tfl-api"
 import type { TflLineStatus } from "@/app/transport/types/tfl-status"
 
-export default function useTransport() {
+export default function useTransportStatus() {
   const [lines, setLines] = useState<TflLineStatus[]>([])
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(true)

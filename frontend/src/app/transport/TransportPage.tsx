@@ -7,8 +7,8 @@ import {
   TransportHeader,
   TransportLoadingGrid,
   TransportSummaryCards,
-} from "@/app/transport/components/TransportPage"
-import useTransport from "@/app/transport/hooks/use-transport"
+} from "@/app/transport/components/stations"
+import useTransportStatus from "@/app/transport/hooks/use-transport-status"
 
 export default function TransportPage() {
   const {
@@ -18,7 +18,7 @@ export default function TransportPage() {
     disruptedLines,
     goodServiceLines,
     loadTflStatus,
-  } = useTransport()
+  } = useTransportStatus()
 
   return (
     <SidebarProvider
