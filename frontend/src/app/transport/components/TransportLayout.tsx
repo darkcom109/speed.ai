@@ -22,7 +22,7 @@ export default function TransportLayout({ children }: TransportLayoutProps) {
             <SidebarInset>
                 <SiteHeader title="Transport" />
                 <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
-                  { children }
+                    { children }
                 </main>
             </SidebarInset>
         </SidebarProvider>

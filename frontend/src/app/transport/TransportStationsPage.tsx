@@ -8,7 +8,7 @@ import useTransportStation from "@/app/transport/hooks/use-transport-station"
 import TransportLayout from "@/app/transport/components/TransportLayout"
 
 /**
- * Page shell for searching Tfl stations and checking arrival times
+ * Page shell for searching TfL stations and checking arrival times
  * 
  * @returns The transport stations page layout.
  */

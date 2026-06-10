@@ -8,7 +8,7 @@ import useTransportStatus from "@/app/transport/hooks/use-transport-status"
 import TransportLayout from "@/app/transport/components/TransportLayout"
 
 /**
- * Page shell for live Tfl line status.
+ * Page shell for live TfL line status.
  * 
  * @returns The transport status page layout.
  */
