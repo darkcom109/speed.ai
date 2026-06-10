@@ -1,7 +1,7 @@
 import { AlertTriangleIcon, CheckCircle2Icon } from "lucide-react"
 import { type TflLineStatus } from "@/app/transport/types/tfl-status"
 
-export const lineColors: Record<string, string> = {
+const lineColors: Record<string, string> = {
   bakerloo: "#B36305",
   central: "#E32017",
   circle: "#FFD300",
@@ -19,7 +19,7 @@ export const lineColors: Record<string, string> = {
   tram: "#84B817",
 }
 
-export function getStatusStyles(line: TflLineStatus) {
+function getStatusStyles(line: TflLineStatus) {
   if (line.status === "Good Service") {
     return {
       card: "border-border bg-card",
@@ -37,13 +37,28 @@ export function getStatusStyles(line: TflLineStatus) {
   }
 }
 
-export function getLineColor(line: TflLineStatus) {
+function getLineColor(line: TflLineStatus) {
   return lineColors[line.id] || "var(--primary)"
 }
 
-export function formatModeName(modeName: string) {
+function formatModeName(modeName: string) {
   return modeName
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ")
+}
+
+function getLineStatusGroups(lines: TflLineStatus[]) {
+  return {
+    disruptedLines: lines.filter((line) => line.status !== "Good Service"),
+    goodServiceLines: lines.filter((line) => line.status === "Good Service"),
+  }
+}
+
+export {
+  lineColors,
+  getStatusStyles,
+  getLineColor,
+  formatModeName,
+  getLineStatusGroups,
 }

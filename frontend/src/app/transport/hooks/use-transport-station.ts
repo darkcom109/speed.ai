@@ -5,6 +5,7 @@ import {
   searchTflStations,
 } from "@/app/transport/api/tfl-api"
 import type { TflArrival, TflStation } from "@/app/transport/types/tfl-station"
+import { groupArrivalsByDirection } from "@/app/transport/utils/transport-station-utils"
 
 /**
  * Manages TfL station search and arrival loading state.
@@ -64,15 +65,7 @@ export default function useTransportStation() {
     }
   }
 
-  const arrivalsByDirection = arrivals.reduce<Record<string, TflArrival[]>>(
-    (groups, arrival) => {
-      const direction = arrival.direction || arrival.platformName || "Unknown"
-      groups[direction] = [...(groups[direction] || []), arrival]
-
-      return groups
-    },
-    {}
-  )
+  const arrivalsByDirection = groupArrivalsByDirection(arrivals)
 
   return {
     query,

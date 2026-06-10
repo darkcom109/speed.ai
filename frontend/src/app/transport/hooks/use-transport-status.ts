@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { getTflStatus } from "@/app/transport/api/tfl-api"
 import type { TflLineStatus } from "@/app/transport/types/tfl-status"
+import { getLineStatusGroups } from "@/app/transport/utils/transport-utils"
 
 /**
  * Loads live TfL line status and derives good/disrupted line groups.
@@ -55,8 +56,7 @@ export default function useTransportStatus() {
     }
   }, [])
 
-  const disruptedLines = lines.filter((line) => line.status !== "Good Service")
-  const goodServiceLines = lines.filter((line) => line.status === "Good Service")
+  const { disruptedLines, goodServiceLines } = getLineStatusGroups(lines)
 
   return {
     lines,
