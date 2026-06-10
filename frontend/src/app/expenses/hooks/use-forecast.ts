@@ -33,7 +33,7 @@ export function useForecast() {
         return () => {
             window.removeEventListener("finances-updated", handleForecastUpdated)
         }
-    })
+    }, [])
 
     return {
         forecast,
