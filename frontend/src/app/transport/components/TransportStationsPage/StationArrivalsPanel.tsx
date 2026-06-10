@@ -1,6 +1,13 @@
 import { ClockIcon } from "lucide-react"
 import { formatArrivalTime } from "@/app/transport/utils/transport-station-utils"
-import { type StationArrivalsPanelProps } from "@/app/transport/types/station-arrival-panel-props"
+import type { TflArrival, TflStation } from "@/app/transport/types/tfl-station"
+
+type StationArrivalsPanelProps = {
+  selectedStation: TflStation | null
+  arrivals: TflArrival[]
+  arrivalsByDirection: Record<string, TflArrival[]>
+  isLoadingArrivals: boolean
+}
 
 export default function StationArrivalsPanel({
   selectedStation,

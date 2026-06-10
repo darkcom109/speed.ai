@@ -1,6 +1,10 @@
 import { RefreshCwIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { type TransportHeaderProps } from "@/app/transport/types/transport-header-props"
+
+type TransportHeaderProps = {
+  isLoading: boolean
+  onRefresh: () => void
+}
 
 export default function TransportHeader({
   isLoading,
