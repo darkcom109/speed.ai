@@ -134,7 +134,7 @@ export default function ForecastPage() {
                       : currencyFormatter.format(0)}
                   </CardTitle>
                   <CardDescription className="mt-0.5 whitespace-nowrap text-xs leading-none">
-                    Monthly net
+                    Avg Monthly net
                   </CardDescription>
                 </div>
               </CardHeader>

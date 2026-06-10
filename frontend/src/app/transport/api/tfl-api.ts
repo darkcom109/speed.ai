@@ -1,6 +1,7 @@
 import type { TflStatusData } from "@/app/transport/types/tfl-status"
 import type { TflArrival, TflStation } from "@/app/transport/types/tfl-station"
 
+// Returns TFL status of train lines
 export async function getTflStatus(): Promise<TflStatusData> {
   const response = await fetch("http://localhost:3001/api/tfl/status")
   const data = await response.json()
@@ -12,6 +13,7 @@ export async function getTflStatus(): Promise<TflStatusData> {
   return data
 }
 
+// Returns TFL stations according to query
 export async function searchTflStations(query: string): Promise<TflStation[]> {
   const response = await fetch(
     `http://localhost:3001/api/tfl/stations/search?query=${encodeURIComponent(query)}`
@@ -25,6 +27,7 @@ export async function searchTflStations(query: string): Promise<TflStation[]> {
   return data.stations
 }
 
+// Returns TFL station arrival times
 export async function getTflStationArrivals(
   stationId: string
 ): Promise<TflArrival[]> {
