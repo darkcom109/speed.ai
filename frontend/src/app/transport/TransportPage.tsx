@@ -7,7 +7,7 @@ import {
   TransportHeader,
   TransportLoadingGrid,
   TransportSummaryCards,
-} from "@/app/transport/components/stations"
+} from "@/app/transport/components/status"
 import useTransportStatus from "@/app/transport/hooks/use-transport-status"
 
 export default function TransportPage() {
