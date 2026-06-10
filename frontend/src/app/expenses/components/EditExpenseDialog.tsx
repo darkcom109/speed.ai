@@ -1,4 +1,5 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react"
+import { PencilIcon } from "lucide-react"
 
 import ExpenseFormDialog from "@/app/expenses/components/ExpenseFormDialog"
 import type { Expense, ExpenseKind } from "@/app/expenses/types/expense"
@@ -44,8 +45,14 @@ export default function EditExpenseDialog({
       open={isOpen}
       onOpenChange={onOpenChange}
       trigger={
-        <Button type="button" variant="outline" size="sm">
-          Edit
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-sm"
+          aria-label={`Edit ${expense.title}`}
+          title="Edit"
+        >
+          <PencilIcon />
         </Button>
       }
       title="Edit finance entry"

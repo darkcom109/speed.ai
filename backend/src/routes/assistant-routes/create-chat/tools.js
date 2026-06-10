@@ -6,6 +6,9 @@ import {
     getTasksToday,
     getExpenses,
     getIncomes,
+    getSavings,
+    updateFinances,
+    updateTask,
 } from "#assistant/assistant-tools/index.js"
 
 // Available tools for AI assistant 
@@ -16,4 +19,7 @@ export const tools = {
     "createFinances": createFinances,
     "getExpenses": getExpenses,
     "getIncomes": getIncomes,
+    "getSavings":  getSavings,
+    "updateTask": updateTask,
+    "updateFinances": updateFinances,
 }

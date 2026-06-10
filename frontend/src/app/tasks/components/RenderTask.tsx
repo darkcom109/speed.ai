@@ -1,3 +1,5 @@
+import { CheckIcon, RotateCcwIcon } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { type Task } from "@/app/tasks/types/task"
 import DeleteTaskDialog from "@/app/tasks/components/DeleteTaskDialog"
@@ -35,6 +37,8 @@ export default function RenderTask({
   setEditDueDate,
   setEditingTaskId,
 }: RenderTaskProps) {
+  const ToggleIcon = task.completed ? RotateCcwIcon : CheckIcon
+
   return (
     <>
       <div>
@@ -83,10 +87,14 @@ export default function RenderTask({
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="icon-sm"
           onClick={() => handleToggleTask(task)}
+          aria-label={
+            task.completed ? `Mark ${task.title} undone` : `Mark ${task.title} done`
+          }
+          title={task.completed ? "Mark undone" : "Mark done"}
         >
-          {task.completed ? "Mark Undone" : "Mark done"}
+          <ToggleIcon />
         </Button>
         <DeleteTaskDialog
           taskTitle={task.title}

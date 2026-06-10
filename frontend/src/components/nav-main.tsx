@@ -48,7 +48,7 @@ export function NavMain({
 
                     return (
                       <>
-                        <NavLink to={item.url}>
+                        <NavLink to={item.url} end={Boolean(item.items)}>
                           {({ isActive }) => (
                             <SidebarMenuButton
                               isActive={item.items ? false : isActive}
@@ -63,7 +63,7 @@ export function NavMain({
                           <SidebarMenuSub>
                             {item.items?.map((subItem) => (
                               <SidebarMenuSubItem key={subItem.title}>
-                                <NavLink to={subItem.url}>
+                                <NavLink to={subItem.url} end>
                                   {({ isActive }) => (
                                     <SidebarMenuSubButton isActive={isActive}>
                                       <span>{subItem.title}</span>

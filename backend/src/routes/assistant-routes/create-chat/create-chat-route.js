@@ -149,11 +149,11 @@ assistantRouter.post("/chat", async (req, res) => {
 
             let event
 
-            if (data.tool === "createTask" && toolResponse.startsWith("Task")) {
+            if ((data.tool === "createTask" || data.tool === "updateTask") && toolResponse.startsWith("Task")) {
                 event = "tasks-updated"
             }
 
-            if (data.tool === "createFinances" && toolResponse.startsWith("Finance")) {
+            if ((data.tool === "createFinances" || data.tool === "updateFinances") && toolResponse.startsWith("Finance")) {
                 event = "finances-updated"
             }
 

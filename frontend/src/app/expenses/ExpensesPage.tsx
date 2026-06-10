@@ -1,12 +1,8 @@
 import type { CSSProperties } from "react"
-import {
-  ReceiptTextIcon,
-  Trash2Icon,
-} from "lucide-react"
+import { ReceiptTextIcon } from "lucide-react"
 
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -15,6 +11,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import DeleteFinanceDialog from "@/app/expenses/components/DeleteFinanceDialog"
 import EditExpenseDialog from "@/app/expenses/components/EditExpenseDialog"
 import ExpenseSpendingChart from "@/app/expenses/components/ExpenseSpendingChart"
 import ExpensesToolbar from "@/app/expenses/components/ExpensesToolbar"
@@ -86,7 +83,7 @@ export default function ExpensesPage() {
       <RenderPagination 
         firstVisibleEntry={firstVisibleEntry}
         lastVisibleEntry={lastVisibleEntry}
-        filteredExpenses={filteredExpenses}
+        totalEntries={filteredExpenses.length}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         pageCount={pageCount}
@@ -187,7 +184,7 @@ export default function ExpensesPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between gap-3 sm:justify-end">
+                      <div className="flex items-center justify-between gap-4 sm:justify-end">
                         <p
                           className={
                             expense.kind === "income"
@@ -198,39 +195,36 @@ export default function ExpensesPage() {
                           {expense.kind === "income" ? "+" : "-"}
                           {currencyFormatter.format(expense.amount)}
                         </p>
-                        <EditExpenseDialog
-                          expense={expense}
-                          isOpen={editingExpenseId === expense.id}
-                          onOpenChange={(open) => {
-                            if (open) {
-                              startEditingExpense(expense)
-                              return
-                            }
+                        <div className="flex items-center gap-1">
+                          <EditExpenseDialog
+                            expense={expense}
+                            isOpen={editingExpenseId === expense.id}
+                            onOpenChange={(open) => {
+                              if (open) {
+                                startEditingExpense(expense)
+                                return
+                              }
 
-                            setEditingExpenseId(null)
-                          }}
-                          handleUpdateExpense={handleUpdateExpense}
-                          editTitle={editTitle}
-                          editAmount={editAmount}
-                          editKind={editKind}
-                          editCategory={editCategory}
-                          editSpentAt={editSpentAt}
-                          setEditTitle={setEditTitle}
-                          setEditAmount={setEditAmount}
-                          setEditKind={setEditKind}
-                          setEditCategory={setEditCategory}
-                          setEditSpentAt={setEditSpentAt}
-                          setEditingExpenseId={setEditingExpenseId}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteExpense(expense.id)}
-                          aria-label={`Delete ${expense.title}`}
-                        >
-                          <Trash2Icon className="text-destructive" />
-                        </Button>
+                              setEditingExpenseId(null)
+                            }}
+                            handleUpdateExpense={handleUpdateExpense}
+                            editTitle={editTitle}
+                            editAmount={editAmount}
+                            editKind={editKind}
+                            editCategory={editCategory}
+                            editSpentAt={editSpentAt}
+                            setEditTitle={setEditTitle}
+                            setEditAmount={setEditAmount}
+                            setEditKind={setEditKind}
+                            setEditCategory={setEditCategory}
+                            setEditSpentAt={setEditSpentAt}
+                            setEditingExpenseId={setEditingExpenseId}
+                          />
+                          <DeleteFinanceDialog
+                            finance={expense}
+                            onDelete={handleDeleteExpense}
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}

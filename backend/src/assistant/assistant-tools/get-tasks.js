@@ -4,9 +4,10 @@ import prisma from "#prisma/client.js"
 export async function getTasks(userId) {
     const tasks = await prisma.task.findMany({
         where: {
-            userId: userId
+            userId: userId,
+            completed: false
         },
-        take: 5
+        take: 10
     })
 
     const parsedTasks = tasks.length

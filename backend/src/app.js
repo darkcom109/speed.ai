@@ -14,7 +14,9 @@ import {
   holidayRouter,
   assistantRouter,
   githubRouter,
-  tflRouter
+  savingRouter,
+  tflRouter,
+  futurePredictionRouter,
 } from "#routes/index.js"
 
 const app = express()
@@ -69,10 +71,12 @@ app.use("/api/tasks", taskRouter)
 app.use("/api/notes", noteRouter)
 app.use("/api/notifications", notificationRouter)
 app.use("/api/expenses", expenseRouter)
+app.use("/api/savings", savingRouter)
 app.use("/api/weather", weatherRouter)
 app.use("/api/holidays", holidayRouter)
 app.use("/api/assistant", assistantRouter)
 app.use("/api/github", githubRouter)
 app.use("/api/tfl", tflRouter)
+app.use("/api/prediction", futurePredictionRouter)
 
 export { app }

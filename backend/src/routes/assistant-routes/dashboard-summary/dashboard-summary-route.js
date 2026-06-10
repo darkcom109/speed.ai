@@ -6,12 +6,14 @@ import { assistantRouter } from "../assistant-router.js"
 
 // Helper functions
 import { getDashboardTasks, getDashboardFinances } from "./helper-functions/index.js"
+import { getSavings } from "#assistant/assistant-tools/get-savings.js"
 
 // Generate dashboard summary route
 assistantRouter.get("/dashboard-summary", async (req, res) => {
     try {
         const tasks = await getDashboardTasks(req.userId)
         const finances = await getDashboardFinances(req.userId)
+        const savings = await getSavings(req.userId)
 
         const currentTime = `Current date: ${new Date()}`
 
@@ -39,6 +41,7 @@ assistantRouter.get("/dashboard-summary", async (req, res) => {
                         content: JSON.stringify({
                             tasks, 
                             finances,
+                            savings,
                         })
                     }
                 ]
