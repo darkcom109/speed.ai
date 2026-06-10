@@ -81,6 +81,16 @@ futurePredictionRouter.get("/forecast-regression", async (req, res) => {
             }
         })
 
+        const hasThreeMonthsOfData = monthlyData.every((month) => {
+            return month.income > 0 || month.expense > 0
+        })
+
+        if (!hasThreeMonthsOfData) {
+            return res.status(400).json({
+                error: "At least 3 months of data is required to build forecase"
+            })
+        }
+
         const points = monthlyData.map((month, index) => {
             return {
                 x: index,
