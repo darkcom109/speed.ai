@@ -8,7 +8,7 @@ import useTransportStatus from "@/app/transport/hooks/use-transport-status"
 import TransportLayout from "@/app/transport/components/TransportLayout"
 
 /**
- * Page shell for live TFL line status.
+ * Page shell for live Tfl line status.
  * 
  * @returns The transport status page layout.
  */
@@ -24,23 +24,21 @@ export default function TransportPage() {
 
   return (
     <TransportLayout>
-      <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
-        <TransportHeader isLoading={isLoading} onRefresh={loadTflStatus} />
+      <TransportHeader isLoading={isLoading} onRefresh={loadTflStatus} />
 
-        <TransportSummaryCards
-          lines={lines}
-          goodServiceLines={goodServiceLines}
-          disruptedLines={disruptedLines}
-        />
+      <TransportSummaryCards
+        lines={lines}
+        goodServiceLines={goodServiceLines}
+        disruptedLines={disruptedLines}
+      />
 
-        {isLoading && <TransportLoadingGrid />}
+      {isLoading && <TransportLoadingGrid />}
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
-        {!isLoading && !error && (
-          <DisruptedLinesSection disruptedLines={disruptedLines} />
-        )}
-      </main>
+      {!isLoading && !error && (
+        <DisruptedLinesSection disruptedLines={disruptedLines} />
+      )}
     </TransportLayout>
   )
 }
