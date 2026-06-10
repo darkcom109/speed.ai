@@ -35,6 +35,25 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+const placeholderChartData = [
+  {
+    period: "Now",
+    savings: 0,
+  },
+  {
+    period: "3 months",
+    savings: 0,
+  },
+  {
+    period: "6 months",
+    savings: 0,
+  },
+  {
+    period: "12 months",
+    savings: 0,
+  },
+]
+
 export default function ForecastPage() {
   const {
     forecast,
@@ -154,7 +173,57 @@ export default function ForecastPage() {
                 <div className="h-72 animate-pulse rounded-lg bg-muted" />
               )}
 
-              {error && <p className="text-sm text-destructive">{error}</p>}
+              {error && (
+                <div className="relative">
+                  <ChartContainer
+                    config={chartConfig}
+                    className="aspect-auto h-72 w-full opacity-30"
+                  >
+                    <LineChart
+                      data={placeholderChartData}
+                      margin={{
+                        left: 12,
+                        right: 12,
+                      }}
+                    >
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="period"
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                      />
+                      <YAxis
+                        tickLine={false}
+                        axisLine={false}
+                        width={72}
+                        tickFormatter={(value) =>
+                          currencyFormatter.format(Number(value))
+                        }
+                      />
+                      <Line
+                        dataKey="savings"
+                        type="monotone"
+                        stroke="var(--color-savings)"
+                        strokeDasharray="5 5"
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                    </LineChart>
+                  </ChartContainer>
+
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="max-w-sm rounded-lg border bg-card/95 px-4 py-3 text-center shadow-sm">
+                      <p className="text-sm font-medium">
+                        Forecast unavailable
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {error}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {!isLoading && !error && (
                 <ChartContainer
