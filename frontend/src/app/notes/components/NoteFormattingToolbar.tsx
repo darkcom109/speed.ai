@@ -2,6 +2,7 @@ import type { ElementType } from "react"
 import type { Editor } from "@tiptap/react"
 import {
   BoldIcon,
+  CalculatorIcon,
   Heading1Icon,
   Heading2Icon,
   Heading3Icon,
@@ -11,6 +12,8 @@ import {
   ListOrderedIcon,
   ListTodoIcon,
 } from "lucide-react"
+import { evaluate, format } from "mathjs"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -29,6 +32,31 @@ type FormattingButton = {
 export function NoteFormattingToolbar({ editor }: NoteFormattingToolbarProps) {
   if (!editor) {
     return null
+  }
+
+  const activeEditor = editor
+
+  function calculateSelection() {
+    const { from, to } = activeEditor.state.selection
+    const expression = activeEditor.state.doc.textBetween(from, to, " ").trim()
+
+    if (!expression) {
+      toast.info("Select a calculation first")
+      return
+    }
+
+    try {
+      const result = evaluate(expression)
+      const formattedResult = format(result, { precision: 14 })
+
+      activeEditor
+        .chain()
+        .focus()
+        .insertContentAt({ from, to }, `${expression} = ${formattedResult}`)
+        .run()
+    } catch {
+      toast.error("Unable to calculate the selected text")
+    }
   }
 
   const formattingButtons: FormattingButton[] = [
@@ -86,6 +114,12 @@ export function NoteFormattingToolbar({ editor }: NoteFormattingToolbarProps) {
       isActive: () => editor.isActive("taskList"),
       onClick: () => editor.chain().focus().toggleTaskList().run(),
     },
+    {
+      label: "Calculate selection",
+      icon: CalculatorIcon,
+      isActive: () => false,
+      onClick: calculateSelection,
+    },
   ]
 
   return (
@@ -102,9 +136,7 @@ export function NoteFormattingToolbar({ editor }: NoteFormattingToolbarProps) {
             aria-label={button.label}
             title={button.label}
             onClick={button.onClick}
-            className={cn(
-              button.isActive() && "bg-muted text-foreground"
-            )}
+            className={cn(button.isActive() && "bg-muted text-foreground")}
           >
             <Icon />
           </Button>
