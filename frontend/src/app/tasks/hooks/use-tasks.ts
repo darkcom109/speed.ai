@@ -17,7 +17,7 @@ import {
   getPageCount,
   getPaginatedTasks,
   matchesTaskFilter,
-} from "@/app/tasks/utils/use-task-utils"
+} from "@/app/tasks/utils/task-utils"
 
 const tasksPerPage = 10
 
@@ -56,14 +56,16 @@ export function useTasks() {
   const completedTasks = filteredTasks.filter((task) => task.completed)
   const activePageCount = getPageCount(activeTasks.length, tasksPerPage)
   const completedPageCount = getPageCount(completedTasks.length, tasksPerPage)
+  const visibleActivePage = Math.min(activePage, activePageCount)
+  const visibleCompletedPage = Math.min(completedPage, completedPageCount)
   const paginatedActiveTasks = getPaginatedTasks(
     activeTasks,
-    activePage,
+    visibleActivePage,
     tasksPerPage
   )
   const paginatedCompletedTasks = getPaginatedTasks(
     completedTasks,
-    completedPage,
+    visibleCompletedPage,
     tasksPerPage
   )
 
@@ -88,8 +90,39 @@ export function useTasks() {
   }, [navigate])
 
   useEffect(() => {
-    void loadTasks()
-  }, [loadTasks])
+    let shouldIgnore = false
+
+    getTasks()
+      .then((loadedTasks) => {
+        if (!shouldIgnore) {
+          setTasks(loadedTasks)
+          setError("")
+        }
+      })
+      .catch((error: unknown) => {
+        if (shouldIgnore) {
+          return
+        }
+
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          navigate("/login")
+          return
+        }
+
+        setError(
+          error instanceof Error ? error.message : "Unable to retrieve tasks"
+        )
+      })
+      .finally(() => {
+        if (!shouldIgnore) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      shouldIgnore = true
+    }
+  }, [navigate])
 
   useEffect(() => {
     function handleTasksUpdated() {
@@ -103,22 +136,17 @@ export function useTasks() {
     }
   }, [loadTasks])
 
-  useEffect(() => {
+  function handleSearchTermChange(value: string) {
+    setSearchTerm(value)
     setActivePage(1)
     setCompletedPage(1)
-  }, [searchTerm, taskFilter])
+  }
 
-  useEffect(() => {
-    if (activePage > activePageCount) {
-      setActivePage(activePageCount)
-    }
-  }, [activePage, activePageCount])
-
-  useEffect(() => {
-    if (completedPage > completedPageCount) {
-      setCompletedPage(completedPageCount)
-    }
-  }, [completedPage, completedPageCount])
+  function handleTaskFilterChange(value: TaskFilter) {
+    setTaskFilter(value)
+    setActivePage(1)
+    setCompletedPage(1)
+  }
 
   async function handleCreateTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -147,7 +175,7 @@ export function useTasks() {
       setError("")
 
       await deleteAllTasks()
-      setTasks(tasks.filter((task) => task.completed !== false))
+      setTasks((currentTasks) => currentTasks.filter((task) => task.completed))
       emitTasksUpdated()
     } catch (error) {
       setError(
@@ -241,8 +269,8 @@ export function useTasks() {
     description,
     dueDate,
     searchTerm,
-    activePage,
-    completedPage,
+    activePage: visibleActivePage,
+    completedPage: visibleCompletedPage,
     taskFilter,
     activeTasks,
     completedTasks,
@@ -258,7 +286,7 @@ export function useTasks() {
     setEditDescription,
     setEditDueDate,
     setEditingTaskId,
-    setSearchTerm,
+    setSearchTerm: handleSearchTermChange,
     handleCreateTask,
     handleToggleTask,
     startEditingTask,
@@ -267,6 +295,6 @@ export function useTasks() {
     handleDeleteAllTasks,
     setActivePage,
     setCompletedPage,
-    setTaskFilter,
+    setTaskFilter: handleTaskFilterChange,
   }
 }

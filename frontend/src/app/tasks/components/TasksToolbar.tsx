@@ -24,9 +24,9 @@ type TasksToolbarProps = {
   setDescription: React.Dispatch<React.SetStateAction<string>>
   setDueDate: React.Dispatch<React.SetStateAction<string>>
   searchTerm: string
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>
+  setSearchTerm: (value: string) => void
   taskFilter: TaskFilter
-  setTaskFilter: React.Dispatch<React.SetStateAction<TaskFilter>>
+  setTaskFilter: (value: TaskFilter) => void
 }
 
 export default function TasksToolbar({
