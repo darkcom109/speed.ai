@@ -7,6 +7,8 @@ import {
   getNotes,
 } from "@/app/notes/api/notes-api"
 import type { Note } from "@/app/notes/types/note"
+import { apiClient } from "@/lib/api-client"
+import axios from "axios"
 
 export function useNotes() {
   const [notes, setNotes] = useState<Note[]>([])
@@ -34,9 +36,16 @@ export function useNotes() {
           return
         }
 
+        apiClient.get("/auth/me")
+
         const notes = await getNotes()
         setNotes(notes)
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          navigate("/login")
+          return
+        }
+        
         setError(error instanceof Error ? error.message : "Unable to load notes")
       } finally {
         setIsLoading(false)
