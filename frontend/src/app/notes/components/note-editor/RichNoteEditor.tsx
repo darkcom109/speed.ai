@@ -3,7 +3,7 @@ import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { TaskItem, TaskList } from "@tiptap/extension-list"
 
-import { NoteFormattingToolbar } from "@/app/notes/components/NoteFormattingToolbar"
+import { NoteFormattingToolbar } from "@/app/notes/components/note-editor/NoteFormattingToolbar"
 
 type RichNoteEditorProps = {
   content: string
