@@ -1,20 +1,15 @@
 import { type SignupPayload } from "../types/signup-payload"
+import { apiClient } from "@/lib/api-client"
 
-export async function signupUser(payload: SignupPayload) {
-    const response = await fetch("http://localhost:3001/api/auth/signup", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify(payload)
-    })
+type SignupResponse = {
+    id: number
+    name: string
+    email: string
+    createdAt: Date
+}
 
-    const data = await response.json()
+export async function signupUser(payload: SignupPayload): Promise<SignupResponse> {
+    const { data } = await apiClient.post<{ user: SignupResponse }>("/auth/signup", payload)
 
-    if (!response.ok) {
-        throw new Error(data.error || "Unable to sign in")
-    }
-
-    return data
+    return data.user
 }
