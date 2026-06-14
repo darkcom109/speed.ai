@@ -6,17 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CheckIcon } from "lucide-react"
 import { SiteHeader } from "@/components/site-header"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { DeleteNoteDialog } from "@/app/notes/components/DeleteNoteDialog"
 import { RichNoteEditor } from "@/app/notes/components/RichNoteEditor"
-import {
-  deleteNote,
-  getNote,
-  updateNote,
-} from "@/app/notes/api/notes-api"
+import { deleteNote, getNote, updateNote } from "@/app/notes/api/notes-api"
 import handleExportNote from "@/app/notes/utils/export-note"
 
 type NoteDraft = {
@@ -112,7 +105,9 @@ export default function NoteEditorPage() {
       try {
         await saveNoteDraft(draft)
       } catch (error) {
-        setError(error instanceof Error ? error.message : "Unable to auto-save file")
+        setError(
+          error instanceof Error ? error.message : "Unable to auto-save file"
+        )
       }
     }, 900)
 
@@ -219,7 +214,11 @@ export default function NoteEditorPage() {
               <Button asChild type="button" variant="outline">
                 <Link to="/notes">Back to files</Link>
               </Button>
-              <Button type="button" variant="outline" onClick={() => handleExportNote(title, content)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleExportNote(title, content)}
+              >
                 Export
               </Button>
               <DeleteNoteDialog noteTitle={title} onDelete={handleDeleteNote} />

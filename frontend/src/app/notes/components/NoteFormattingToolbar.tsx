@@ -38,7 +38,10 @@ export function NoteFormattingToolbar({ editor }: NoteFormattingToolbarProps) {
 
   function calculateSelection() {
     const { from, to } = activeEditor.state.selection
-    const expression = activeEditor.state.doc.textBetween(from, to, " ").trim()
+    const selectedText = activeEditor.state.doc
+      .textBetween(from, to, " ")
+      .trim()
+    const expression = selectedText.split("=")[0]?.trim()
 
     if (!expression) {
       toast.info("Select a calculation first")
@@ -123,7 +126,7 @@ export function NoteFormattingToolbar({ editor }: NoteFormattingToolbarProps) {
   ]
 
   return (
-    <div className="flex flex-wrap items-center gap-1 border-b bg-background/60 px-4 py-2">
+    <div className="sticky top-0 z-20 flex flex-wrap items-center gap-1 border-b bg-background/95 px-4 py-2 shadow-sm backdrop-blur">
       {formattingButtons.map((button) => {
         const Icon = button.icon
 
