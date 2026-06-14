@@ -3,10 +3,7 @@ import type { FormEvent } from "react"
 import { Trash2 } from "lucide-react"
 
 import TaskFormDialog from "@/app/tasks/components/TaskFormDialog"
-import {
-  type TaskFilter,
-  type TasksToolbarProps,
-} from "@/app/tasks/types/tasks-toolbar-props"
+import type { TaskFilter } from "@/app/tasks/types/index"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -17,6 +14,21 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import DeleteAllTasksDialog from "./DeleteAllTasksDialog"
+
+type TasksToolbarProps = {
+  handleCreateTask: (event: React.FormEvent<HTMLFormElement>) => Promise<void>
+  handleDeleteAllTasks: () => Promise<void>
+  title: string
+  description: string
+  dueDate: string
+  setTitle: React.Dispatch<React.SetStateAction<string>>
+  setDescription: React.Dispatch<React.SetStateAction<string>>
+  setDueDate: React.Dispatch<React.SetStateAction<string>>
+  searchTerm: string
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>
+  taskFilter: TaskFilter
+  setTaskFilter: React.Dispatch<React.SetStateAction<TaskFilter>>
+}
 
 export default function TasksToolbar({
   handleCreateTask,

@@ -12,7 +12,7 @@ import TaskOverviewStats from "@/app/tasks/components/TaskOverviewStats"
 import TasksToolbar from "@/app/tasks/components/TasksToolbar"
 import RenderTask from "./components/RenderTask"
 import type { Task } from "@/app/tasks/types/task"
-import type { TaskFilter } from "@/app/tasks/types/tasks-toolbar-props"
+import type { TaskFilter } from "@/app/tasks/types/task-filter"
 
 const tasksPerPage = 10
 

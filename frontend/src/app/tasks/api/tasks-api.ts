@@ -1,6 +1,4 @@
-import type { Task } from "@/app/tasks/types/task.ts"
-import type { CreateTaskPayload } from "@/app/tasks/types/create-task-payload"
-import type { UpdateTaskPayload } from "../types/update-task-payload"
+import type { Task, CreateTaskPayload, UpdateTaskPayload } from "@/app/tasks/types/index"
 
 export async function getTasks(): Promise<Task[]> {
     const response = await fetch("http://localhost:3001/api/tasks", {
