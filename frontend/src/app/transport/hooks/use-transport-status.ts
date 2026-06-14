@@ -25,7 +25,9 @@ export default function useTransportStatus() {
 
       setLines(data.lines)
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to load TfL status")
+      setError(
+        error instanceof Error ? error.message : "Unable to load TfL status"
+      )
     } finally {
       setIsLoading(false)
     }
@@ -37,7 +39,15 @@ export default function useTransportStatus() {
     async function loadInitialTflStatus() {
       try {
         await apiClient.get("/auth/me")
+      } catch {
+        if (!shouldIgnore) {
+          navigate("/login")
+        }
 
+        return
+      }
+
+      try {
         const data = await getTflStatus()
 
         if (!shouldIgnore) {
@@ -45,7 +55,9 @@ export default function useTransportStatus() {
         }
       } catch (error) {
         if (!shouldIgnore) {
-          navigate("/login")
+          setError(
+            error instanceof Error ? error.message : "Unable to load TfL status"
+          )
         }
       } finally {
         if (!shouldIgnore) {

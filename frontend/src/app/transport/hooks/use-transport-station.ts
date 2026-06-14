@@ -18,7 +18,9 @@ import { useNavigate } from "react-router"
 export default function useTransportStation() {
   const [query, setQuery] = useState("")
   const [stations, setStations] = useState<TflStation[]>([])
-  const [selectedStation, setSelectedStation] = useState<TflStation | null>(null)
+  const [selectedStation, setSelectedStation] = useState<TflStation | null>(
+    null
+  )
   const [arrivals, setArrivals] = useState<TflArrival[]>([])
   const [error, setError] = useState("")
   const [isSearching, setIsSearching] = useState(false)
@@ -36,7 +38,7 @@ export default function useTransportStation() {
 
     void checkAuth()
   }, [navigate])
-  
+
   async function handleSearchStations(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -57,7 +59,9 @@ export default function useTransportStation() {
       setStations(stations)
     } catch (error) {
       setStations([])
-      setError(error instanceof Error ? error.message : "Unable to search stations")
+      setError(
+        error instanceof Error ? error.message : "Unable to search stations"
+      )
     } finally {
       setIsSearching(false)
     }
@@ -74,7 +78,9 @@ export default function useTransportStation() {
       setArrivals(arrivals)
     } catch (error) {
       setArrivals([])
-      setError(error instanceof Error ? error.message : "Unable to load arrivals")
+      setError(
+        error instanceof Error ? error.message : "Unable to load arrivals"
+      )
     } finally {
       setIsLoadingArrivals(false)
     }
