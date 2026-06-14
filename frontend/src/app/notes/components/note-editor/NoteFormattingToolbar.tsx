@@ -38,7 +38,7 @@ type FormattingButton = {
   onClick: () => void
 }
 
-export function NoteFormattingToolbar({ editor }: NoteFormattingToolbarProps) {
+export default function NoteFormattingToolbar({ editor }: NoteFormattingToolbarProps) {
   if (!editor) {
     return null
   }

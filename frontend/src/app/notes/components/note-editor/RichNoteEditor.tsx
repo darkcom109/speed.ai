@@ -3,7 +3,7 @@ import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { TaskItem, TaskList } from "@tiptap/extension-list"
 
-import { NoteFormattingToolbar } from "@/app/notes/components/note-editor/NoteFormattingToolbar"
+import { NoteFormattingToolbar } from "@/app/notes/components/note-editor"
 
 type RichNoteEditorProps = {
   content: string
@@ -38,7 +38,7 @@ function normalizeContent(content: string) {
     .join("")
 }
 
-export function RichNoteEditor({ content, onChange }: RichNoteEditorProps) {
+export default function RichNoteEditor({ content, onChange }: RichNoteEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,

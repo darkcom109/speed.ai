@@ -19,7 +19,7 @@ type DeleteNoteDialogProps = {
   onDelete: () => void | Promise<void>
 }
 
-export function DeleteNoteDialog({
+export default function DeleteNoteDialog({
   noteTitle,
   onDelete,
 }: DeleteNoteDialogProps) {
