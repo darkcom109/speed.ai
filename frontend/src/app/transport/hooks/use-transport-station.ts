@@ -6,6 +6,7 @@ import {
 } from "@/app/transport/api/tfl-api"
 import type { TflArrival, TflStation } from "@/app/transport/types/tfl-station"
 import { groupArrivalsByDirection } from "@/app/transport/utils/transport-station-utils"
+import { apiClient } from "@/lib/api-client"
 import { useNavigate } from "react-router"
 
 /**
@@ -26,11 +27,9 @@ export default function useTransportStation() {
 
   useEffect(() => {
     async function checkAuth() {
-      const response = await fetch("http://localhost:3001/api/auth/me", {
-        credentials: "include",
-      })
-
-      if (!response.ok) {
+      try {
+        await apiClient.get("/auth/me")
+      } catch {
         navigate("/login")
       }
     }
