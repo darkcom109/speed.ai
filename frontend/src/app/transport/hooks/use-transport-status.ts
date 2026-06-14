@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { getTflStatus } from "@/app/transport/api/tfl-api"
 import type { TflLineStatus } from "@/app/transport/types/tfl-status"
 import { getLineStatusGroups } from "@/app/transport/utils/transport-utils"
+import { useNavigate } from "react-router"
 
 /**
  * Loads live TfL line status and derives good/disrupted line groups.
@@ -12,6 +13,7 @@ export default function useTransportStatus() {
   const [lines, setLines] = useState<TflLineStatus[]>([])
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(true)
+  const navigate = useNavigate()
 
   async function loadTflStatus() {
     try {
@@ -33,6 +35,12 @@ export default function useTransportStatus() {
 
     async function loadInitialTflStatus() {
       try {
+        const response = await fetch("http://localhost:3001/api/auth/me")
+
+        if (!response.ok) {
+          navigate("/login")
+        }
+        
         const data = await getTflStatus()
 
         if (!shouldIgnore) {
