@@ -108,7 +108,7 @@ export function getNoteTemplates(date = new Date()): NoteTemplate[] {
       content: [
         heading(`Finance review - ${formattedDate}`, 1),
         heading("Current position", 2),
-        paragraph("Insert live savings and monthly balance references here."),
+        paragraph("Record your current savings and monthly balance."),
         heading("Spending observations", 2),
         bulletList([
           "Largest expense:",

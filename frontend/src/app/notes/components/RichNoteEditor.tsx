@@ -4,11 +4,6 @@ import StarterKit from "@tiptap/starter-kit"
 import { TaskItem, TaskList } from "@tiptap/extension-list"
 
 import { NoteFormattingToolbar } from "@/app/notes/components/NoteFormattingToolbar"
-import {
-  LiveNoteReference,
-  type NoteReferenceType,
-} from "@/app/notes/extensions/live-note-reference"
-import { useNoteReferences } from "@/app/notes/hooks/use-note-references"
 
 type RichNoteEditorProps = {
   content: string
@@ -44,11 +39,9 @@ function normalizeContent(content: string) {
 }
 
 export function RichNoteEditor({ content, onChange }: RichNoteEditorProps) {
-  const { references, isLoading, refreshReferences } = useNoteReferences()
   const editor = useEditor({
     extensions: [
       StarterKit,
-      LiveNoteReference,
       TaskList.configure({
         HTMLAttributes: {
           class: "note-task-list",
@@ -87,46 +80,9 @@ export function RichNoteEditor({ content, onChange }: RichNoteEditorProps) {
     editor.commands.setContent(nextContent, { emitUpdate: false })
   }, [content, editor])
 
-  useEffect(() => {
-    if (!editor || isLoading) {
-      return
-    }
-
-    const transaction = editor.state.tr
-    let didUpdate = false
-
-    editor.state.doc.descendants((node, position) => {
-      if (node.type.name !== "liveNoteReference") {
-        return
-      }
-
-      const reference = node.attrs.reference as NoteReferenceType
-      const nextValue = references[reference]
-
-      if (!nextValue || node.attrs.value === nextValue) {
-        return
-      }
-
-      transaction.setNodeMarkup(position, undefined, {
-        ...node.attrs,
-        value: nextValue,
-      })
-      didUpdate = true
-    })
-
-    if (didUpdate) {
-      editor.view.dispatch(transaction)
-    }
-  }, [editor, isLoading, references])
-
   return (
     <>
-      <NoteFormattingToolbar
-        editor={editor}
-        references={references}
-        isRefreshingReferences={isLoading}
-        onRefreshReferences={() => void refreshReferences()}
-      />
+      <NoteFormattingToolbar editor={editor} />
       <div className="flex flex-1 justify-center overflow-y-auto bg-muted/30 px-4 py-6">
         <EditorContent
           editor={editor}

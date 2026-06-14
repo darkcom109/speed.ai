@@ -12,14 +12,10 @@ import {
   ListIcon,
   ListOrderedIcon,
   ListTodoIcon,
-  RefreshCwIcon,
-  VariableIcon,
 } from "lucide-react"
 import { evaluate, format } from "mathjs"
 import { toast } from "sonner"
 
-import type { NoteReferenceType } from "@/app/notes/extensions/live-note-reference"
-import type { NoteReferenceValues } from "@/app/notes/hooks/use-note-references"
 import { getNoteTemplates } from "@/app/notes/templates/note-templates"
 import { Button } from "@/components/ui/button"
 import {
@@ -27,16 +23,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 
 type NoteFormattingToolbarProps = {
   editor: Editor | null
-  references: NoteReferenceValues
-  isRefreshingReferences: boolean
-  onRefreshReferences: () => void
 }
 
 type FormattingButton = {
@@ -46,12 +38,7 @@ type FormattingButton = {
   onClick: () => void
 }
 
-export function NoteFormattingToolbar({
-  editor,
-  references,
-  isRefreshingReferences,
-  onRefreshReferences,
-}: NoteFormattingToolbarProps) {
+export function NoteFormattingToolbar({ editor }: NoteFormattingToolbarProps) {
   if (!editor) {
     return null
   }
@@ -75,26 +62,6 @@ export function NoteFormattingToolbar({
       .run()
 
     toast.success(`${template.name} inserted`)
-  }
-
-  function insertReference(reference: NoteReferenceType) {
-    activeEditor
-      .chain()
-      .focus()
-      .insertContent([
-        {
-          type: "liveNoteReference",
-          attrs: {
-            reference,
-            value: references[reference],
-          },
-        },
-        {
-          type: "text",
-          text: " ",
-        },
-      ])
-      .run()
   }
 
   function calculateSelection() {
@@ -233,48 +200,6 @@ export function NoteFormattingToolbar({
               </span>
             </DropdownMenuItem>
           ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Insert live reference"
-            title="Insert live reference"
-          >
-            <VariableIcon />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-64">
-          <DropdownMenuLabel>Live app reference</DropdownMenuLabel>
-          <DropdownMenuItem onSelect={() => insertReference("savings-total")}>
-            {references["savings-total"]}
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => insertReference("monthly-spend")}>
-            {references["monthly-spend"]}
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => insertReference("monthly-balance")}>
-            {references["monthly-balance"]}
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => insertReference("tasks-due-today")}>
-            {references["tasks-due-today"]}
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => insertReference("open-tasks")}>
-            {references["open-tasks"]}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            disabled={isRefreshingReferences}
-            onSelect={onRefreshReferences}
-          >
-            <RefreshCwIcon
-              className={cn(isRefreshingReferences && "animate-spin")}
-            />
-            Refresh values
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
