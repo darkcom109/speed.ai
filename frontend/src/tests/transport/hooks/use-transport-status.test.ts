@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { getTflStatus } from "@/app/transport/api/tfl-api"
 import type { TflLineStatus } from "@/app/transport/types/tfl-status"
 
-import useTransportStatus from "./use-transport-status"
+import useTransportStatus from "@/app/transport/hooks/use-transport-status"
 
 vi.mock("@/app/transport/api/tfl-api", () => ({
   getTflStatus: vi.fn(),

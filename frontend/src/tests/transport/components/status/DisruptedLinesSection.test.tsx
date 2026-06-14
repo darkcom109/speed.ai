@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 
 import type { TflLineStatus } from "@/app/transport/types/tfl-status"
 
-import DisruptedLinesSection from "./DisruptedLinesSection"
+import DisruptedLinesSection from "@/app/transport/components/status/DisruptedLinesSection"
 
 const disruptedLine: TflLineStatus = {
   id: "district",

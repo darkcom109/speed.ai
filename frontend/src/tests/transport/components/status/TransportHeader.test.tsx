@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import TransportHeader from "./TransportHeader"
+import TransportHeader from "@/app/transport/components/status/TransportHeader"
 
 describe("TransportHeader", () => {
   it("renders the title and refresh action", () => {

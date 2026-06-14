@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 
 import type { TflLineStatus } from "@/app/transport/types/tfl-status"
 
-import LineStatusCard from "./LineStatusCard"
+import LineStatusCard from "@/app/transport/components/status/LineStatusCard"
 
 const line: TflLineStatus = {
   id: "central",

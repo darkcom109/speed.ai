@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest"
 
 import useTransportStation from "@/app/transport/hooks/use-transport-station"
 
-import TransportStationsPage from "./TransportStationsPage"
+import TransportStationsPage from "@/app/transport/TransportStationsPage"
 
 vi.mock("@/components/app-sidebar", () => ({
   AppSidebar: () => <aside data-testid="app-sidebar" />,

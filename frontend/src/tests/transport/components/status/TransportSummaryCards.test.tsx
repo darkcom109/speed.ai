@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest"
 
 import type { TflLineStatus } from "@/app/transport/types/tfl-status"
 
-import TransportSummaryCards from "./TransportSummaryCards"
+import TransportSummaryCards from "@/app/transport/components/status/TransportSummaryCards"
 
 vi.mock("@/components/ui/chart", () => ({
   ChartContainer: ({ children }: { children: ReactNode }) => (

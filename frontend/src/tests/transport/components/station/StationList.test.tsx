@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest"
 
 import type { TflStation } from "@/app/transport/types/tfl-station"
 
-import StationList from "./StationList"
+import StationList from "@/app/transport/components/station/StationList"
 
 const station: TflStation = {
   id: "940GZZLUBNK",

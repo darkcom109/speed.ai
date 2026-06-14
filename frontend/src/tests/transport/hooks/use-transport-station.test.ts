@@ -8,7 +8,7 @@ import {
 } from "@/app/transport/api/tfl-api"
 import type { TflArrival, TflStation } from "@/app/transport/types/tfl-station"
 
-import useTransportStation from "./use-transport-station"
+import useTransportStation from "@/app/transport/hooks/use-transport-station"
 
 vi.mock("@/app/transport/api/tfl-api", () => ({
   getTflStationArrivals: vi.fn(),

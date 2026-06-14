@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import StationSearchForm from "./StationSearchForm"
+import StationSearchForm from "@/app/transport/components/station/StationSearchForm"
 
 describe("StationSearchForm", () => {
   it("calls setQuery when the search input changes", () => {

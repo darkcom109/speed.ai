@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import useTransportStatus from "@/app/transport/hooks/use-transport-status"
 import type { TflLineStatus } from "@/app/transport/types/tfl-status"
 
-import TransportPage from "./TransportPage"
+import TransportPage from "@/app/transport/TransportPage"
 
 vi.mock("@/components/app-sidebar", () => ({
   AppSidebar: () => <aside data-testid="app-sidebar" />,

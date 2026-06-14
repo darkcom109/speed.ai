@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 
 import type { TflArrival, TflStation } from "@/app/transport/types/tfl-station"
 
-import StationArrivalsPanel from "./StationArrivalsPanel"
+import StationArrivalsPanel from "@/app/transport/components/station/StationArrivalsPanel"
 
 const station: TflStation = {
   id: "940GZZLUBNK",
