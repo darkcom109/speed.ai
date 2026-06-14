@@ -5,7 +5,7 @@ import {
   StationHeader,
 } from "@/app/transport/components/station"
 import useTransportStation from "@/app/transport/hooks/use-transport-station"
-import TransportLayout from "@/app/transport/components/TransportLayout"
+import Layout from "@/components/app/Layout"
 
 /**
  * Page shell for searching TfL stations and checking arrival times
@@ -28,7 +28,7 @@ export default function TransportStationsPage() {
   } = useTransportStation()
 
   return (
-    <TransportLayout>
+    <Layout>
       <StationHeader />
 
       <StationSearchForm
@@ -55,6 +55,6 @@ export default function TransportStationsPage() {
           isLoadingArrivals={isLoadingArrivals}
         />
       </div>
-    </TransportLayout>
+    </Layout>
   )
 }

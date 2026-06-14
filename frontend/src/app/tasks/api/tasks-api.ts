@@ -2,7 +2,7 @@ import type {
     Task, 
     CreateTaskPayload, 
     UpdateTaskPayload 
-} from "@/app/tasks/types/index"
+} from "@/app/tasks/types/"
 import { apiClient } from "@/lib/api-client"
 
 export async function getTasks(): Promise<Task[]> {

@@ -6,23 +6,15 @@ import {
 } from "lucide-react"
 
 import type { Task } from "@/app/tasks/types/task"
-import { formatTaskDueTime } from "@/app/tasks/utils/task-date"
+import { 
+  formatTaskDueTime,
+  isSameDay,
+  startOfDay, 
+} from "@/app/tasks/utils/task-date"
 
 type TaskOverviewStatsProps = {
   tasks: Task[]
   isLoading: boolean
-}
-
-function isSameDay(firstDate: Date, secondDate: Date) {
-  return (
-    firstDate.getFullYear() === secondDate.getFullYear() &&
-    firstDate.getMonth() === secondDate.getMonth() &&
-    firstDate.getDate() === secondDate.getDate()
-  )
-}
-
-function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
 }
 
 export default function TaskOverviewStats({

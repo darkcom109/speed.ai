@@ -1,5 +1,3 @@
-import { useState } from "react"
-import type { FormEvent } from "react"
 import { Trash2 } from "lucide-react"
 
 import TaskFormDialog from "@/app/tasks/components/TaskFormDialog"
@@ -13,7 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import DeleteAllTasksDialog from "./DeleteAllTasksDialog"
+import DeleteAllTasksDialog from "@/app/tasks/components/DeleteAllTasksDialog"
+import useTasksToolbar from "@/app/tasks/hooks/use-tasks-toolbar"
 
 type TasksToolbarProps = {
   handleCreateTask: (event: React.FormEvent<HTMLFormElement>) => Promise<void>
@@ -44,22 +43,15 @@ export default function TasksToolbar({
   taskFilter,
   setTaskFilter,
 }: TasksToolbarProps) {
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false)
-
-  async function handleSubmitCreateTask(event: FormEvent<HTMLFormElement>) {
-    await handleCreateTask(event)
-    setIsCreateOpen(false)
-  }
-
-  async function handleConfirmDeleteAllTasks() {
-    await handleDeleteAllTasks()
-    setIsDeleteAllOpen(false)
-  }
-
-  function handleCancelCreateTask() {
-    setIsCreateOpen(false)
-  }
+  const {
+    isCreateOpen,
+    isDeleteAllOpen,
+    handleSubmitCreateTask,
+    handleConfirmDeleteAllTasks,
+    handleCancelCreateTask,
+    setIsCreateOpen,
+    setIsDeleteAllOpen,
+  } = useTasksToolbar({ handleCreateTask, handleDeleteAllTasks })
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 lg:flex-row">

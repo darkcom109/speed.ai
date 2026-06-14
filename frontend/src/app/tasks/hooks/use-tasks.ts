@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import type { FormEvent } from "react"
 import { useNavigate } from "react-router"
+import axios from "axios"
 
 import {
   createTask,
@@ -9,12 +10,16 @@ import {
   getTasks,
   updateTask,
 } from "@/app/tasks/api/tasks-api"
-import type { Task } from "@/app/tasks/types/task"
+import type { Task, TaskFilter } from "@/app/tasks/types"
 import { toDateTimeLocalValue } from "@/app/tasks/utils/task-date"
+import {
+    emitTasksUpdated,
+    getPageCount,
+    getPaginatedTasks,
+    matchesTaskFilter
+} from "@/app/tasks/utils/use-task-utils"
 
-function emitTasksUpdated() {
-  window.dispatchEvent(new Event("tasks-updated"))
-}
+const tasksPerPage = 10
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -30,28 +35,49 @@ export function useTasks() {
   const [description, setDescription] = useState("")
   const [dueDate, setDueDate] = useState("")
 
-  // For searching for specific tasks
   const [searchTerm, setSearchTerm] = useState("")
+
+  const [activePage, setActivePage] = useState(1)
+  const [completedPage, setCompletedPage] = useState(1)
+  const [taskFilter, setTaskFilter] = useState<TaskFilter>("all")
 
   const navigate = useNavigate()
 
+  const search = searchTerm.toLowerCase()
+  const searchedTasks = tasks.filter(
+    (task) =>
+      task.title.toLowerCase().includes(search) ||
+      task.description?.toLowerCase().includes(search)
+  )
+  const filteredTasks = searchedTasks.filter((task) =>
+    matchesTaskFilter(task, taskFilter)
+  )
+  const activeTasks = filteredTasks.filter((task) => !task.completed)
+  const completedTasks = filteredTasks.filter((task) => task.completed)
+  const activePageCount = getPageCount(activeTasks.length, tasksPerPage)
+  const completedPageCount = getPageCount(completedTasks.length, tasksPerPage)
+  const paginatedActiveTasks = getPaginatedTasks(activeTasks, activePage, tasksPerPage)
+  const paginatedCompletedTasks = getPaginatedTasks(
+    completedTasks,
+    completedPage,
+    tasksPerPage
+  )
+
   const loadTasks = useCallback(async () => {
     try {
+      const tasks = await getTasks()
+
+      setTasks(tasks)
       setError("")
-
-      const response = await fetch("http://localhost:3001/api/auth/me", {
-        credentials: "include",
-      })
-
-      if (!response.ok) {
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
         navigate("/login")
         return
       }
 
-      const tasks = await getTasks()
-      setTasks(tasks)
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to retrieve tasks")
+      setError(
+        error instanceof Error ? error.message : "Unable to retrieve tasks"
+      )
     } finally {
       setIsLoading(false)
     }
@@ -72,6 +98,23 @@ export function useTasks() {
       window.removeEventListener("tasks-updated", handleTasksUpdated)
     }
   }, [loadTasks])
+
+  useEffect(() => {
+    setActivePage(1)
+    setCompletedPage(1)
+  }, [searchTerm, taskFilter])
+
+  useEffect(() => {
+    if (activePage > activePageCount) {
+      setActivePage(activePageCount)
+    }
+  }, [activePage, activePageCount])
+
+  useEffect(() => {
+    if (completedPage > completedPageCount) {
+      setCompletedPage(completedPageCount)
+    }
+  }, [completedPage, completedPageCount])
 
   async function handleCreateTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -102,9 +145,10 @@ export function useTasks() {
       await deleteAllTasks()
       setTasks(tasks.filter((task) => task.completed !== false))
       emitTasksUpdated()
-    }
-    catch(error) {
-      setError(error instanceof Error ? error.message : "Unable to delete all tasks")
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Unable to delete all tasks"
+      )
     }
   }
 
@@ -192,6 +236,17 @@ export function useTasks() {
     title,
     description,
     dueDate,
+    searchTerm,
+    activePage,
+    completedPage,
+    taskFilter,
+    activeTasks,
+    completedTasks,
+    paginatedActiveTasks,
+    paginatedCompletedTasks,
+    activePageCount,
+    completedPageCount,
+    tasksPerPage,
     setTitle,
     setDescription,
     setDueDate,
@@ -199,13 +254,15 @@ export function useTasks() {
     setEditDescription,
     setEditDueDate,
     setEditingTaskId,
+    setSearchTerm,
     handleCreateTask,
     handleToggleTask,
     startEditingTask,
     handleUpdateTask,
     handleDeleteTask,
     handleDeleteAllTasks,
-    searchTerm,
-    setSearchTerm,
+    setActivePage,
+    setCompletedPage,
+    setTaskFilter,
   }
 }

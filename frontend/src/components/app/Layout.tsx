@@ -4,11 +4,11 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
-type TransportLayoutProps = {
+type LayoutProps = {
   children: ReactNode
 }
 
-export default function TransportLayout({ children }: TransportLayoutProps) {
+export default function Layout({ children }: LayoutProps) {
   return (
     <SidebarProvider
       style={
@@ -20,7 +20,7 @@ export default function TransportLayout({ children }: TransportLayoutProps) {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader title="Transport" />
+        <SiteHeader />
         <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
           {children}
         </main>

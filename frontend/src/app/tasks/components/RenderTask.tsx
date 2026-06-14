@@ -6,7 +6,7 @@ import DeleteTaskDialog from "@/app/tasks/components/DeleteTaskDialog"
 import EditTaskDialog from "@/app/tasks/components/EditTaskDialog"
 import { formatTaskDueDateTime } from "@/app/tasks/utils/task-date"
 
-export type RenderTaskProps = {
+type RenderTaskProps = {
   task: Task
   isEditing: boolean
   startEditingTask: (task: Task) => void

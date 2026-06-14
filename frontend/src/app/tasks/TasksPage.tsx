@@ -1,80 +1,17 @@
-import { useEffect, useState } from "react"
-
-import { AppSidebar } from "@/components/app-sidebar"
 import { Button } from "@/components/ui/button"
-import { SiteHeader } from "@/components/site-header"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+import Layout from "@/components/app/Layout"
 import { useTasks } from "@/app/tasks/hooks/use-tasks"
-
-import TasksHeader from "@/app/tasks/components/TasksHeader"
-import TaskOverviewStats from "@/app/tasks/components/TaskOverviewStats"
-import TasksToolbar from "@/app/tasks/components/TasksToolbar"
-import RenderTask from "./components/RenderTask"
+import {
+  TasksHeader,
+  TasksToolbar,
+  TaskOverviewStats,
+  RenderTask,
+} from "@/app/tasks/components/"
 import type { Task } from "@/app/tasks/types/task"
-import type { TaskFilter } from "@/app/tasks/types/task-filter"
-
-const tasksPerPage = 10
-
-function getPageCount(totalTasks: number) {
-  return Math.max(1, Math.ceil(totalTasks / tasksPerPage))
-}
-
-function getPaginatedTasks(tasks: Task[], page: number) {
-  const start = (page - 1) * tasksPerPage
-
-  return tasks.slice(start, start + tasksPerPage)
-}
-
-function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
-}
-
-function isSameDay(firstDate: Date, secondDate: Date) {
-  return (
-    firstDate.getFullYear() === secondDate.getFullYear() &&
-    firstDate.getMonth() === secondDate.getMonth() &&
-    firstDate.getDate() === secondDate.getDate()
-  )
-}
-
-function matchesTaskFilter(task: Task, taskFilter: TaskFilter) {
-  if (taskFilter === "all") {
-    return true
-  }
-
-  if (taskFilter === "no-date") {
-    return !task.dueDate
-  }
-
-  if (!task.dueDate) {
-    return false
-  }
-
-  const today = startOfDay(new Date())
-  const dueDate = startOfDay(new Date(task.dueDate))
-  const nextSevenDays = new Date(today)
-  nextSevenDays.setDate(today.getDate() + 7)
-
-  if (taskFilter === "due-today") {
-    return isSameDay(dueDate, today)
-  }
-
-  if (taskFilter === "overdue") {
-    return dueDate < today
-  }
-
-  if (taskFilter === "next-7-days") {
-    return dueDate >= today && dueDate <= nextSevenDays
-  }
-
-  return true
-}
 
 export default function TasksPage() {
-  const [activePage, setActivePage] = useState(1)
-  const [completedPage, setCompletedPage] = useState(1)
-  const [taskFilter, setTaskFilter] = useState<TaskFilter>("all")
   const {
     tasks,
     error,
@@ -86,6 +23,17 @@ export default function TasksPage() {
     title,
     description,
     dueDate,
+    searchTerm,
+    activePage,
+    completedPage,
+    taskFilter,
+    activeTasks,
+    completedTasks,
+    paginatedActiveTasks,
+    paginatedCompletedTasks,
+    activePageCount,
+    completedPageCount,
+    tasksPerPage,
     setTitle,
     setDescription,
     setDueDate,
@@ -99,47 +47,11 @@ export default function TasksPage() {
     handleUpdateTask,
     handleDeleteTask,
     handleDeleteAllTasks,
-    searchTerm,
     setSearchTerm,
+    setActivePage,
+    setCompletedPage,
+    setTaskFilter,
   } = useTasks()
-
-  const searchedTasks = tasks.filter((task) => {
-    const search = searchTerm.toLowerCase()
-
-    return (
-      task.title.toLowerCase().includes(search) ||
-      task.description?.toLowerCase().includes(search)
-    )
-  })
-  const filteredTasks = searchedTasks.filter((task) =>
-    matchesTaskFilter(task, taskFilter)
-  )
-  const activeTasks = filteredTasks.filter((task) => !task.completed)
-  const completedTasks = filteredTasks.filter((task) => task.completed)
-  const activePageCount = getPageCount(activeTasks.length)
-  const completedPageCount = getPageCount(completedTasks.length)
-  const paginatedActiveTasks = getPaginatedTasks(activeTasks, activePage)
-  const paginatedCompletedTasks = getPaginatedTasks(
-    completedTasks,
-    completedPage
-  )
-
-  useEffect(() => {
-    setActivePage(1)
-    setCompletedPage(1)
-  }, [searchTerm, taskFilter])
-
-  useEffect(() => {
-    if (activePage > activePageCount) {
-      setActivePage(activePageCount)
-    }
-  }, [activePage, activePageCount])
-
-  useEffect(() => {
-    if (completedPage > completedPageCount) {
-      setCompletedPage(completedPageCount)
-    }
-  }, [completedPage, completedPageCount])
 
   function renderTaskList(tasks: Task[], emptyMessage: string) {
     if (tasks.length === 0) {
@@ -224,89 +136,75 @@ export default function TasksPage() {
   }
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title="Tasks" />
+    <Layout>
+      <TasksHeader />
 
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
-          <TasksHeader />
+      <TaskOverviewStats tasks={tasks} isLoading={isLoading} />
 
-          <TaskOverviewStats tasks={tasks} isLoading={isLoading} />
+      <TasksToolbar
+        handleCreateTask={handleCreateTask}
+        handleDeleteAllTasks={handleDeleteAllTasks}
+        title={title}
+        description={description}
+        dueDate={dueDate}
+        setTitle={setTitle}
+        setDescription={setDescription}
+        setDueDate={setDueDate}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        taskFilter={taskFilter}
+        setTaskFilter={setTaskFilter}
+      />
 
-          <TasksToolbar
-            handleCreateTask={handleCreateTask}
-            handleDeleteAllTasks={handleDeleteAllTasks}
-            title={title}
-            description={description}
-            dueDate={dueDate}
-            setTitle={setTitle}
-            setDescription={setDescription}
-            setDueDate={setDueDate}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            taskFilter={taskFilter}
-            setTaskFilter={setTaskFilter}
-          />
+      {isLoading && <p>Loading tasks...</p>}
 
-          {isLoading && <p>Loading tasks...</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+      <Tabs defaultValue="current" className="gap-4">
+        <TabsList className="h-10 w-full justify-start rounded-lg bg-card p-1 sm:w-fit">
+          <TabsTrigger value="current">
+            Current ({activeTasks.length})
+          </TabsTrigger>
+          <TabsTrigger value="marked">
+            Marked ({completedTasks.length})
+          </TabsTrigger>
+        </TabsList>
 
-          <Tabs defaultValue="current" className="gap-4">
-            <TabsList className="h-10 w-full justify-start rounded-lg bg-card p-1 sm:w-fit">
-              <TabsTrigger value="current">
-                Current ({activeTasks.length})
-              </TabsTrigger>
-              <TabsTrigger value="marked">
-                Marked ({completedTasks.length})
-              </TabsTrigger>
-            </TabsList>
+        <TabsContent value="current" className="space-y-3">
+          <div>
+            <h3 className="text-sm font-medium">Current tasks</h3>
+            <p className="text-xs text-muted-foreground">
+              Tasks that still need attention.
+            </p>
+          </div>
+          {renderTaskList(paginatedActiveTasks, "No current tasks found.")}
+          {renderPagination(
+            activePage,
+            activePageCount,
+            activeTasks.length,
+            setActivePage
+          )}
+        </TabsContent>
 
-            <TabsContent value="current" className="space-y-3">
-              <div>
-                <h3 className="text-sm font-medium">Current tasks</h3>
-                <p className="text-xs text-muted-foreground">
-                  Tasks that still need attention.
-                </p>
-              </div>
-              {renderTaskList(paginatedActiveTasks, "No current tasks found.")}
-              {renderPagination(
-                activePage,
-                activePageCount,
-                activeTasks.length,
-                setActivePage
-              )}
-            </TabsContent>
-
-            <TabsContent value="marked" className="space-y-3">
-              <div>
-                <h3 className="text-sm font-medium">Marked tasks</h3>
-                <p className="text-xs text-muted-foreground">
-                  Tasks you have marked as done.
-                </p>
-              </div>
-              {renderTaskList(
-                paginatedCompletedTasks,
-                "No marked tasks found."
-              )}
-              {renderPagination(
-                completedPage,
-                completedPageCount,
-                completedTasks.length,
-                setCompletedPage
-              )}
-            </TabsContent>
-          </Tabs>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+        <TabsContent value="marked" className="space-y-3">
+          <div>
+            <h3 className="text-sm font-medium">Marked tasks</h3>
+            <p className="text-xs text-muted-foreground">
+              Tasks you have marked as done.
+            </p>
+          </div>
+          {renderTaskList(
+            paginatedCompletedTasks,
+            "No marked tasks found."
+          )}
+          {renderPagination(
+            completedPage,
+            completedPageCount,
+            completedTasks.length,
+            setCompletedPage
+          )}
+        </TabsContent>
+      </Tabs>
+    </Layout>
   )
 }

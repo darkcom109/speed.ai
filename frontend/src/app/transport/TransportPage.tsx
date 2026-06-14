@@ -5,7 +5,7 @@ import {
   TransportSummaryCards,
 } from "@/app/transport/components/status"
 import useTransportStatus from "@/app/transport/hooks/use-transport-status"
-import TransportLayout from "@/app/transport/components/TransportLayout"
+import Layout from "@/components/app/Layout"
 
 /**
  * Page shell for live TfL line status.
@@ -23,7 +23,7 @@ export default function TransportPage() {
   } = useTransportStatus()
 
   return (
-    <TransportLayout>
+    <Layout>
       <TransportHeader isLoading={isLoading} onRefresh={loadTflStatus} />
 
       <TransportSummaryCards
@@ -39,6 +39,6 @@ export default function TransportPage() {
       {!isLoading && !error && (
         <DisruptedLinesSection disruptedLines={disruptedLines} />
       )}
-    </TransportLayout>
+    </Layout>
   )
 }
