@@ -13,10 +13,10 @@ import {
 import type { Task, TaskFilter } from "@/app/tasks/types"
 import { toDateTimeLocalValue } from "@/app/tasks/utils/task-date"
 import {
-    emitTasksUpdated,
-    getPageCount,
-    getPaginatedTasks,
-    matchesTaskFilter
+  emitTasksUpdated,
+  getPageCount,
+  getPaginatedTasks,
+  matchesTaskFilter,
 } from "@/app/tasks/utils/use-task-utils"
 
 const tasksPerPage = 10
@@ -56,7 +56,11 @@ export function useTasks() {
   const completedTasks = filteredTasks.filter((task) => task.completed)
   const activePageCount = getPageCount(activeTasks.length, tasksPerPage)
   const completedPageCount = getPageCount(completedTasks.length, tasksPerPage)
-  const paginatedActiveTasks = getPaginatedTasks(activeTasks, activePage, tasksPerPage)
+  const paginatedActiveTasks = getPaginatedTasks(
+    activeTasks,
+    activePage,
+    tasksPerPage
+  )
   const paginatedCompletedTasks = getPaginatedTasks(
     completedTasks,
     completedPage,

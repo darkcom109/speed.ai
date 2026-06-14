@@ -102,19 +102,19 @@ export default function TasksToolbar({
           onCancel={handleCancelCreateTask}
         />
 
-        <DeleteAllTasksDialog 
+        <DeleteAllTasksDialog
           isDeleteAllOpen={isDeleteAllOpen}
           setIsDeleteAllOpen={setIsDeleteAllOpen}
           handleConfirmDeleteAllTasks={handleConfirmDeleteAllTasks}
         />
-        
+
         <Button
           type="button"
           variant="destructive"
           className="flex-1 sm:w-32 sm:flex-none"
           onClick={() => setIsDeleteAllOpen(true)}
         >
-          <Trash2/>
+          <Trash2 />
           Delete all
         </Button>
       </div>

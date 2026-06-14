@@ -193,10 +193,7 @@ export default function TasksPage() {
               Tasks you have marked as done.
             </p>
           </div>
-          {renderTaskList(
-            paginatedCompletedTasks,
-            "No marked tasks found."
-          )}
+          {renderTaskList(paginatedCompletedTasks, "No marked tasks found.")}
           {renderPagination(
             completedPage,
             completedPageCount,

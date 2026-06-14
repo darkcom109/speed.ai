@@ -59,9 +59,4 @@ function matchesTaskFilter(task: Task, taskFilter: TaskFilter) {
   return true
 }
 
-export {
-    emitTasksUpdated,
-    getPageCount,
-    getPaginatedTasks,
-    matchesTaskFilter
-}
+export { emitTasksUpdated, getPageCount, getPaginatedTasks, matchesTaskFilter }

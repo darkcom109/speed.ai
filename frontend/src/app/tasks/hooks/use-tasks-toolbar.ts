@@ -2,13 +2,13 @@ import { useState } from "react"
 import type { FormEvent } from "react"
 
 type useTasksToolbarProps = {
-    handleCreateTask: (event: React.FormEvent<HTMLFormElement>) => Promise<void>
-    handleDeleteAllTasks: () => Promise<void>
+  handleCreateTask: (event: React.FormEvent<HTMLFormElement>) => Promise<void>
+  handleDeleteAllTasks: () => Promise<void>
 }
 
 export default function useTasksToolbar({
-    handleCreateTask,
-    handleDeleteAllTasks
+  handleCreateTask,
+  handleDeleteAllTasks,
 }: useTasksToolbarProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false)

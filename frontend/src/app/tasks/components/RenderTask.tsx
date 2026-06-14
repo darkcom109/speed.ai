@@ -90,7 +90,9 @@ export default function RenderTask({
           size="icon-sm"
           onClick={() => handleToggleTask(task)}
           aria-label={
-            task.completed ? `Mark ${task.title} undone` : `Mark ${task.title} done`
+            task.completed
+              ? `Mark ${task.title} undone`
+              : `Mark ${task.title} done`
           }
           title={task.completed ? "Mark undone" : "Mark done"}
         >
