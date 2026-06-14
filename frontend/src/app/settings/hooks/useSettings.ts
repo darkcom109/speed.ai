@@ -3,6 +3,7 @@ import { useNavigate } from "react-router"
 
 import { useTheme } from "@/components/theme-provider"
 import { clearGoogleSession } from "@/app/login/utils/clear-google-session"
+import { apiClient } from "@/lib/api-client"
 
 type User = {
   name: string
@@ -17,16 +18,9 @@ export default function useSettings() {
 
   async function handleLogout() {
     try {
-      const response = await fetch("http://localhost:3001/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      })
+      setError("")
 
-      if (!response.ok) {
-        const data = await response.json()
-        setError(data.error || "Unable to log out")
-        return
-      }
+      await apiClient.post("/auth/logout")
 
       clearGoogleSession()
       navigate("/login")
@@ -37,16 +31,7 @@ export default function useSettings() {
 
   async function handleDeleteAccount() {
     try {
-      const response = await fetch("http://localhost:3001/api/auth/me", {
-        method: "DELETE",
-        credentials: "include",
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        setError(data.error || "Unable to delete account")
-        return
-      }
+      await apiClient.delete("/auth/me")
 
       clearGoogleSession()
       navigate("/signup")
@@ -58,16 +43,10 @@ export default function useSettings() {
   useEffect(() => {
     async function loadUser() {
       try {
-        const response = await fetch("http://localhost:3001/api/auth/me", {
-          credentials: "include",
-        })
+        setError("")
 
-        if (!response.ok) {
-          navigate("/login")
-          return
-        }
-
-        const data = await response.json()
+        const { data } = await apiClient.get<{ user: User }>("/auth/me")
+        
         setUser(data.user)
       } catch {
         setError("Unable to load settings")
@@ -83,6 +62,6 @@ export default function useSettings() {
     theme,
     setTheme,
     handleLogout,
-    handleDeleteAccount,
+    handleDeleteAccount
   }
 }
