@@ -8,6 +8,7 @@ import {
   Heading3Icon,
   Heading4Icon,
   ItalicIcon,
+  LayoutTemplateIcon,
   ListIcon,
   ListOrderedIcon,
   ListTodoIcon,
@@ -19,6 +20,7 @@ import { toast } from "sonner"
 
 import type { NoteReferenceType } from "@/app/notes/extensions/live-note-reference"
 import type { NoteReferenceValues } from "@/app/notes/hooks/use-note-references"
+import { getNoteTemplates } from "@/app/notes/templates/note-templates"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -55,6 +57,25 @@ export function NoteFormattingToolbar({
   }
 
   const activeEditor = editor
+  const noteTemplates = getNoteTemplates()
+
+  function insertTemplate(templateId: string) {
+    const template = noteTemplates.find(
+      (noteTemplate) => noteTemplate.id === templateId
+    )
+
+    if (!template) {
+      return
+    }
+
+    activeEditor
+      .chain()
+      .focus()
+      .insertContentAt(activeEditor.state.selection.to, template.content)
+      .run()
+
+    toast.success(`${template.name} inserted`)
+  }
 
   function insertReference(reference: NoteReferenceType) {
     activeEditor
@@ -185,6 +206,35 @@ export function NoteFormattingToolbar({
           </Button>
         )
       })}
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Insert template"
+            title="Insert template"
+          >
+            <LayoutTemplateIcon />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-72">
+          <DropdownMenuLabel>Note templates</DropdownMenuLabel>
+          {noteTemplates.map((template) => (
+            <DropdownMenuItem
+              key={template.id}
+              className="flex-col items-start gap-0.5"
+              onSelect={() => insertTemplate(template.id)}
+            >
+              <span>{template.name}</span>
+              <span className="text-xs text-muted-foreground">
+                {template.description}
+              </span>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
