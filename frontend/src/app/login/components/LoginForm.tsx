@@ -12,72 +12,19 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import type React from "react"
-import { useState } from "react"
-import { useNavigate } from "react-router"
-import { loginUser } from "../api/login-api"
 
-// Google specific imports
+import useLogin from "@/app/login/hooks/useLogin"
 import { GoogleLogin } from "@react-oauth/google"
-import { loginWithGoogle } from "@/app/login/api/google-login-api"
 
 export default function LoginForm() {
-  const navigate = useNavigate()
-  const [error, setError] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  async function handleLoginSubmit(event: React.FormEvent<HTMLFormElement>) {
-      event.preventDefault()
-
-      const formData = new FormData(event.currentTarget)
-
-      const email = formData.get("email")
-      const password = formData.get("password")
-
-      try {
-        setIsSubmitting(true)
-        setError("")
-
-        if (typeof email !== "string" || typeof password !== "string") {
-          setError("Name, email and password are required")
-          return
-        }
-
-        await loginUser({email, password})
-
-        navigate("/dashboard")
-      }
-      catch(error) {
-        setError(error instanceof Error ? error.message : "Unable to sign in")
-        console.log(error)
-      }
-      finally {
-        setIsSubmitting(false)
-      }
-  }
-
-  async function handleGoogleSuccess(credential?: string) {
-    if (!credential) {
-      setError("Google sign in failed")
-      return
-    }
-
-    try {
-      setError("")
-      setIsSubmitting(true)
-
-      await loginWithGoogle(credential)
-
-      navigate("/dashboard")
-    }
-    catch(error) {
-      setError(error instanceof Error ? error.message : "Unable to sign in")
-      console.log(error)
-    }
-    finally {
-      setIsSubmitting(false)
-    }
-  }
+  
+  const {
+    error,
+    isSubmitting,
+    setError,
+    handleLoginSubmit,
+    handleGoogleSuccess,
+  } = useLogin()
 
   return (
     <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-10">
