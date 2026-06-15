@@ -8,6 +8,12 @@ type LayoutProps = {
   children: ReactNode
 }
 
+/**
+ * Returns a reusable layout component for pages
+ * 
+ * @param children
+ * @returns 
+ */
 export default function Layout({ children }: LayoutProps) {
   return (
     <SidebarProvider
