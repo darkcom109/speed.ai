@@ -11,6 +11,8 @@ import {
   isSameDay,
   weekDays,
 } from "@/app/calendar/utils/calendar-utils"
+import { apiClient } from "@/lib/api-client"
+import axios from "axios"
 
 export default function useCalendar() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -25,21 +27,21 @@ export default function useCalendar() {
     try {
       setError("")
 
-      const response = await fetch("http://localhost:3001/api/auth/me", {
-        credentials: "include",
-      })
-
-      if (!response.ok) {
-        navigate("/login")
-        return
-      }
+      await apiClient.get("/auth/me")
 
       const tasks = await getTasks()
 
       setTasks(tasks)
-    } catch (error) {
+    } 
+    catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        navigate("/login")
+        return
+      }
+
       setError(error instanceof Error ? error.message : "Unable to load tasks")
-    } finally {
+    } 
+    finally {
       setIsLoading(false)
     }
   }, [navigate])

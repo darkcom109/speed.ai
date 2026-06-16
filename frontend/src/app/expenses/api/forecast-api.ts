@@ -1,3 +1,5 @@
+import { apiClient } from "@/lib/api-client"
+
 export type Forecast = {
   totalIncome: number
   totalExpense: number
@@ -11,15 +13,7 @@ export type Forecast = {
 }
 
 export async function getForecast(): Promise<Forecast> {
-  const response = await fetch("http://localhost:3001/api/prediction/forecast-regression", {
-    credentials: "include",
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.error || "Unable to load forecast")
-  }
+  const { data } = await apiClient.get<Forecast>("/prediction/forecast-regression")
 
   return data
 }

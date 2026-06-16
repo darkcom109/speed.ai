@@ -1,17 +1,10 @@
 import type { CreateExpensePayload } from "@/app/expenses/types/create-expense-payload"
 import type { Expense } from "@/app/expenses/types/expense"
 import type { UpdateExpensePayload } from "@/app/expenses/types/update-expense-payload"
+import { apiClient } from "@/lib/api-client"
 
 export async function getExpenses(): Promise<Expense[]> {
-  const response = await fetch("http://localhost:3001/api/expenses", {
-    credentials: "include",
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.error || "Unable to load expenses")
-  }
+  const { data } = await apiClient.get<{ expenses: Expense[] }>("/expenses")
 
   return data.expenses
 }
@@ -19,20 +12,8 @@ export async function getExpenses(): Promise<Expense[]> {
 export async function createExpense(
   payload: CreateExpensePayload
 ): Promise<Expense> {
-  const response = await fetch("http://localhost:3001/api/expenses", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify(payload),
-  })
 
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.error || "Unable to create expense")
-  }
+  const { data } = await apiClient.post<{ expense: Expense }>("/expenses", payload)
 
   return data.expense
 }
@@ -40,22 +21,7 @@ export async function createExpense(
 export async function importExpenses(
   expenses: CreateExpensePayload[]
 ): Promise<number> {
-  const response = await fetch("http://localhost:3001/api/expenses/import", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify({
-      expenses,
-    }),
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.error || "Unable to import finances")
-  }
+  const { data } = await apiClient.post<{ count: number }>("/expenses/import", expenses)
 
   return data.count
 }
@@ -64,46 +30,15 @@ export async function updateExpense(
   expenseId: string,
   payload: UpdateExpensePayload
 ): Promise<Expense> {
-  const response = await fetch(`http://localhost:3001/api/expenses/${expenseId}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify(payload),
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.error || "Unable to update expense")
-  }
+  const { data } = await apiClient.patch<{ expense: Expense }>(`/expenses/${expenseId}`, payload)
 
   return data.expense
 }
 
 export async function deleteExpense(expenseId: string): Promise<void> {
-  const response = await fetch(`http://localhost:3001/api/expenses/${expenseId}`, {
-    method: "DELETE",
-    credentials: "include",
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.error || "Unable to delete expense")
-  }
+  apiClient.delete(`/expenses/${expenseId}`)
 }
 
 export async function deleteAllExpenses(): Promise<void> {
-  const response = await fetch("http://localhost:3001/api/expenses/delete_all", {
-    method: "DELETE",
-    credentials: "include",
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.error || "Unable to delete all finances")
-  }
+  apiClient.delete("/expenses/delete_all")
 }

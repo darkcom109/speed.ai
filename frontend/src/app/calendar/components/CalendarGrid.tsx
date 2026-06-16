@@ -46,7 +46,7 @@ export default function CalendarGrid({
                       {day.getDate()}
                     </p>
                   </div>
-                  <div className="calendar-task-scroll max-h-[5.75rem] space-y-1 overflow-y-auto pr-1">
+                  <div className="calendar-task-scroll max-h-23 space-y-1 overflow-y-auto pr-1">
                     {tasksForDay.map((task) => (
                       <button
                         type="button"
