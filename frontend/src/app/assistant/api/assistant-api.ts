@@ -1,23 +1,9 @@
-import type { SavedChatMessage } from "../types/saved-assistant-message"
+import type { SavedChatMessage } from "@/app/assistant/types/saved-assistant-message"
+import { apiClient } from "@/lib/api-client"
 
 // Sends user message to backend and returns assistant response
 export async function sendAssistantMessage(message: string): Promise<string> {
-  const response = await fetch("http://localhost:3001/api/assistant/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify({
-      message,
-    }),
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.error || "Assistant failed")
-  }
+  const { data } = await apiClient.post<{ message: string, event: string }>("/assistant/chat", message)
 
   if (data.event) {
     window.dispatchEvent(new Event(data.event))
@@ -28,29 +14,12 @@ export async function sendAssistantMessage(message: string): Promise<string> {
 
 // Retrieves all saved messages stored if page refreshes during a conversation
 export async function getAllSavedMessages(): Promise<SavedChatMessage[]> {
-  const response = await fetch("http://localhost:3001/api/assistant/messages", {
-    credentials: "include"
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to load messages")
-  }
+  const { data } = await apiClient.get<{ messages: SavedChatMessage[]}>("/assistant/messages")
 
   return data.messages
 }
 
 // Deletes all saved messages and removes context
 export async function deleteAllSavedMessages() {
-  const response = await fetch("http://localhost:3001/api/assistant/messages", {
-    method: "DELETE",
-    credentials: "include"
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to clear chat")
-  }
+  await apiClient.delete("/assistant/messages")
 }

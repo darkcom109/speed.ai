@@ -11,8 +11,8 @@ type LayoutProps = {
 /**
  * Returns a reusable layout component for pages
  * 
- * @param children
- * @returns 
+ * @param Children: ReactNode
+ * @returns Layout component for pages
  */
 export default function Layout({ children }: LayoutProps) {
   return (
