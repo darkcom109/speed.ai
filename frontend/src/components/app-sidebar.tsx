@@ -1,4 +1,5 @@
 import * as React from "react"
+import { apiClient } from "@/lib/api-client"
 
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
@@ -22,18 +23,11 @@ import {
   SquareCheckBigIcon,
   TrainFrontIcon,
 } from "lucide-react"
+import type { UserData } from "@/app/login/types/user-data"
 
 async function getUserData() {
   try {
-    const response = await fetch("http://localhost:3001/api/auth/me", {
-      credentials: "include"
-    })
-
-    if (!response.ok) {
-      return null
-    }
-
-    const data = await response.json()
+    const { data } = await apiClient.get<{ user: UserData}>("/auth/me")
 
     return data.user
   } catch {

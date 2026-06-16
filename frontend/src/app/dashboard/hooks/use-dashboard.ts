@@ -7,6 +7,8 @@ import { getExpenses } from "@/app/expenses/api/expenses-api"
 import type { Expense } from "@/app/expenses/types/expense"
 import { getTasks } from "@/app/tasks/api/tasks-api"
 import type { Task } from "@/app/tasks/types/task"
+import { apiClient } from "@/lib/api-client"
+import axios from "axios"
 
 export default function useDashboard() {
     const [tasks, setTasks] = useState<Task[]>([])
@@ -66,18 +68,19 @@ export default function useDashboard() {
 
     useEffect(() => {
         async function checkAuth() {
-        const response = await fetch("http://localhost:3001/api/auth/me", {
-            credentials: "include",
-        })
+            try {
+                await apiClient.get("/auth/me")
 
-        if (!response.ok) {
-            navigate("/login")
-            return
-        }
-
-        loadTasks()
-        loadExpenses()
-        loadDashboardSummary()
+                loadTasks()
+                loadExpenses()
+                loadDashboardSummary()
+            } 
+            catch(error) {
+                if (axios.isAxiosError(error) && error.response?.status === 401) {
+                    navigate("/login")
+                    return
+                }
+            }
         }
 
         checkAuth()

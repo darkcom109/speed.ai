@@ -27,15 +27,6 @@ export function useNotes() {
       try {
         setError("")
 
-        const response = await fetch("http://localhost:3001/api/auth/me", {
-          credentials: "include",
-        })
-
-        if (!response.ok) {
-          navigate("/login")
-          return
-        }
-
         apiClient.get("/auth/me")
 
         const notes = await getNotes()
