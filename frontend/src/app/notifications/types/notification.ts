@@ -1,3 +1,4 @@
+// This is a comment
 export type AppNotification = {
     id: string
     type: string

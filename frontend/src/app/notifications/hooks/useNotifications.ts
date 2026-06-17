@@ -13,11 +13,13 @@ export default function useNotifications() {
       const loadedNotifications = await getNotifications()
 
       setNotifications(loadedNotifications)
-    } catch (error) {
+    } 
+    catch (error) {
       setError(
         error instanceof Error ? error.message : "Unable to load notifications"
       )
-    } finally {
+    } 
+    finally {
       setIsLoading(false)
     }
   }
