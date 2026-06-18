@@ -3,7 +3,9 @@ import { apiClient } from "@/lib/api-client"
 
 // Sends user message to backend and returns assistant response
 export async function sendAssistantMessage(message: string): Promise<string> {
-  const { data } = await apiClient.post<{ message: string, event: string }>("/assistant/chat", message)
+  const { data } = await apiClient.post<{ message: string, event: string }>("/assistant/chat", {
+    message: message
+  })
 
   if (data.event) {
     window.dispatchEvent(new Event(data.event))
