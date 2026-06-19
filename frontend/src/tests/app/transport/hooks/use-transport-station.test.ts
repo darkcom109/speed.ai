@@ -7,12 +7,25 @@ import {
   searchTflStations,
 } from "@/app/transport/api/tfl-api"
 import type { TflArrival, TflStation } from "@/app/transport/types/tfl-station"
+import { apiClient } from "@/lib/api-client"
 
 import useTransportStation from "@/app/transport/hooks/use-transport-station"
+
+const navigate = vi.fn()
+
+vi.mock("react-router", () => ({
+  useNavigate: () => navigate,
+}))
 
 vi.mock("@/app/transport/api/tfl-api", () => ({
   getTflStationArrivals: vi.fn(),
   searchTflStations: vi.fn(),
+}))
+
+vi.mock("@/lib/api-client", () => ({
+  apiClient: {
+    get: vi.fn(),
+  },
 }))
 
 const station: TflStation = {
@@ -40,6 +53,7 @@ function createSubmitEvent(): FormEvent<HTMLFormElement> {
 describe("useTransportStation", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(apiClient.get).mockResolvedValue({ data: {} })
   })
 
   it("searches stations with the current query", async () => {

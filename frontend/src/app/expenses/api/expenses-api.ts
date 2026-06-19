@@ -12,8 +12,10 @@ export async function getExpenses(): Promise<Expense[]> {
 export async function createExpense(
   payload: CreateExpensePayload
 ): Promise<Expense> {
-
-  const { data } = await apiClient.post<{ expense: Expense }>("/expenses", payload)
+  const { data } = await apiClient.post<{ expense: Expense }>(
+    "/expenses",
+    payload
+  )
 
   return data.expense
 }
@@ -21,7 +23,9 @@ export async function createExpense(
 export async function importExpenses(
   expenses: CreateExpensePayload[]
 ): Promise<number> {
-  const { data } = await apiClient.post<{ count: number }>("/expenses/import", expenses)
+  const { data } = await apiClient.post<{ count: number }>("/expenses/import", {
+    expenses,
+  })
 
   return data.count
 }
@@ -30,15 +34,18 @@ export async function updateExpense(
   expenseId: string,
   payload: UpdateExpensePayload
 ): Promise<Expense> {
-  const { data } = await apiClient.patch<{ expense: Expense }>(`/expenses/${expenseId}`, payload)
+  const { data } = await apiClient.patch<{ expense: Expense }>(
+    `/expenses/${expenseId}`,
+    payload
+  )
 
   return data.expense
 }
 
 export async function deleteExpense(expenseId: string): Promise<void> {
-  apiClient.delete(`/expenses/${expenseId}`)
+  await apiClient.delete(`/expenses/${expenseId}`)
 }
 
 export async function deleteAllExpenses(): Promise<void> {
-  apiClient.delete("/expenses/delete_all")
+  await apiClient.delete("/expenses/delete_all")
 }

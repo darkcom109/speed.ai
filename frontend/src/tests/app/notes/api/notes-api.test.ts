@@ -81,6 +81,6 @@ describe("notes-api", () => {
       folder: "Travel",
       content: "<p>Hello</p>",
     })
-    expect(apiClient.delete).toHaveBeenCalledWith("notes/1")
+    expect(apiClient.delete).toHaveBeenCalledWith("/notes/1")
   })
 })

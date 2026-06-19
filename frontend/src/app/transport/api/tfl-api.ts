@@ -11,16 +11,23 @@ export async function getTflStatus(): Promise<TflStatusData> {
 
 // Returns TFL stations according to query
 export async function searchTflStations(query: string): Promise<TflStation[]> {
-  const { data } = await apiClient.get<TflStation[]>("/tfl/stations/search", {
-    params: { query },
-  })
+  const { data } = await apiClient.get<{ stations: TflStation[] }>(
+    "/tfl/stations/search",
+    {
+      params: { query },
+    }
+  )
 
-  return data
+  return data.stations
 }
 
 // Returns TFL station arrival times
-export async function getTflStationArrivals(stationId: string): Promise<TflArrival[]> {
-  const { data } = await apiClient.get<TflArrival[]>(`/tfl/stations/${encodeURIComponent(stationId)}/arrivals`)
+export async function getTflStationArrivals(
+  stationId: string
+): Promise<TflArrival[]> {
+  const { data } = await apiClient.get<{ arrivals: TflArrival[] }>(
+    `/tfl/stations/${encodeURIComponent(stationId)}/arrivals`
+  )
 
-  return data
+  return data.arrivals
 }

@@ -3,9 +3,10 @@ import { apiClient } from "@/lib/api-client"
 
 // Sends user message to backend and returns assistant response
 export async function sendAssistantMessage(message: string): Promise<string> {
-  const { data } = await apiClient.post<{ message: string, event: string }>("/assistant/chat", {
-    message: message
-  })
+  const { data } = await apiClient.post<{
+    message: string
+    event?: string
+  }>("/assistant/chat", { message })
 
   if (data.event) {
     window.dispatchEvent(new Event(data.event))
@@ -16,7 +17,9 @@ export async function sendAssistantMessage(message: string): Promise<string> {
 
 // Retrieves all saved messages stored if page refreshes during a conversation
 export async function getAllSavedMessages(): Promise<SavedChatMessage[]> {
-  const { data } = await apiClient.get<{ messages: SavedChatMessage[]}>("/assistant/messages")
+  const { data } = await apiClient.get<{ messages: SavedChatMessage[] }>(
+    "/assistant/messages"
+  )
 
   return data.messages
 }

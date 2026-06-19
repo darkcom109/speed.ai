@@ -49,10 +49,9 @@ describe("login-api", () => {
 
     const user = await loginWithGoogle("credential-token")
 
-    expect(apiClient.post).toHaveBeenCalledWith(
-      "/auth/google",
-      "credential-token"
-    )
+    expect(apiClient.post).toHaveBeenCalledWith("/auth/google", {
+      credential: "credential-token",
+    })
     expect(user.name).toBe("Alex Garcia")
   })
 })

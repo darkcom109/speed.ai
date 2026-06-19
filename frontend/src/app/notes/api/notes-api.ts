@@ -25,11 +25,14 @@ export async function updateNote(
   noteId: string,
   payload: UpdateNotePayload
 ): Promise<Note> {
-  const { data } = await apiClient.patch<{ note: Note }>(`/notes/${noteId}`, payload)
+  const { data } = await apiClient.patch<{ note: Note }>(
+    `/notes/${noteId}`,
+    payload
+  )
 
   return data.note
 }
 
 export async function deleteNote(noteId: string): Promise<void> {
-  await apiClient.delete(`notes/${noteId}`)
+  await apiClient.delete(`/notes/${noteId}`)
 }
