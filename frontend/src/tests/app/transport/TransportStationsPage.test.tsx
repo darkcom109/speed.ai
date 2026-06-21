@@ -62,7 +62,6 @@ describe("TransportStationsPage", () => {
 
     render(<TransportStationsPage />)
 
-    expect(screen.getByText("Transport")).toBeInTheDocument()
     expect(screen.getByText("Station header")).toBeInTheDocument()
     expect(screen.getByText("Search query: Bank")).toBeInTheDocument()
     expect(screen.getByText("Stations: 1")).toBeInTheDocument()

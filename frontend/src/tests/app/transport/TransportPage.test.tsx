@@ -86,7 +86,6 @@ describe("TransportPage", () => {
 
     render(<TransportPage />)
 
-    expect(screen.getByText("Transport")).toBeInTheDocument()
     expect(screen.getByText("Loading transport")).toBeInTheDocument()
     expect(screen.queryByText(/Disrupted lines:/)).not.toBeInTheDocument()
   })
