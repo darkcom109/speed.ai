@@ -15,7 +15,8 @@ export async function getTasksToday(userId) {
                 gte: startOfToday,
                 lte: endOfToday
             }
-        }
+        },
+        take: 10
     })
 
     const parsedTasks = tasks.length

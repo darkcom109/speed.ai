@@ -21,6 +21,7 @@ export async function getIncomes(userId) {
         orderBy: {
             spentAt: "desc",
         },
+        take: 20
     })
 
     const parsedIncomes = incomes.length
