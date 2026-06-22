@@ -39,10 +39,11 @@ export default function EditTaskDialog({
       trigger={
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           size="icon-sm"
           aria-label={`Edit ${task.title}`}
           title="Edit"
+          className="text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <PencilIcon />
         </Button>

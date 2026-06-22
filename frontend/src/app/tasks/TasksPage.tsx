@@ -1,3 +1,5 @@
+import { useState } from "react"
+
 import Layout from "@/components/app/Layout"
 import { useTasks } from "@/app/tasks/hooks/use-tasks"
 import {
@@ -6,10 +8,13 @@ import {
   TaskOverviewStats,
   TaskSection,
   RenderTask,
+  TaskPreviewDialog,
 } from "@/app/tasks/components"
 import type { Task } from "@/app/tasks/types"
 
 export default function TasksPage() {
+  const [previewTask, setPreviewTask] = useState<Task | null>(null)
+
   const {
     tasks,
     error,
@@ -56,6 +61,7 @@ export default function TasksPage() {
       <RenderTask
         task={task}
         isEditing={editingTaskId === task.id}
+        onPreviewTask={setPreviewTask}
         startEditingTask={startEditingTask}
         handleToggleTask={handleToggleTask}
         handleDeleteTask={handleDeleteTask}
@@ -109,6 +115,15 @@ export default function TasksPage() {
         onActivePageChange={setActivePage}
         onCompletedPageChange={setCompletedPage}
         renderTask={renderTask}
+      />
+
+      <TaskPreviewDialog
+        task={previewTask}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPreviewTask(null)
+          }
+        }}
       />
     </Layout>
   )

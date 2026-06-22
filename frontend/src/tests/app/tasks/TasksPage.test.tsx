@@ -19,6 +19,7 @@ vi.mock("@/app/tasks/components", () => ({
   TasksToolbar: () => <section>Task toolbar</section>,
   RenderTask: () => <article>Task item</article>,
   TaskSection: () => <section>Task section</section>,
+  TaskPreviewDialog: () => <section>Task preview</section>,
 }))
 
 const mockedUseTasks = vi.mocked(useTasks)
@@ -74,6 +75,7 @@ describe("TasksPage", () => {
     expect(screen.getByText("Task overview")).toBeInTheDocument()
     expect(screen.getByText("Task toolbar")).toBeInTheDocument()
     expect(screen.getByText("Task section")).toBeInTheDocument()
+    expect(screen.getByText("Task preview")).toBeInTheDocument()
     expect(screen.getByText("Unable to retrieve tasks")).toBeInTheDocument()
   })
 })

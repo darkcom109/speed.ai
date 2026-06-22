@@ -28,10 +28,11 @@ export default function DeleteTaskDialog({
       <AlertDialogTrigger asChild>
         <Button
           type="button"
-          variant="destructive"
+          variant="ghost"
           size="icon-sm"
           aria-label={`Delete ${taskTitle}`}
           title="Delete"
+          className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2Icon />
         </Button>

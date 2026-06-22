@@ -22,15 +22,24 @@ export default function RenderTaskList({
   }
 
   return (
-    <ul className="divide-y rounded-lg border bg-card">
-      {tasks.map((task) => (
-        <li
-          key={task.id}
-          className="flex items-start justify-between gap-3 p-3"
-        >
-          {renderTask(task)}
-        </li>
-      ))}
-    </ul>
+    <div className="overflow-hidden rounded-lg border bg-card">
+      <div className="hidden grid-cols-[minmax(0,1fr)_12rem_6.5rem_4.5rem] items-center gap-4 border-b bg-muted/20 px-4 py-2 text-xs font-medium text-muted-foreground md:grid">
+        <span>Task</span>
+        <span>Due date</span>
+        <span>Status</span>
+        <span className="text-right">Actions</span>
+      </div>
+
+      <ul className="divide-y">
+        {tasks.map((task) => (
+          <li
+            key={task.id}
+            className="group/task grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2.5 transition-colors hover:bg-muted/20 sm:px-4 md:grid-cols-[minmax(0,1fr)_12rem_6.5rem_4.5rem] md:gap-4"
+          >
+            {renderTask(task)}
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
