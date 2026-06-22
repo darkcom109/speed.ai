@@ -2,11 +2,10 @@ import { useEffect, useMemo, useState } from "react"
 import type { FormEvent } from "react"
 import { useNavigate } from "react-router"
 
-import {
-  createNote,
-  getNotes,
-} from "@/app/notes/api/notes-api"
+import { createNote, getNotes } from "@/app/notes/api/notes-api"
 import type { Note } from "@/app/notes/types/note"
+import { apiClient } from "@/lib/api-client"
+import axios from "axios"
 
 export function useNotes() {
   const [notes, setNotes] = useState<Note[]>([])
@@ -25,19 +24,19 @@ export function useNotes() {
       try {
         setError("")
 
-        const response = await fetch("http://localhost:3001/api/auth/me", {
-          credentials: "include",
-        })
-
-        if (!response.ok) {
-          navigate("/login")
-          return
-        }
+        await apiClient.get("/auth/me")
 
         const notes = await getNotes()
         setNotes(notes)
       } catch (error) {
-        setError(error instanceof Error ? error.message : "Unable to load notes")
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          navigate("/login")
+          return
+        }
+
+        setError(
+          error instanceof Error ? error.message : "Unable to load notes"
+        )
       } finally {
         setIsLoading(false)
       }

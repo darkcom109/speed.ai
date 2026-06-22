@@ -19,6 +19,7 @@ assistantRouter.post("/chat", async (req, res) => {
     const validationResult = chatSchema.safeParse(req.body)
 
     if (!validationResult.success) {
+        console.log(validationResult.error)
         return res.status(400).json({
             error: validationResult.error.issues[0].message,
         })

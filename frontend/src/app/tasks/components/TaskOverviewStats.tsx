@@ -6,23 +6,15 @@ import {
 } from "lucide-react"
 
 import type { Task } from "@/app/tasks/types/task"
-import { formatTaskDueTime } from "@/app/tasks/utils/task-date"
+import {
+  formatTaskDueTime,
+  isSameDay,
+  startOfDay,
+} from "@/app/tasks/utils/task-date"
 
 type TaskOverviewStatsProps = {
   tasks: Task[]
   isLoading: boolean
-}
-
-function isSameDay(firstDate: Date, secondDate: Date) {
-  return (
-    firstDate.getFullYear() === secondDate.getFullYear() &&
-    firstDate.getMonth() === secondDate.getMonth() &&
-    firstDate.getDate() === secondDate.getDate()
-  )
-}
-
-function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
 }
 
 export default function TaskOverviewStats({
@@ -52,7 +44,7 @@ export default function TaskOverviewStats({
   const overdueTasks = activeTasks.filter((task) => {
     return task.dueDate && startOfDay(new Date(task.dueDate)) < todayStart
   })
-  
+
   const visibleTodayTasks = dueTodayTasks.slice(0, 2)
 
   return (
@@ -79,7 +71,7 @@ export default function TaskOverviewStats({
               <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted">
                 <ListChecksIcon className="size-5 text-muted-foreground" />
               </div>
-              <p className="text-3xl font-semibold leading-none">
+              <p className="text-3xl leading-none font-semibold">
                 {activeTasks.length} active
               </p>
             </div>
@@ -87,7 +79,9 @@ export default function TaskOverviewStats({
             <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-muted-foreground">
               <p>
                 Due today:{" "}
-                <span className="text-primary">{activeDueTodayTasks.length}</span>
+                <span className="text-primary">
+                  {activeDueTodayTasks.length}
+                </span>
               </p>
               <p>Overdue: {overdueTasks.length}</p>
               <p>Completed: {completedTasks.length}</p>
@@ -117,7 +111,7 @@ export default function TaskOverviewStats({
               <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted">
                 <CalendarCheckIcon className="size-5 text-muted-foreground" />
               </div>
-              <p className="text-3xl font-semibold leading-none">
+              <p className="text-3xl leading-none font-semibold">
                 {activeDueTodayTasks.length} due
               </p>
             </div>
@@ -125,7 +119,9 @@ export default function TaskOverviewStats({
             {visibleTodayTasks.length > 0 ? (
               <div className="mt-3 space-y-1.5">
                 {visibleTodayTasks.map((task) => {
-                  const TaskIcon = task.completed ? CheckCircle2Icon : CircleIcon
+                  const TaskIcon = task.completed
+                    ? CheckCircle2Icon
+                    : CircleIcon
 
                   return (
                     <div

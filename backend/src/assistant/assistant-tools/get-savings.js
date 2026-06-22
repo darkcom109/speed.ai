@@ -4,7 +4,8 @@ export async function getSavings(userId) {
     const savings = await prisma.savingAccount.findMany({
         where: {
             userId: userId
-        }
+        },
+        take: 10
     })
 
     const parsedSavings = savings.length

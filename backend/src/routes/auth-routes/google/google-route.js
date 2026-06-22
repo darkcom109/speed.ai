@@ -61,6 +61,12 @@ authRouter.post("/google", async (req, res) => {
         email,
         googleId,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true
+      }
     })
   }
 
@@ -68,11 +74,6 @@ authRouter.post("/google", async (req, res) => {
   setAuthCookie(res, token)
 
   return res.status(200).json({
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt,
-    },
+    user
   })
 })

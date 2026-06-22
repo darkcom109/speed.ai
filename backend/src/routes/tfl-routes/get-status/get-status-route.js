@@ -39,9 +39,7 @@ tflRouter.get("/status", async (req, res) => {
         }
       }),
     })
-  } catch (error) {
-    console.error("TfL status error:", error)
-
+  } catch {
     return res.status(500).json({
       error: "Unable to load TfL status",
     })

@@ -1,18 +1,13 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
 import {
   DashboardSummaryCard,
   FinanceSnapshotCard,
   TaskActivityChart,
   TaskSummaryCard,
   TodayTasksCard,
-} from "./components"
+} from "@/app/dashboard/components"
 
 import useDashboard from "./hooks/use-dashboard"
+import Layout from "@/components/app/Layout"
 
 export default function DashboardPage() {
   const {
@@ -28,57 +23,44 @@ export default function DashboardPage() {
   } = useDashboard()
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title="Dashboard" />
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
-            <p className="text-sm text-muted-foreground">
-              A live overview of your workspace.
-            </p>
-          </div>
+    <Layout>
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
+        <p className="text-sm text-muted-foreground">
+          A live overview of your workspace.
+        </p>
+      </div>
 
-          <TaskActivityChart
-            tasks={tasks}
-            error={tasksError}
-            isLoading={isTasksLoading}
-          />
+      <TaskActivityChart
+        tasks={tasks}
+        error={tasksError}
+        isLoading={isTasksLoading}
+      />
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <TaskSummaryCard
-              tasks={tasks}
-              error={tasksError}
-              isLoading={isTasksLoading}
-            />
-            <TodayTasksCard
-              tasks={tasks}
-              error={tasksError}
-              isLoading={isTasksLoading}
-            />
-          </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <TaskSummaryCard
+          tasks={tasks}
+          error={tasksError}
+          isLoading={isTasksLoading}
+        />
+        <TodayTasksCard
+          tasks={tasks}
+          error={tasksError}
+          isLoading={isTasksLoading}
+        />
+      </div>
 
-          <FinanceSnapshotCard
-            expenses={expenses}
-            error={expensesError}
-            isLoading={isExpensesLoading}
-          />
+      <FinanceSnapshotCard
+        expenses={expenses}
+        error={expensesError}
+        isLoading={isExpensesLoading}
+      />
 
-          <DashboardSummaryCard
-            summary={dashboardSummary}
-            error={dashboardSummaryError}
-            isLoading={isDashboardSummaryLoading}
-          />
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+      <DashboardSummaryCard
+        summary={dashboardSummary}
+        error={dashboardSummaryError}
+        isLoading={isDashboardSummaryLoading}
+      />
+    </Layout>
   )
 }

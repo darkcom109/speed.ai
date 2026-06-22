@@ -12,7 +12,7 @@ authRouter.post("/login", async (req, res) => {
 
   if (!result.success) {
     return res.status(400).json({
-      error: result.error.issues[0].message,
+      error: "result.error.issues[0].message",
     })
   }
 
@@ -22,6 +22,12 @@ authRouter.post("/login", async (req, res) => {
     where: {
       email,
     },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      createdAt: true,
+    }
   })
 
   if (!user || !user.passwordHash) {
@@ -42,11 +48,6 @@ authRouter.post("/login", async (req, res) => {
   setAuthCookie(res, token)
 
   return res.status(200).json({
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt,
-    },
+    user
   })
 })

@@ -22,3 +22,15 @@ export function formatTaskDueTime(date: string) {
     minute: "2-digit",
   }).format(new Date(date))
 }
+
+export function isSameDay(firstDate: Date, secondDate: Date) {
+  return (
+    firstDate.getFullYear() === secondDate.getFullYear() &&
+    firstDate.getMonth() === secondDate.getMonth() &&
+    firstDate.getDate() === secondDate.getDate()
+  )
+}
+
+export function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+}

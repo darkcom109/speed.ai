@@ -1,20 +1,10 @@
-export async function loginWithGoogle(credential: string) {
-    const response = await fetch("http://localhost:3001/api/auth/google", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({
-            credential
-        })
-    })
+import { apiClient } from "@/lib/api-client"
+import type { UserData } from "@/app/login/types/user-data"
 
-    const data = await response.json()
+export async function loginWithGoogle(credential: string): Promise<UserData> {
+  const { data } = await apiClient.post<{ user: UserData }>("/auth/google", {
+    credential,
+  })
 
-    if (!response.ok) {
-        throw new Error(data.error || "Unable to sign in with Google")
-    }
-
-    return data
+  return data.user
 }

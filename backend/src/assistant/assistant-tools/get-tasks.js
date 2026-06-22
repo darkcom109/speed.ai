@@ -7,7 +7,7 @@ export async function getTasks(userId) {
             userId: userId,
             completed: false
         },
-        take: 10
+        take: 20
     })
 
     const parsedTasks = tasks.length

@@ -1,4 +1,5 @@
 export default function handleExportNote(title: string, content: string) {
+  // SECURITY RISK !!
   const printWindow = window.open("", "_blank")
 
   if (!printWindow) {

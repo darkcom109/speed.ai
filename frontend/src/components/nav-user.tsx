@@ -21,6 +21,8 @@ import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, Lo
 import { useNavigate } from "react-router"
 
 import { clearGoogleSession } from "@/app/login/utils/clear-google-session"
+import { apiClient } from "@/lib/api-client"
+import axios from "axios"
 
 export function NavUser({
   user,
@@ -36,23 +38,15 @@ export function NavUser({
 
   async function handleSubmitLogout() {
     try {
-      const response = await fetch("http://localhost:3001/api/auth/logout", {
-        method: "POST",
-        credentials: "include"
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        console.log(data.error)
-        return
-      }
+      await apiClient.post("/auth/logout")
 
       clearGoogleSession()
       navigate("/login")
     }
     catch(error) {
-      console.log(error)
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        return
+      }
     }
   }
 
