@@ -231,7 +231,13 @@ volumes:
 
 Now you can run:
 
-`docker compose up -d`
+`docker compose up -d --build`
+
+docker compose = use 'compose.yaml'
+up             = create and start the configured services
+-d             = run containers in the background
+--build        = build the backend image before starting
+
 `cd backend`
 `npx prisma migrate deploy`
 
@@ -243,3 +249,7 @@ To restart the same containers:
 
 `docker compose stop`
 `docker compose start`
+
+To remove all Docker images safely:
+
+`docker image prune -a`
