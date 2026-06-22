@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: speedai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: speedai
+      POSTGRES_PASSWORD: speedai_dev
+      POSTGRES_DB: speedai
+    ports:
+      - "5433:5432"
+    volumes:
+      - speedai-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U speedai -d speedai"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  speedai-postgres-data:
+    external: true
+    name: speedai-postgres-data

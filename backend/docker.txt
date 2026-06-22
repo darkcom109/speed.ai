@@ -1,0 +1,36 @@
+How to Containerise the Backend:
+
+Create a backend/Dockerfile:
+
+`
+FROM node:22-bookworm-slim
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npx prisma generate
+
+EXPOSE 3001
+
+CMD ["npm", "start"]
+`
+
+Create a .dockerignore file:
+
+`
+node_modules
+npm-debug.log*
+.env
+.env.*
+.git
+.gitignore
+Dockerfile*
+README.md
+coverage
+generated
+`

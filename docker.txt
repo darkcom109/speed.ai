@@ -1,0 +1,245 @@
+Checking Docker Version
+`docker version`
+`docker compose version`
+
+Expected Output:
+
+Client:
+ Version:           29.2.0
+ API version:       1.53
+ Go version:        go1.25.6
+ Git commit:        0b9d198
+ Built:             Mon Jan 26 19:28:56 2026
+ OS/Arch:           windows/amd64
+ Context:           desktop-linux
+
+Server: Docker Desktop 4.60.1 (218372)
+ Engine:
+  Version:          29.2.0
+  API version:      1.53 (minimum version 1.44)
+  Go version:       go1.25.6
+  Git commit:       9c62384
+  Built:            Mon Jan 26 19:26:07 2026
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          v2.2.1
+  GitCommit:        dea7da592f5d1d2b7755e3a161be07f43fad8f75
+ runc:
+  Version:          1.3.4
+  GitCommit:        v1.3.4-0-gd6d73eb8
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+
+-> Shows two main sections: Client and Server
+-> The client is the docker command you enter into
+PowerShell
+-> The server, also called the Docker Engine or daemon,
+does the actual work, such as downloading/building
+images, creating/starting/stopping containers and
+managing networks and volumes
+-> Commands run on Windows, but the containers run
+inside Docker Desktop'S Linux environment
+
+Docker manages individual containers, in a project
+you may have three containers:
+
+1. PostgreSQL container
+2. Backend container
+3. Frontend container
+
+However, each docker run command requires ports,
+environmental variables, volumes and networking
+arguments. These all becomes difficult to maintain
+
+Docker Compose starts and coordinates several
+containers using one configuration file, usually:
+`compose.yaml`
+
+Example:
+
+services:
+  database:
+    image: postgres:17-alpine
+
+  backend:
+    build: ./backend
+    depends_on:
+      - database
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+
+Then all services can be started together using:
+`docker compose up`
+
+Compose still uses Docker underneath, it is not
+a replacement for Docker.
+
+Summary:
+- Docker builds images and runs individual container instances
+- Docker Compose defines and coordinates multiple related containers
+- Containerisation packages an application with its runtime and
+  dependencies, reducing differences between machines
+
+Creating and running a container
+`docker run --rm hello-world`
+
+`docker run`  = Create and start a new container
+`--rm`        = Remove it automatically after it finishes
+`hello-world` = Image used to create the container
+
+1. Docker will look for the hello-world image locally
+2. Download it from Docker Hub if missing
+3. Create a container from the image
+4. Run its program
+5. Remove the finished container because of `--rm`
+
+`docker run` = `docker create` + `docker start`
+
+Expected Output:
+
+`
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+`
+Afterwards, run:
+`docker images`
+
+-> You should see the `hello-world` image
+
+`docker ps` will show containers that have not finished,
+'ps' stands for 'process status'
+`docker ps -a` shows all containers (running or stopped)
+
+Next, we can run a container that stays active using Nginx.
+
+`
+docker run 
+--name docker-demo 
+-p 8080:80 
+-d nginx:alpine
+`
+
+--name docker-demo = name of the container
+-p 8080:80         = maps the computer's port 8080 
+                     to the containers port 80
+-d                 = runs it in the background
+nginx:alpine       = uses the lightweight Nginx image
+
+We can stop a container using `docker stop <container-name>`
+Removing a container involves `docker rm <container-name>`
+
+PostgreSQL is a program that runs continuously and manages
+databases. the backend does not directly open database files,
+but connects to a PostgreSQL server:
+
+Express backend
+      |
+      | DATABASE_URL
+      v
+PostgreSQL server
+      |
+      v
+Tables and stored data
+
+Normally, PostgreSQL may be installed directly on Windows:
+
+Windows
+└── PostgreSQL server
+
+But with Docker:
+
+Docker
+└── PostgreSQL container
+
+It is still the real PostgreSQL. Docker only controls
+where and how it runs.
+
+docker run `
+  --name speedai-postgres `
+  -e POSTGRES_USER=speedai `
+  -e POSTGRES_PASSWORD=speedai_dev `
+  -e POSTGRES_DB=speedai `
+  -p 5433:5432 `
+  -v speedai-postgres-data:/var/lib/postgresql/data `
+  -d `
+  postgres:17-alpine
+
+Ensure that the .env file (for this example) contains the variable:
+
+DATABASE_URL="postgresql://speedai:speedai_dev@localhost:5433/speed_ai?schema=public"
+
+Where:
+
+DATABASE_URL="postgresql://<postgres-username>:<postgres-password>@localhost:5433/<database-name>?schema=public"
+
+Restart the backend and the run:
+
+`npx prisma migrate deploy`
+
+This deploys the existing migration history onto the configured database
+
+We can make this much easier through using a docker compose.yaml file:
+
+`
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: speedai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: speedai
+      POSTGRES_PASSWORD: speedai_dev
+      POSTGRES_DB: speedai
+    ports:
+      - "5433:5432"
+    volumes:
+      - speedai-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U speedai -d speedai"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  speedai-postgres-data:
+    external: true
+    name: speedai-postgres-data
+`
+
+Now you can run:
+
+`docker compose up -d`
+`cd backend`
+`npx prisma migrate deploy`
+
+To stop the compose containers:
+
+`docker compose down`
+
+To restart the same containers:
+
+`docker compose stop`
+`docker compose start`
