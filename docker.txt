@@ -253,3 +253,7 @@ To restart the same containers:
 To remove all Docker images safely:
 
 `docker image prune -a`
+
+To follow Docker compose service logs live:
+
+`docker compose logs -f <name>`
