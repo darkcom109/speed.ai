@@ -16,7 +16,6 @@ import {
   SparklesIcon,
 } from "lucide-react"
 import { evaluate, format } from "mathjs"
-import { toast } from "sonner"
 
 import { runNoteSelectionAiCommand } from "@/app/notes/api/notes-api"
 import { getNoteTemplates } from "@/app/notes/templates/note-templates"
@@ -28,6 +27,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from "@/lib/single-toast"
 import { cn } from "@/lib/utils"
 
 type NoteFormattingToolbarProps = {
@@ -170,6 +170,7 @@ export default function NoteFormattingToolbar({
   async function runSelectionAiAction(label: string, instruction: string) {
     const { from, to } = activeEditor.state.selection
     const selectedText = activeEditor.state.doc.textBetween(from, to, " ").trim()
+    const previousContent = activeEditor.getHTML()
 
     if (!selectedText || from === to) {
       toast.info("Select text to edit with AI")
@@ -185,30 +186,47 @@ export default function NoteFormattingToolbar({
         noteContext: activeEditor.getText().slice(0, 4000),
       })
 
+      const replacementHtml = normalizeSelectionReplacement(
+        edit.replacementHtml,
+        selectedText
+      )
+      const replacementText = trimHtmlTextNodes(edit.replacementHtml)
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+
+      activeEditor
+        .chain()
+        .focus()
+        .insertContentAt({ from, to }, replacementHtml)
+        .run()
+
+      const selectionEnd = Math.min(
+        activeEditor.state.doc.content.size,
+        Math.max(from, from + replacementText.length)
+      )
+
+      activeEditor
+        .chain()
+        .focus()
+        .setTextSelection({ from, to: selectionEnd })
+        .run()
+
       let toastId: string | number
 
       toastId = toast("AI selection edit", {
         description: edit.summaryOfChanges,
         duration: Infinity,
         action: {
-          label: "Apply",
-          onClick: () => {
-            const replacementHtml = normalizeSelectionReplacement(
-              edit.replacementHtml,
-              selectedText
-            )
-
-            activeEditor
-              .chain()
-              .focus()
-              .insertContentAt({ from, to }, replacementHtml)
-              .run()
-            toast.dismiss(toastId)
-          },
+          label: "Keep",
+          onClick: () => toast.dismiss(toastId),
         },
         cancel: {
-          label: "Discard",
-          onClick: () => toast.dismiss(toastId),
+          label: "Undo",
+          onClick: () => {
+            activeEditor.commands.setContent(previousContent)
+            toast.dismiss(toastId)
+          },
         },
       })
     } catch (error) {

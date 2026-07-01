@@ -1,11 +1,12 @@
 import {
   useState,
-  type Dispatch,
   type FormEvent,
+  type KeyboardEvent,
+  type Dispatch,
   type SetStateAction,
 } from "react"
 import { Link } from "react-router"
-import { toast } from "sonner"
+import { toast } from "@/lib/single-toast"
 import {
   ArrowDownToLineIcon,
   CheckIcon,
@@ -43,9 +44,10 @@ type NoteAiInsightsProps = {
   folder: string
   content: string
   pendingEdit: NoteAiEdit | null
-  setPendingEdit: Dispatch<SetStateAction<NoteAiEdit | null>>
+  onPreviewEdit: (edit: NoteAiEdit) => void
   setIsAiEditing: Dispatch<SetStateAction<boolean>>
-  onApplyEdit: () => void
+  onKeepEdit: () => void
+  onUndoEdit: () => void
 }
 
 export default function NoteAiInsights({
@@ -54,9 +56,10 @@ export default function NoteAiInsights({
   folder,
   content,
   pendingEdit,
-  setPendingEdit,
+  onPreviewEdit,
   setIsAiEditing,
-  onApplyEdit,
+  onKeepEdit,
+  onUndoEdit,
 }: NoteAiInsightsProps) {
   const [insights, setInsights] = useState<NoteInsights | null>(null)
   const [instruction, setInstruction] = useState("")
@@ -103,7 +106,7 @@ export default function NoteAiInsights({
         content,
       })
 
-      setPendingEdit(edit)
+      onPreviewEdit(edit)
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to edit note")
     } finally {
@@ -117,9 +120,23 @@ export default function NoteAiInsights({
       return
     }
 
-    onApplyEdit()
+    onKeepEdit()
     setInstruction("")
-    toast.success("AI edit applied")
+    toast.success("AI edit kept")
+  }
+
+  function handleUndoEdit() {
+    onUndoEdit()
+    toast.info("AI edit undone")
+  }
+
+  function handleCommandKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== "Enter" || event.shiftKey) {
+      return
+    }
+
+    event.preventDefault()
+    event.currentTarget.form?.requestSubmit()
   }
 
   async function handleCreateTask(index: number) {
@@ -185,6 +202,7 @@ export default function NoteAiInsights({
             <Textarea
               value={instruction}
               onChange={(event) => setInstruction(event.target.value)}
+              onKeyDown={handleCommandKeyDown}
               placeholder="Turn this into a checklist..."
               className="min-h-20 resize-none text-sm"
             />
@@ -217,8 +235,8 @@ export default function NoteAiInsights({
                 type="button"
                 size="icon-xs"
                 variant="ghost"
-                onClick={() => setPendingEdit(null)}
-                aria-label="Discard AI edit"
+                onClick={handleUndoEdit}
+                aria-label="Undo AI edit"
               >
                 <XIcon />
               </Button>
@@ -243,7 +261,7 @@ export default function NoteAiInsights({
               onClick={handleApplyEdit}
             >
               <ArrowDownToLineIcon />
-              Apply from preview
+              Keep changes
             </Button>
           </section>
         )}

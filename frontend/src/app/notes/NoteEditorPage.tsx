@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react"
-import { toast } from "sonner"
-
 import useNoteEditor from "@/app/notes/hooks/use-note-editor"
 import type { NoteAiEdit } from "@/app/notes/types/note-insights"
 import Layout from "@/components/app/Layout"
+import { toast } from "@/lib/single-toast"
 import {
   NoteAiInsights,
   NoteEditorForm,
@@ -13,6 +12,7 @@ import {
 export default function NoteEditorPage() {
   const [pendingAiEdit, setPendingAiEdit] = useState<NoteAiEdit | null>(null)
   const [isAiEditing, setIsAiEditing] = useState(false)
+  const aiUndoDraftRef = useRef<NoteAiEdit | null>(null)
   const aiDraftToastIdRef = useRef<string | number | null>(null)
 
   const {
@@ -31,14 +31,41 @@ export default function NoteEditorPage() {
     handleDeleteNote
   } = useNoteEditor()
 
-  function handleApplyAiEdit() {
+  function handlePreviewAiEdit(edit: NoteAiEdit) {
+    aiUndoDraftRef.current = {
+      title,
+      folder,
+      content,
+      summaryOfChanges: "Restored the note before the AI edit.",
+    }
+
+    setTitle(edit.title)
+    setFolder(edit.folder)
+    setContent(edit.content)
+    setPendingAiEdit(edit)
+  }
+
+  function handleKeepAiEdit() {
     if (!pendingAiEdit) {
       return
     }
 
-    setTitle(pendingAiEdit.title)
-    setFolder(pendingAiEdit.folder)
-    setContent(pendingAiEdit.content)
+    aiUndoDraftRef.current = null
+    setPendingAiEdit(null)
+  }
+
+  function handleUndoAiEdit() {
+    const undoDraft = aiUndoDraftRef.current
+
+    if (!undoDraft) {
+      setPendingAiEdit(null)
+      return
+    }
+
+    setTitle(undoDraft.title)
+    setFolder(undoDraft.folder)
+    setContent(undoDraft.content)
+    aiUndoDraftRef.current = null
     setPendingAiEdit(null)
   }
 
@@ -58,16 +85,16 @@ export default function NoteEditorPage() {
       description: pendingAiEdit.summaryOfChanges,
       duration: Infinity,
       action: {
-        label: "Apply",
+        label: "Keep",
         onClick: () => {
-          handleApplyAiEdit()
+          handleKeepAiEdit()
           toast.dismiss(toastId)
         },
       },
       cancel: {
-        label: "Discard",
+        label: "Undo",
         onClick: () => {
-          setPendingAiEdit(null)
+          handleUndoAiEdit()
           toast.dismiss(toastId)
         },
       },
@@ -115,9 +142,10 @@ export default function NoteEditorPage() {
               folder={folder}
               content={content}
               pendingEdit={pendingAiEdit}
-              setPendingEdit={setPendingAiEdit}
+              onPreviewEdit={handlePreviewAiEdit}
               setIsAiEditing={setIsAiEditing}
-              onApplyEdit={handleApplyAiEdit}
+              onKeepEdit={handleKeepAiEdit}
+              onUndoEdit={handleUndoAiEdit}
             />
           </div>
         )}
