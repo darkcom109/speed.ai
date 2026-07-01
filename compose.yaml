@@ -56,6 +56,5 @@ services:
 
 volumes:
   speedai-postgres-data:
-    external: true
     name: speedai-postgres-data
   frontend-node-modules:
