@@ -107,7 +107,6 @@ export default function NoteEditorPage() {
               setTitle={setTitle}
               setContent={setContent}
               handleSaveNote={handleSaveNote}
-              aiEditPreview={pendingAiEdit}
               isAiEditing={isAiEditing}
             />
             <NoteAiInsights
