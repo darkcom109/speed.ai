@@ -1,5 +1,6 @@
 import type { CreateNotePayload } from "@/app/notes/types/create-note-payload"
 import type { Note } from "@/app/notes/types/note"
+import type { NoteInsights } from "@/app/notes/types/note-insights"
 import type { UpdateNotePayload } from "@/app/notes/types/update-note-payload"
 import { apiClient } from "@/lib/api-client"
 
@@ -35,4 +36,12 @@ export async function updateNote(
 
 export async function deleteNote(noteId: string): Promise<void> {
   await apiClient.delete(`/notes/${noteId}`)
+}
+
+export async function getNoteInsights(noteId: string): Promise<NoteInsights> {
+  const { data } = await apiClient.post<{ insights: NoteInsights }>(
+    `/notes/${noteId}/insights`
+  )
+
+  return data.insights
 }

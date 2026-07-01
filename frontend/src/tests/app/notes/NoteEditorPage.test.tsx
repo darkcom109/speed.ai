@@ -15,6 +15,7 @@ vi.mock("@/app/notes/hooks/use-note-editor", () => ({
 }))
 
 vi.mock("@/app/notes/components/note-editor", () => ({
+  NoteAiInsights: () => <section>AI insights</section>,
   NoteEditorOptions: () => <section>Editor options</section>,
   NoteEditorForm: () => <section>Editor form</section>,
 }))
@@ -22,6 +23,7 @@ vi.mock("@/app/notes/components/note-editor", () => ({
 describe("NoteEditorPage", () => {
   it("renders note editor sections and errors", () => {
     vi.mocked(useNoteEditor).mockReturnValue({
+      noteId: "note-1",
       title: "Trip list",
       folder: "Travel",
       content: "<p>Hello</p>",
@@ -40,6 +42,7 @@ describe("NoteEditorPage", () => {
 
     expect(screen.getByText("Editor options")).toBeInTheDocument()
     expect(screen.getByText("Editor form")).toBeInTheDocument()
+    expect(screen.getByText("AI insights")).toBeInTheDocument()
     expect(screen.getByText("Unable to load file")).toBeInTheDocument()
   })
 })

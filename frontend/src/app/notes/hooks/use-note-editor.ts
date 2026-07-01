@@ -181,6 +181,7 @@ export default function useNoteEditor() {
   }
 
   return {
+    noteId,
     title,
     folder,
     content,
