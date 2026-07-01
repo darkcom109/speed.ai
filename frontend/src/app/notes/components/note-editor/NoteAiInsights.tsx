@@ -147,7 +147,7 @@ export default function NoteAiInsights({
   }
 
   return (
-    <Card className="w-full min-w-0 self-start rounded-xl border bg-card shadow-sm 2xl:sticky 2xl:top-20 2xl:max-h-[calc(100vh-7rem)] 2xl:overflow-auto">
+    <Card className="w-full min-w-0 self-start rounded-xl border bg-card shadow-sm 2xl:sticky 2xl:top-20 2xl:max-h-[calc(100vh-7rem)] 2xl:overflow-auto 2xl:[scrollbar-width:none] 2xl:[&::-webkit-scrollbar]:hidden">
       <CardHeader className="px-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between 2xl:flex-col">
           <div className="min-w-0">
@@ -156,7 +156,7 @@ export default function NoteAiInsights({
               AI insights
             </CardTitle>
             <CardDescription className="mt-1 text-xs leading-5">
-              Summarize this note and extract useful follow-ups.
+              Summarise this note and extract useful follow-ups.
             </CardDescription>
           </div>
           <Button
