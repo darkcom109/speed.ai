@@ -41,6 +41,35 @@ type SidebarUser = {
   avatar: string
 }
 
+const fallbackUser: SidebarUser = {
+  name: "Guest",
+  email: "Not signed in",
+  avatar: "/avatars/shadcn.jpg",
+}
+
+let cachedSidebarUser: SidebarUser | null = null
+let pendingSidebarUser: Promise<SidebarUser> | null = null
+
+async function getSidebarUser() {
+  if (cachedSidebarUser) {
+    return cachedSidebarUser
+  }
+
+  pendingSidebarUser ??= getUserData().then((userData) => {
+    cachedSidebarUser = {
+      name: userData?.name || fallbackUser.name,
+      email: userData?.email || fallbackUser.email,
+      avatar: fallbackUser.avatar,
+    }
+
+    return cachedSidebarUser
+  }).finally(() => {
+    pendingSidebarUser = null
+  })
+
+  return pendingSidebarUser
+}
+
 const data = {
   navMain: [
     {
@@ -152,27 +181,21 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [user, setUser] = React.useState<SidebarUser>({
-    name: "Guest",
-    email: "Not signed in",
-    avatar: "/avatars/shadcn.jpg",
-  })
+  const [user, setUser] = React.useState<SidebarUser>(
+    () => cachedSidebarUser ?? fallbackUser
+  )
 
   React.useEffect(() => {
     let isMounted = true
 
     async function loadUser() {
-      const userData = await getUserData()
+      const sidebarUser = await getSidebarUser()
 
       if (!isMounted) {
         return
       }
 
-      setUser({
-        name: userData?.name || "Guest",
-        email: userData?.email || "Not signed in",
-        avatar: "/avatars/shadcn.jpg",
-      })
+      setUser(sidebarUser)
     }
 
     loadUser()
