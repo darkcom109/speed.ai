@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CheckIcon } from "lucide-react"
 import { RichNoteEditor } from "@/app/notes/components/note-editor"
+import type { NoteAiEdit } from "@/app/notes/types/note-insights"
 import type { FormEvent } from "react"
 
 type NoteEditorFormProps = {
@@ -14,6 +15,8 @@ type NoteEditorFormProps = {
     setTitle: React.Dispatch<React.SetStateAction<string>>
     setContent: React.Dispatch<React.SetStateAction<string>>
     handleSaveNote: (event: FormEvent<HTMLFormElement>) => Promise<void>
+    aiEditPreview: NoteAiEdit | null
+    isAiEditing: boolean
 }
 
 export default function NoteEditorForm({
@@ -25,7 +28,9 @@ export default function NoteEditorForm({
     setFolder,
     setTitle,
     setContent,
-    handleSaveNote
+    handleSaveNote,
+    aiEditPreview,
+    isAiEditing
 } : NoteEditorFormProps) {
     return (
         <form
@@ -57,7 +62,12 @@ export default function NoteEditorForm({
               )}
             </Button>
           </div>
-          <RichNoteEditor content={content} onChange={setContent} />
+          <RichNoteEditor
+            content={content}
+            onChange={setContent}
+            aiEditPreview={aiEditPreview}
+            isAiEditing={isAiEditing}
+          />
         </form>
     )
 }

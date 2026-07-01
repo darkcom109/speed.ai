@@ -35,7 +35,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           toast:
             "font-sans rounded-md border border-border bg-card text-card-foreground shadow-lg",
           title: "text-sm font-medium text-foreground",
-          description: "text-sm text-muted-foreground",
+          description: "text-sm leading-5 !text-white opacity-100",
           icon: "text-muted-foreground",
           success:
             "[&_[data-icon]]:text-emerald-600 dark:[&_[data-icon]]:text-emerald-400",
@@ -44,9 +44,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
             "[&_[data-icon]]:text-amber-600 dark:[&_[data-icon]]:text-amber-400",
           error: "[&_[data-icon]]:text-destructive",
           actionButton:
-            "rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground",
+            "rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-sm hover:bg-primary/90",
           cancelButton:
-            "rounded-md bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground",
+            "rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground shadow-sm hover:bg-accent hover:text-accent-foreground",
           closeButton:
             "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground",
         },

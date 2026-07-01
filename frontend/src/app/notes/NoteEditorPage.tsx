@@ -1,4 +1,8 @@
+import { useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
+
 import useNoteEditor from "@/app/notes/hooks/use-note-editor"
+import type { NoteAiEdit } from "@/app/notes/types/note-insights"
 import Layout from "@/components/app/Layout"
 import {
   NoteAiInsights,
@@ -7,6 +11,10 @@ import {
 } from "./components/note-editor"
 
 export default function NoteEditorPage() {
+  const [pendingAiEdit, setPendingAiEdit] = useState<NoteAiEdit | null>(null)
+  const [isAiEditing, setIsAiEditing] = useState(false)
+  const aiDraftToastIdRef = useRef<string | number | null>(null)
+
   const {
     noteId,
     title,
@@ -22,6 +30,55 @@ export default function NoteEditorPage() {
     handleSaveNote,
     handleDeleteNote
   } = useNoteEditor()
+
+  function handleApplyAiEdit() {
+    if (!pendingAiEdit) {
+      return
+    }
+
+    setTitle(pendingAiEdit.title)
+    setFolder(pendingAiEdit.folder)
+    setContent(pendingAiEdit.content)
+    setPendingAiEdit(null)
+  }
+
+  useEffect(() => {
+    if (aiDraftToastIdRef.current) {
+      toast.dismiss(aiDraftToastIdRef.current)
+      aiDraftToastIdRef.current = null
+    }
+
+    if (!pendingAiEdit) {
+      return
+    }
+
+    let toastId: string | number
+
+    toastId = toast("AI draft preview", {
+      description: pendingAiEdit.summaryOfChanges,
+      duration: Infinity,
+      action: {
+        label: "Apply",
+        onClick: () => {
+          handleApplyAiEdit()
+          toast.dismiss(toastId)
+        },
+      },
+      cancel: {
+        label: "Discard",
+        onClick: () => {
+          setPendingAiEdit(null)
+          toast.dismiss(toastId)
+        },
+      },
+    })
+
+    aiDraftToastIdRef.current = toastId
+
+    return () => {
+      toast.dismiss(toastId)
+    }
+  }, [pendingAiEdit])
 
   return (
     <Layout>
@@ -49,15 +106,18 @@ export default function NoteEditorPage() {
               setTitle={setTitle}
               setContent={setContent}
               handleSaveNote={handleSaveNote}
+              aiEditPreview={pendingAiEdit}
+              isAiEditing={isAiEditing}
             />
             <NoteAiInsights
               noteId={noteId}
               title={title}
               folder={folder}
               content={content}
-              setTitle={setTitle}
-              setFolder={setFolder}
-              setContent={setContent}
+              pendingEdit={pendingAiEdit}
+              setPendingEdit={setPendingAiEdit}
+              setIsAiEditing={setIsAiEditing}
+              onApplyEdit={handleApplyAiEdit}
             />
           </div>
         )}

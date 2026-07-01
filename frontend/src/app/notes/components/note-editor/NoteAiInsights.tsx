@@ -42,9 +42,10 @@ type NoteAiInsightsProps = {
   title: string
   folder: string
   content: string
-  setTitle: Dispatch<SetStateAction<string>>
-  setFolder: Dispatch<SetStateAction<string>>
-  setContent: Dispatch<SetStateAction<string>>
+  pendingEdit: NoteAiEdit | null
+  setPendingEdit: Dispatch<SetStateAction<NoteAiEdit | null>>
+  setIsAiEditing: Dispatch<SetStateAction<boolean>>
+  onApplyEdit: () => void
 }
 
 export default function NoteAiInsights({
@@ -52,13 +53,13 @@ export default function NoteAiInsights({
   title,
   folder,
   content,
-  setTitle,
-  setFolder,
-  setContent,
+  pendingEdit,
+  setPendingEdit,
+  setIsAiEditing,
+  onApplyEdit,
 }: NoteAiInsightsProps) {
   const [insights, setInsights] = useState<NoteInsights | null>(null)
   const [instruction, setInstruction] = useState("")
-  const [pendingEdit, setPendingEdit] = useState<NoteAiEdit | null>(null)
   const [error, setError] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRunningCommand, setIsRunningCommand] = useState(false)
@@ -93,6 +94,7 @@ export default function NoteAiInsights({
     try {
       setError("")
       setIsRunningCommand(true)
+      setIsAiEditing(true)
 
       const edit = await runNoteAiCommand(noteId, {
         instruction,
@@ -106,6 +108,7 @@ export default function NoteAiInsights({
       setError(error instanceof Error ? error.message : "Unable to edit note")
     } finally {
       setIsRunningCommand(false)
+      setIsAiEditing(false)
     }
   }
 
@@ -114,10 +117,7 @@ export default function NoteAiInsights({
       return
     }
 
-    setTitle(pendingEdit.title)
-    setFolder(pendingEdit.folder)
-    setContent(pendingEdit.content)
-    setPendingEdit(null)
+    onApplyEdit()
     setInstruction("")
     toast.success("AI edit applied")
   }
@@ -243,7 +243,7 @@ export default function NoteAiInsights({
               onClick={handleApplyEdit}
             >
               <ArrowDownToLineIcon />
-              Apply to note
+              Apply from preview
             </Button>
           </section>
         )}
