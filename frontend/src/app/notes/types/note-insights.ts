@@ -30,3 +30,14 @@ export type NoteAiEdit = {
   content: string
   summaryOfChanges: string
 }
+
+export type NoteSelectionAiEditRequest = {
+  instruction: string
+  selectedText: string
+  noteContext: string
+}
+
+export type NoteSelectionAiEdit = {
+  replacementHtml: string
+  summaryOfChanges: string
+}

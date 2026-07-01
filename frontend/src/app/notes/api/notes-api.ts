@@ -4,6 +4,8 @@ import type {
   NoteAiEdit,
   NoteAiEditRequest,
   NoteInsights,
+  NoteSelectionAiEdit,
+  NoteSelectionAiEditRequest,
 } from "@/app/notes/types/note-insights"
 import type { UpdateNotePayload } from "@/app/notes/types/update-note-payload"
 import { apiClient } from "@/lib/api-client"
@@ -56,6 +58,18 @@ export async function runNoteAiCommand(
 ): Promise<NoteAiEdit> {
   const { data } = await apiClient.post<{ edit: NoteAiEdit }>(
     `/notes/${noteId}/command`,
+    payload
+  )
+
+  return data.edit
+}
+
+export async function runNoteSelectionAiCommand(
+  noteId: string,
+  payload: NoteSelectionAiEditRequest
+): Promise<NoteSelectionAiEdit> {
+  const { data } = await apiClient.post<{ edit: NoteSelectionAiEdit }>(
+    `/notes/${noteId}/selection-command`,
     payload
   )
 

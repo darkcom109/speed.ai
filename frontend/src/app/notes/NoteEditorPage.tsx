@@ -97,6 +97,7 @@ export default function NoteEditorPage() {
         {!isLoading && noteId && (
           <div className="grid min-w-0 gap-5 2xl:grid-cols-[minmax(0,1fr)_20rem]">
             <NoteEditorForm 
+              noteId={noteId}
               folder={folder}
               title={title}
               content={content}

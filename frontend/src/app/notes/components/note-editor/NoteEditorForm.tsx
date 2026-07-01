@@ -6,6 +6,7 @@ import type { NoteAiEdit } from "@/app/notes/types/note-insights"
 import type { FormEvent } from "react"
 
 type NoteEditorFormProps = {
+    noteId: string
     folder: string
     title: string
     content: string
@@ -20,6 +21,7 @@ type NoteEditorFormProps = {
 }
 
 export default function NoteEditorForm({
+    noteId,
     folder,
     title,
     content,
@@ -63,6 +65,7 @@ export default function NoteEditorForm({
             </Button>
           </div>
           <RichNoteEditor
+            noteId={noteId}
             content={content}
             onChange={setContent}
             aiEditPreview={aiEditPreview}

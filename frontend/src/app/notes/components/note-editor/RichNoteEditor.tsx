@@ -10,6 +10,7 @@ import { NoteFormattingToolbar } from "@/app/notes/components/note-editor"
 import type { NoteAiEdit } from "@/app/notes/types/note-insights"
 
 type RichNoteEditorProps = {
+  noteId: string
   content: string
   onChange: (content: string) => void
   aiEditPreview: NoteAiEdit | null
@@ -53,6 +54,7 @@ function sanitizePreviewHtml(content: string) {
 }
 
 export default function RichNoteEditor({
+  noteId,
   content,
   onChange,
   aiEditPreview,
@@ -101,7 +103,7 @@ export default function RichNoteEditor({
 
   return (
     <>
-      <NoteFormattingToolbar editor={editor} />
+      <NoteFormattingToolbar editor={editor} noteId={noteId} />
       <div className="relative flex flex-1 justify-center overflow-y-auto bg-muted/30 px-4 py-5">
         <EditorContent
           editor={editor}
