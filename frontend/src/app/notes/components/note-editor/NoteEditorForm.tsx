@@ -30,9 +30,9 @@ export default function NoteEditorForm({
     return (
         <form
           onSubmit={handleSaveNote}
-          className="mx-auto mt-6 flex min-h-[calc(100vh-14rem)] w-full max-w-5xl flex-col rounded-xl border bg-card shadow-sm"
+          className="flex min-h-[calc(100vh-15rem)] min-w-0 flex-col overflow-hidden rounded-xl border bg-card shadow-sm"
         >
-          <div className="grid gap-3 border-b bg-background/60 p-4 sm:grid-cols-[12rem_minmax(0,1fr)_auto]">
+          <div className="grid gap-3 border-b bg-background/60 p-4 sm:grid-cols-[11rem_minmax(0,1fr)_auto]">
             <Input
               value={folder}
               onChange={(event) => setFolder(event.target.value)}

@@ -16,3 +16,17 @@ export type NoteInsights = {
   suggestedFolder?: string
   tags: string[]
 }
+
+export type NoteAiEditRequest = {
+  instruction: string
+  title: string
+  folder: string
+  content: string
+}
+
+export type NoteAiEdit = {
+  title: string
+  folder: string
+  content: string
+  summaryOfChanges: string
+}

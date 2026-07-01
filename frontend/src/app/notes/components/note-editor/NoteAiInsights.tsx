@@ -1,16 +1,30 @@
-import { useState } from "react"
+import {
+  useState,
+  type Dispatch,
+  type FormEvent,
+  type SetStateAction,
+} from "react"
 import { Link } from "react-router"
 import { toast } from "sonner"
 import {
+  ArrowDownToLineIcon,
   CheckIcon,
   LightbulbIcon,
   Loader2Icon,
   PlusIcon,
+  SendIcon,
   SparklesIcon,
+  XIcon,
 } from "lucide-react"
 
-import { getNoteInsights } from "@/app/notes/api/notes-api"
-import type { NoteInsights } from "@/app/notes/types/note-insights"
+import {
+  getNoteInsights,
+  runNoteAiCommand,
+} from "@/app/notes/api/notes-api"
+import type {
+  NoteAiEdit,
+  NoteInsights,
+} from "@/app/notes/types/note-insights"
 import { createTask } from "@/app/tasks/api/tasks-api"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,15 +35,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
 
 type NoteAiInsightsProps = {
   noteId: string
+  title: string
+  folder: string
+  content: string
+  setTitle: Dispatch<SetStateAction<string>>
+  setFolder: Dispatch<SetStateAction<string>>
+  setContent: Dispatch<SetStateAction<string>>
 }
 
-export default function NoteAiInsights({ noteId }: NoteAiInsightsProps) {
+export default function NoteAiInsights({
+  noteId,
+  title,
+  folder,
+  content,
+  setTitle,
+  setFolder,
+  setContent,
+}: NoteAiInsightsProps) {
   const [insights, setInsights] = useState<NoteInsights | null>(null)
+  const [instruction, setInstruction] = useState("")
+  const [pendingEdit, setPendingEdit] = useState<NoteAiEdit | null>(null)
   const [error, setError] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isRunningCommand, setIsRunningCommand] = useState(false)
   const [creatingTaskIndex, setCreatingTaskIndex] = useState<number | null>(null)
   const [createdTaskIndexes, setCreatedTaskIndexes] = useState<number[]>([])
 
@@ -49,6 +81,45 @@ export default function NoteAiInsights({ noteId }: NoteAiInsightsProps) {
     } finally {
       setIsGenerating(false)
     }
+  }
+
+  async function handleRunCommand(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!instruction.trim()) {
+      return
+    }
+
+    try {
+      setError("")
+      setIsRunningCommand(true)
+
+      const edit = await runNoteAiCommand(noteId, {
+        instruction,
+        title,
+        folder,
+        content,
+      })
+
+      setPendingEdit(edit)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to edit note")
+    } finally {
+      setIsRunningCommand(false)
+    }
+  }
+
+  function handleApplyEdit() {
+    if (!pendingEdit) {
+      return
+    }
+
+    setTitle(pendingEdit.title)
+    setFolder(pendingEdit.folder)
+    setContent(pendingEdit.content)
+    setPendingEdit(null)
+    setInstruction("")
+    toast.success("AI edit applied")
   }
 
   async function handleCreateTask(index: number) {
@@ -76,21 +147,22 @@ export default function NoteAiInsights({ noteId }: NoteAiInsightsProps) {
   }
 
   return (
-    <Card className="mt-6 w-full max-w-5xl self-center lg:sticky lg:top-20 lg:mt-0 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-auto">
-      <CardHeader>
-        <div className="flex items-start justify-between gap-3">
-          <div>
+    <Card className="w-full min-w-0 self-start rounded-xl border bg-card shadow-sm 2xl:sticky 2xl:top-20 2xl:max-h-[calc(100vh-7rem)] 2xl:overflow-auto">
+      <CardHeader className="px-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between 2xl:flex-col">
+          <div className="min-w-0">
             <CardTitle className="flex items-center gap-2">
               <SparklesIcon className="size-4" />
               AI insights
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="mt-1 text-xs leading-5">
               Summarize this note and extract useful follow-ups.
             </CardDescription>
           </div>
           <Button
             type="button"
             size="sm"
+            className="w-fit"
             onClick={handleGenerateInsights}
             disabled={isGenerating}
           >
@@ -104,11 +176,80 @@ export default function NoteAiInsights({ noteId }: NoteAiInsightsProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-4">
         {error && <p className="text-sm text-destructive">{error}</p>}
 
+        <section className="space-y-2">
+          <h3 className="text-sm font-medium">Edit this note</h3>
+          <form className="space-y-2" onSubmit={handleRunCommand}>
+            <Textarea
+              value={instruction}
+              onChange={(event) => setInstruction(event.target.value)}
+              placeholder="Turn this into a checklist..."
+              className="min-h-20 resize-none text-sm"
+            />
+            <Button
+              type="submit"
+              size="sm"
+              className="w-full"
+              disabled={isRunningCommand || !instruction.trim()}
+            >
+              {isRunningCommand ? (
+                <Loader2Icon className="animate-spin" />
+              ) : (
+                <SendIcon />
+              )}
+              Generate edit
+            </Button>
+          </form>
+        </section>
+
+        {pendingEdit && (
+          <section className="space-y-2 rounded-lg border bg-muted/20 p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="text-sm font-medium">Preview edit</h3>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  {pendingEdit.summaryOfChanges}
+                </p>
+              </div>
+              <Button
+                type="button"
+                size="icon-xs"
+                variant="ghost"
+                onClick={() => setPendingEdit(null)}
+                aria-label="Discard AI edit"
+              >
+                <XIcon />
+              </Button>
+            </div>
+            <div className="space-y-1 rounded-md border bg-background p-2 text-xs">
+              <p className="truncate">
+                <span className="text-muted-foreground">Title: </span>
+                {pendingEdit.title}
+              </p>
+              <p className="truncate">
+                <span className="text-muted-foreground">Folder: </span>
+                {pendingEdit.folder}
+              </p>
+              <p className="line-clamp-3 text-muted-foreground">
+                {pendingEdit.content.replace(/<[^>]+>/g, " ")}
+              </p>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              className="w-full"
+              onClick={handleApplyEdit}
+            >
+              <ArrowDownToLineIcon />
+              Apply to note
+            </Button>
+          </section>
+        )}
+
         {!insights && !error && (
-          <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+          <div className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
             Generate insights after writing or editing the note.
           </div>
         )}
@@ -117,7 +258,7 @@ export default function NoteAiInsights({ noteId }: NoteAiInsightsProps) {
           <>
             <section className="space-y-2">
               <h3 className="text-sm font-medium">Summary</h3>
-              <p className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
+              <p className="rounded-lg border bg-muted/30 p-3 text-sm leading-6 text-muted-foreground">
                 {insights.summary}
               </p>
             </section>
@@ -170,6 +311,7 @@ export default function NoteAiInsights({ noteId }: NoteAiInsightsProps) {
                             type="button"
                             size="icon-sm"
                             variant="outline"
+                            className="shrink-0"
                             onClick={() => handleCreateTask(index)}
                             disabled={isCreated || isCreating}
                             aria-label="Create task"
