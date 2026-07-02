@@ -21,7 +21,6 @@ import {
   ReceiptTextIcon,
   Settings2Icon,
   SquareCheckBigIcon,
-  NetworkIcon,
   TrainFrontIcon,
 } from "lucide-react"
 import type { UserData } from "@/app/login/types/user-data"
@@ -132,14 +131,6 @@ const data = {
           url: "/notes",
           icon: (
             <NotebookTextIcon
-            />
-          ),
-        },
-        {
-          title: "Workspace Map",
-          url: "/workspace-map",
-          icon: (
-            <NetworkIcon
             />
           ),
         },

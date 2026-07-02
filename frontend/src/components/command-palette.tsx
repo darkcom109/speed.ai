@@ -4,7 +4,6 @@ import {
   CodeIcon,
   LayoutDashboardIcon,
   NotebookTextIcon,
-  NetworkIcon,
   ReceiptTextIcon,
   Settings2Icon,
   SquareCheckBigIcon,
@@ -55,11 +54,6 @@ const navigationCommands = [
     label: "Notes",
     path: "/notes",
     icon: NotebookTextIcon,
-  },
-  {
-    label: "Workspace Map",
-    path: "/workspace-map",
-    icon: NetworkIcon,
   },
   {
     label: "GitHub",
