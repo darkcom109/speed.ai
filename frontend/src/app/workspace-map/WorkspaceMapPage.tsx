@@ -32,7 +32,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
-type MapNodeKind = "hub" | "folder" | "note" | "task" | "finance"
+type MapNodeKind = "hub" | "section" | "folder" | "note" | "task" | "finance"
 
 type MapNode = {
   id: string
@@ -101,6 +101,7 @@ const stopWords = new Set([
 
 const nodeLabels: Record<MapNodeKind, string> = {
   hub: "Workspace",
+  section: "Section",
   folder: "Folder",
   note: "Note",
   task: "Task",
@@ -122,8 +123,8 @@ const workspaceSections: MapSection[] = [
     id: "notes",
     label: "Notes",
     detail: "Folders and documents",
-    x: 230,
-    y: 300,
+    x: 175,
+    y: 255,
     radius: 210,
     color: "#34d399",
   },
@@ -131,8 +132,8 @@ const workspaceSections: MapSection[] = [
     id: "tasks",
     label: "Tasks",
     detail: "Open and completed work",
-    x: 805,
-    y: 300,
+    x: 865,
+    y: 255,
     radius: 215,
     color: "#f59e0b",
   },
@@ -141,7 +142,7 @@ const workspaceSections: MapSection[] = [
     label: "Finance",
     detail: "Categories and money movement",
     x: 520,
-    y: 555,
+    y: 590,
     radius: 170,
     color: "#e11d48",
   },
@@ -162,6 +163,11 @@ const nodeColors: Record<MapNodeKind, { border: string; fill: string; text: stri
   hub: {
     border: "hsl(var(--primary))",
     fill: "hsl(var(--primary))",
+    text: "hsl(var(--foreground))",
+  },
+  section: {
+    border: "hsl(var(--foreground))",
+    fill: "hsl(var(--background))",
     text: "hsl(var(--foreground))",
   },
   folder: {
@@ -192,12 +198,30 @@ function clamp(value: number, min: number, max: number) {
 
 function getNodeDimensions(node: MapNode) {
   const labelLength = Math.min(node.label.length, 14)
-  const width = clamp(labelLength * 7 + 30, node.kind === "hub" ? 92 : 68, 116)
+  const minWidth = node.kind === "section" ? 108 : node.kind === "hub" ? 92 : 68
+  const maxWidth = node.kind === "section" ? 132 : 116
+  const width = clamp(labelLength * 7 + 30, minWidth, maxWidth)
 
   return {
     width,
-    height: node.kind === "hub" ? 38 : 28,
+    height: node.kind === "section" ? 38 : node.kind === "hub" ? 38 : 28,
   }
+}
+
+function getNodeColors(node: MapNode) {
+  if (node.id === "section:notes") {
+    return nodeColors.note
+  }
+
+  if (node.id === "section:tasks") {
+    return nodeColors.task
+  }
+
+  if (node.id === "section:finance") {
+    return nodeColors.finance
+  }
+
+  return nodeColors[node.kind]
 }
 
 function stripHtml(value: string) {
@@ -258,6 +282,19 @@ function buildWorkspaceMap(notes: Note[], tasks: Task[], expenses: Expense[]) {
   const edges: MapEdge[] = []
   const [notesSection, tasksSection, financeSection] = workspaceSections
 
+  workspaceSections.forEach((section) => {
+    nodes.push({
+      id: `section:${section.id}`,
+      kind: "section",
+      label: section.label,
+      detail: section.detail,
+      x: section.x,
+      y: section.y,
+      size: 24,
+      keywords: getKeywords(`${section.label} ${section.detail}`),
+    })
+  })
+
   const visibleNotes = notes.slice(0, 12)
   const visibleTasks = tasks.slice(0, 14)
   const expenseTotals = expenses.reduce<Record<string, number>>((totals, expense) => {
@@ -306,10 +343,10 @@ function buildWorkspaceMap(notes: Note[], tasks: Task[], expenses: Expense[]) {
       visibleNotes.length,
       notesSection.x,
       notesSection.y,
-      185,
-      132,
-      100,
-      72,
+      205,
+      144,
+      116,
+      82,
       7,
       -2.3
     )
@@ -343,10 +380,10 @@ function buildWorkspaceMap(notes: Note[], tasks: Task[], expenses: Expense[]) {
       visibleTasks.length,
       tasksSection.x,
       tasksSection.y,
-      220,
-      150,
-      125,
-      82,
+      235,
+      158,
+      136,
+      90,
       8,
       -0.35
     )
@@ -372,10 +409,10 @@ function buildWorkspaceMap(notes: Note[], tasks: Task[], expenses: Expense[]) {
       financeCategories.length,
       financeSection.x,
       financeSection.y,
-      220,
-      92,
-      116,
-      48,
+      245,
+      96,
+      128,
+      52,
       8,
       0.9
     )
@@ -399,6 +436,36 @@ function buildWorkspaceMap(notes: Note[], tasks: Task[], expenses: Expense[]) {
   const taskNodes = nodes.filter((node) => node.kind === "task")
   const financeNodes = nodes.filter((node) => node.kind === "finance")
   const folderNodes = nodes.filter((node) => node.kind === "folder")
+
+  folderNodes.forEach((folderNode) => {
+    edges.push({
+      id: `section-notes-${folderNode.id}`,
+      from: "section:notes",
+      to: folderNode.id,
+      strength: 0.7,
+      reason: "Part of the Notes workspace",
+    })
+  })
+
+  taskNodes.forEach((taskNode) => {
+    edges.push({
+      id: `section-tasks-${taskNode.id}`,
+      from: "section:tasks",
+      to: taskNode.id,
+      strength: 0.45,
+      reason: "Part of the Tasks workspace",
+    })
+  })
+
+  financeNodes.forEach((financeNode) => {
+    edges.push({
+      id: `section-finance-${financeNode.id}`,
+      from: "section:finance",
+      to: financeNode.id,
+      strength: 0.55,
+      reason: "Part of the Finance workspace",
+    })
+  })
 
   folderNodes.forEach((folderNode, index) => {
     const nextFolderNode = folderNodes[index + 1]
@@ -491,7 +558,7 @@ export default function WorkspaceMapPage() {
   const [notes, setNotes] = useState<Note[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [expenses, setExpenses] = useState<Expense[]>([])
-  const [selectedNodeId, setSelectedNodeId] = useState("")
+  const [selectedNodeId, setSelectedNodeId] = useState("section:notes")
   const [query, setQuery] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(true)
@@ -514,6 +581,15 @@ export default function WorkspaceMapPage() {
     offsetY: 0,
     didDrag: false,
   })
+  const nodeAnimationRef = useRef<Record<string, number>>({})
+
+  useEffect(() => {
+    return () => {
+      Object.values(nodeAnimationRef.current).forEach((animationFrame) => {
+        cancelAnimationFrame(animationFrame)
+      })
+    }
+  }, [])
 
   useEffect(() => {
     async function loadWorkspace() {
@@ -658,7 +734,11 @@ export default function WorkspaceMapPage() {
   }
 
   function resetMapView() {
-    setSelectedNodeId("")
+    Object.values(nodeAnimationRef.current).forEach((animationFrame) => {
+      cancelAnimationFrame(animationFrame)
+    })
+    nodeAnimationRef.current = {}
+    setSelectedNodeId("section:notes")
     setViewport({ x: 0, y: 0, scale: 1 })
     setNodePositions(
       map.nodes.reduce<NodePositions>((positions, node) => {
@@ -667,6 +747,60 @@ export default function WorkspaceMapPage() {
         return positions
       }, {})
     )
+  }
+
+  function animateNodeToHome(nodeId: string) {
+    const homeNode = map.nodes.find((node) => node.id === nodeId)
+    const currentPosition = nodePositions[nodeId]
+
+    if (!homeNode || !currentPosition) {
+      return
+    }
+
+    if (nodeAnimationRef.current[nodeId]) {
+      cancelAnimationFrame(nodeAnimationRef.current[nodeId])
+    }
+
+    const startedAt = performance.now()
+    const duration = 420
+    const start = {
+      x: currentPosition.x,
+      y: currentPosition.y,
+    }
+    const target = {
+      x: homeNode.x,
+      y: homeNode.y,
+    }
+
+    function animate(now: number) {
+      const progress = clamp((now - startedAt) / duration, 0, 1)
+      const overshoot = 1.02
+      const easeOutBack =
+        1 +
+        (overshoot + 1) * Math.pow(progress - 1, 3) +
+        overshoot * Math.pow(progress - 1, 2)
+
+      setNodePositions((currentPositions) => ({
+        ...currentPositions,
+        [nodeId]: {
+          x: start.x + (target.x - start.x) * easeOutBack,
+          y: start.y + (target.y - start.y) * easeOutBack,
+        },
+      }))
+
+      if (progress < 1) {
+        nodeAnimationRef.current[nodeId] = requestAnimationFrame(animate)
+        return
+      }
+
+      setNodePositions((currentPositions) => ({
+        ...currentPositions,
+        [nodeId]: target,
+      }))
+      delete nodeAnimationRef.current[nodeId]
+    }
+
+    nodeAnimationRef.current[nodeId] = requestAnimationFrame(animate)
   }
 
   function handleGraphPointerDown(event: PointerEvent<SVGSVGElement>) {
@@ -724,6 +858,11 @@ export default function WorkspaceMapPage() {
     event.stopPropagation()
     event.currentTarget.setPointerCapture(event.pointerId)
 
+    if (nodeAnimationRef.current[node.id]) {
+      cancelAnimationFrame(nodeAnimationRef.current[node.id])
+      delete nodeAnimationRef.current[node.id]
+    }
+
     const point = getGraphPoint(event)
 
     nodeDragRef.current = {
@@ -765,7 +904,12 @@ export default function WorkspaceMapPage() {
   function handleNodePointerUp(event: PointerEvent<SVGGElement>) {
     if (nodeDragRef.current.pointerId === event.pointerId) {
       event.stopPropagation()
+      const releasedNodeId = nodeDragRef.current.nodeId
       setDraggedNodeId(null)
+
+      if (nodeDragRef.current.didDrag) {
+        animateNodeToHome(releasedNodeId)
+      }
     }
   }
 
@@ -942,36 +1086,6 @@ export default function WorkspaceMapPage() {
                         transformOrigin: "center",
                       }}
                     >
-                      {map.sections.map((section) => (
-                        <g key={section.id}>
-                          <text
-                            x={section.x}
-                            y={section.y - 150}
-                            textAnchor="middle"
-                            paintOrder="stroke"
-                            stroke="hsl(var(--background))"
-                            strokeWidth="5"
-                            strokeLinejoin="round"
-                            fill={section.color}
-                            className="text-[18px] font-semibold"
-                          >
-                            {section.label}
-                          </text>
-                          <text
-                            x={section.x}
-                            y={section.y - 128}
-                            textAnchor="middle"
-                            paintOrder="stroke"
-                            stroke="hsl(var(--background))"
-                            strokeWidth="4"
-                            strokeLinejoin="round"
-                            className="fill-muted-foreground text-[12px]"
-                          >
-                            {section.detail}
-                          </text>
-                        </g>
-                      ))}
-
                       {map.edges.map((edge) => {
                         const from = getNode(edge.from)
                         const to = getNode(edge.to)
@@ -1017,7 +1131,7 @@ export default function WorkspaceMapPage() {
                         const isConnected =
                           connectedNodeIds.has(node.id) || selectedNode.id === node.id
                         const isDimmed = Boolean(selectedNodeId) && !isConnected
-                        const colors = nodeColors[node.kind]
+                        const colors = getNodeColors(node)
                         const dimensions = getNodeDimensions(node)
                         const isNodeDragging = draggedNodeId === node.id
 
