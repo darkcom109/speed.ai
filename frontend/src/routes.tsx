@@ -17,6 +17,7 @@ import {
   SavingsPage,
   NotesPage,
   NoteEditorPage,
+  WorkspaceMapPage,
   GithubPage,
   TransportPage,
   TransportStationsPage,
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
       {
         path: "notes",
         element: <NotesPage />
+      },
+      {
+        path: "workspace-map",
+        element: <WorkspaceMapPage />
       },
       {
         path: "github",
