@@ -517,58 +517,180 @@ export default function ProjectDetailPage() {
 
         {selectedProject && (
           <>
-            <section className="rounded-xl border border-border/70 bg-card/25 p-5 shadow-sm sm:p-6">
-              <div className="flex flex-col gap-5">
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-lg font-semibold tracking-tight">{selectedProject.title}</h3>
-                      </div>
-                      <p className="max-w-2xl text-sm text-muted-foreground">
-                        {selectedProject.description || "No description yet."}
-                      </p>
-                    </div>
+            <section className="overflow-hidden rounded-xl border border-border/70 bg-card/10 shadow-sm">
+              <div className="space-y-5 p-5 sm:p-6">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Project workspace</p>
+                    <p className="text-sm text-muted-foreground">Task planning, editing, and AI tools live here.</p>
+                  </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Dialog open={addTaskOpen} onOpenChange={setAddTaskOpen}>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <PlusIcon />
-                            Add task
-                          </Button>
-                        </DialogTrigger>
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <Dialog open={addTaskOpen} onOpenChange={setAddTaskOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <PlusIcon />
+                          Add task
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader className="pr-8">
+                          <DialogTitle className="text-lg leading-6">Add task</DialogTitle>
+                          <DialogDescription>
+                            Create a task and place it into the right part of the board.
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        <form
+                          className="grid gap-3"
+                          onSubmit={async (event) => {
+                            const created = await handleCreateTask(event)
+
+                            if (created) {
+                              setAddTaskOpen(false)
+                            }
+                          }}
+                        >
+                          <Input
+                            id="task-title"
+                            value={taskTitle}
+                            onChange={(event) => setTaskTitle(event.target.value)}
+                            placeholder="Task title"
+                            aria-label="Task title"
+                            disabled={isSaving}
+                          />
+
+                          <Textarea
+                            id="task-description"
+                            value={taskDescription}
+                            onChange={(event) => setTaskDescription(event.target.value)}
+                            placeholder="Description"
+                            aria-label="Task description"
+                            className="min-h-32 resize-y"
+                            disabled={isSaving}
+                          />
+
+                          <Select
+                            value={taskStatus}
+                            onValueChange={(value) => setTaskStatus(value as typeof taskStatus)}
+                            disabled={isSaving}
+                          >
+                            <SelectTrigger id="task-status" className="w-full" aria-label="Task status">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {taskStatusColumns.map((status) => (
+                                <SelectItem key={status.id} value={status.id}>
+                                  {status.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="text-sm font-medium">Colour</p>
+                              <Input
+                                type="color"
+                                value={taskAccentColor}
+                                onChange={(event) => setTaskAccentColor(event.target.value)}
+                                aria-label="Task colour"
+                                className="h-8 w-14 cursor-pointer rounded-md border-border bg-transparent p-1"
+                                disabled={isSaving}
+                              />
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                              {taskAccentPalette.map((color) => (
+                                <button
+                                  key={color}
+                                  type="button"
+                                  onClick={() => setTaskAccentColor(color)}
+                                  disabled={isSaving}
+                                  aria-label={`Choose ${color}`}
+                                  className={cn(
+                                    "size-8 rounded-full border transition-transform",
+                                    taskAccentColor === color
+                                      ? "scale-110 border-foreground shadow-md"
+                                      : "border-border hover:scale-105"
+                                  )}
+                                  style={{ backgroundColor: color }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+
+                          <Input
+                            id="task-due-date"
+                            type="datetime-local"
+                            value={taskDueDate}
+                            onChange={(event) => setTaskDueDate(event.target.value)}
+                            aria-label="Due date and time"
+                            disabled={isSaving}
+                          />
+
+                          <div className="flex justify-end gap-2 border-t pt-4">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setAddTaskOpen(false)}
+                              disabled={isSaving}
+                            >
+                              Cancel
+                            </Button>
+                            <Button type="submit" disabled={isSaving || !taskTitle.trim()}>
+                              Add task
+                            </Button>
+                          </div>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+
+                    {editingTask && (
+                      <Dialog open={editTaskOpen} onOpenChange={setEditTaskOpen}>
                         <DialogContent className="max-w-md">
                           <DialogHeader className="pr-8">
-                            <DialogTitle className="text-lg leading-6">Add task</DialogTitle>
+                            <DialogTitle className="text-lg leading-6">Edit task</DialogTitle>
                             <DialogDescription>
-                              Create a task and place it into the right part of the board.
+                              Update the task details, colour, and due date.
                             </DialogDescription>
                           </DialogHeader>
 
                           <form
                             className="grid gap-3"
                             onSubmit={async (event) => {
-                              const created = await handleCreateTask(event)
+                              event.preventDefault()
 
-                              if (created) {
-                                setAddTaskOpen(false)
+                              if (!editingTask) {
+                                return
+                              }
+
+                              const saved = await handleUpdateTask(editingTask.id, {
+                                title: editTaskTitle,
+                                description: editTaskDescription,
+                                status: editTaskStatus,
+                                accentColor: editTaskAccentColor,
+                                dueDate: editTaskDueDate ? new Date(editTaskDueDate).toISOString() : null,
+                              })
+
+                              if (saved) {
+                                setEditTaskOpen(false)
                               }
                             }}
                           >
                             <Input
-                              id="task-title"
-                              value={taskTitle}
-                              onChange={(event) => setTaskTitle(event.target.value)}
+                              id="edit-task-title"
+                              value={editTaskTitle}
+                              onChange={(event) => setEditTaskTitle(event.target.value)}
                               placeholder="Task title"
                               aria-label="Task title"
                               disabled={isSaving}
                             />
 
                             <Textarea
-                              id="task-description"
-                              value={taskDescription}
-                              onChange={(event) => setTaskDescription(event.target.value)}
+                              id="edit-task-description"
+                              value={editTaskDescription}
+                              onChange={(event) => setEditTaskDescription(event.target.value)}
                               placeholder="Description"
                               aria-label="Task description"
                               className="min-h-32 resize-y"
@@ -576,11 +698,11 @@ export default function ProjectDetailPage() {
                             />
 
                             <Select
-                              value={taskStatus}
-                              onValueChange={(value) => setTaskStatus(value as typeof taskStatus)}
+                              value={editTaskStatus}
+                              onValueChange={(value) => setEditTaskStatus(value as ProjectTaskStatus)}
                               disabled={isSaving}
                             >
-                              <SelectTrigger id="task-status" className="w-full" aria-label="Task status">
+                              <SelectTrigger id="edit-task-status" className="w-full" aria-label="Task status">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -597,8 +719,8 @@ export default function ProjectDetailPage() {
                                 <p className="text-sm font-medium">Colour</p>
                                 <Input
                                   type="color"
-                                  value={taskAccentColor}
-                                  onChange={(event) => setTaskAccentColor(event.target.value)}
+                                  value={editTaskAccentColor}
+                                  onChange={(event) => setEditTaskAccentColor(event.target.value)}
                                   aria-label="Task colour"
                                   className="h-8 w-14 cursor-pointer rounded-md border-border bg-transparent p-1"
                                   disabled={isSaving}
@@ -610,12 +732,12 @@ export default function ProjectDetailPage() {
                                   <button
                                     key={color}
                                     type="button"
-                                    onClick={() => setTaskAccentColor(color)}
+                                    onClick={() => setEditTaskAccentColor(color)}
                                     disabled={isSaving}
                                     aria-label={`Choose ${color}`}
                                     className={cn(
                                       "size-8 rounded-full border transition-transform",
-                                      taskAccentColor === color
+                                      editTaskAccentColor === color
                                         ? "scale-110 border-foreground shadow-md"
                                         : "border-border hover:scale-105"
                                     )}
@@ -626,10 +748,10 @@ export default function ProjectDetailPage() {
                             </div>
 
                             <Input
-                              id="task-due-date"
+                              id="edit-task-due-date"
                               type="datetime-local"
-                              value={taskDueDate}
-                              onChange={(event) => setTaskDueDate(event.target.value)}
+                              value={editTaskDueDate}
+                              onChange={(event) => setEditTaskDueDate(event.target.value)}
                               aria-label="Due date and time"
                               disabled={isSaving}
                             />
@@ -638,315 +760,191 @@ export default function ProjectDetailPage() {
                               <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => setAddTaskOpen(false)}
+                                onClick={() => setEditTaskOpen(false)}
                                 disabled={isSaving}
                               >
                                 Cancel
                               </Button>
-                              <Button type="submit" disabled={isSaving || !taskTitle.trim()}>
-                                Add task
+                              <Button type="submit" disabled={isSaving || !editTaskTitle.trim()}>
+                                Save task
                               </Button>
                             </div>
                           </form>
                         </DialogContent>
                       </Dialog>
+                    )}
 
-                      {editingTask && (
-                        <Dialog open={editTaskOpen} onOpenChange={setEditTaskOpen}>
-                          <DialogContent className="max-w-md">
-                            <DialogHeader className="pr-8">
-                              <DialogTitle className="text-lg leading-6">Edit task</DialogTitle>
-                              <DialogDescription>
-                                Update the task details, colour, and due date.
-                              </DialogDescription>
-                            </DialogHeader>
+                    <Dialog open={editProjectOpen} onOpenChange={setEditProjectOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <PencilIcon />
+                          Edit project
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader className="pr-8">
+                          <DialogTitle className="text-lg leading-6">Edit project</DialogTitle>
+                          <DialogDescription>
+                            Update the project title, description, and status.
+                          </DialogDescription>
+                        </DialogHeader>
 
-                            <form
-                              className="grid gap-3"
-                              onSubmit={async (event) => {
-                                event.preventDefault()
+                        <form
+                          className="grid gap-3"
+                          onSubmit={async (event) => {
+                            const saved = await handleUpdateProject(event)
 
-                                if (!editingTask) {
-                                  return
-                                }
+                            if (saved) {
+                              setEditProjectOpen(false)
+                            }
+                          }}
+                        >
+                          <Input
+                            id="edit-project-title"
+                            value={editProjectTitle}
+                            onChange={(event) => setEditProjectTitle(event.target.value)}
+                            placeholder="Project title"
+                            aria-label="Project title"
+                            disabled={isSaving}
+                          />
 
-                                const saved = await handleUpdateTask(editingTask.id, {
-                                  title: editTaskTitle,
-                                  description: editTaskDescription,
-                                  status: editTaskStatus,
-                                  accentColor: editTaskAccentColor,
-                                  dueDate: editTaskDueDate ? new Date(editTaskDueDate).toISOString() : null,
-                                })
+                          <Textarea
+                            id="edit-project-description"
+                            value={editProjectDescription}
+                            onChange={(event) => setEditProjectDescription(event.target.value)}
+                            placeholder="Description"
+                            aria-label="Project description"
+                            className="min-h-32 resize-y"
+                            disabled={isSaving}
+                          />
 
-                                if (saved) {
-                                  setEditTaskOpen(false)
-                                }
-                              }}
-                            >
-                              <Input
-                                id="edit-task-title"
-                                value={editTaskTitle}
-                                onChange={(event) => setEditTaskTitle(event.target.value)}
-                                placeholder="Task title"
-                                aria-label="Task title"
-                                disabled={isSaving}
-                              />
-
-                              <Textarea
-                                id="edit-task-description"
-                                value={editTaskDescription}
-                                onChange={(event) => setEditTaskDescription(event.target.value)}
-                                placeholder="Description"
-                                aria-label="Task description"
-                                className="min-h-32 resize-y"
-                                disabled={isSaving}
-                              />
-
-                              <Select
-                                value={editTaskStatus}
-                                onValueChange={(value) => setEditTaskStatus(value as ProjectTaskStatus)}
-                                disabled={isSaving}
-                              >
-                                <SelectTrigger id="edit-task-status" className="w-full" aria-label="Task status">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {taskStatusColumns.map((status) => (
-                                    <SelectItem key={status.id} value={status.id}>
-                                      {status.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between gap-3">
-                                  <p className="text-sm font-medium">Colour</p>
-                                  <Input
-                                    type="color"
-                                    value={editTaskAccentColor}
-                                    onChange={(event) => setEditTaskAccentColor(event.target.value)}
-                                    aria-label="Task colour"
-                                    className="h-8 w-14 cursor-pointer rounded-md border-border bg-transparent p-1"
-                                    disabled={isSaving}
-                                  />
-                                </div>
-
-                                <div className="flex flex-wrap gap-2">
-                                  {taskAccentPalette.map((color) => (
-                                    <button
-                                      key={color}
-                                      type="button"
-                                      onClick={() => setEditTaskAccentColor(color)}
-                                      disabled={isSaving}
-                                      aria-label={`Choose ${color}`}
-                                      className={cn(
-                                        "size-8 rounded-full border transition-transform",
-                                        editTaskAccentColor === color
-                                          ? "scale-110 border-foreground shadow-md"
-                                          : "border-border hover:scale-105"
-                                      )}
-                                      style={{ backgroundColor: color }}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-
-                              <Input
-                                id="edit-task-due-date"
-                                type="datetime-local"
-                                value={editTaskDueDate}
-                                onChange={(event) => setEditTaskDueDate(event.target.value)}
-                                aria-label="Due date and time"
-                                disabled={isSaving}
-                              />
-
-                              <div className="flex justify-end gap-2 border-t pt-4">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={() => setEditTaskOpen(false)}
-                                  disabled={isSaving}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button type="submit" disabled={isSaving || !editTaskTitle.trim()}>
-                                  Save task
-                                </Button>
-                              </div>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
-                      )}
-
-                      <Dialog open={editProjectOpen} onOpenChange={setEditProjectOpen}>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <PencilIcon />
-                            Edit project
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-md">
-                          <DialogHeader className="pr-8">
-                            <DialogTitle className="text-lg leading-6">Edit project</DialogTitle>
-                            <DialogDescription>
-                              Update the project title, description, and status.
-                            </DialogDescription>
-                          </DialogHeader>
-
-                          <form
-                            className="grid gap-3"
-                            onSubmit={async (event) => {
-                              const saved = await handleUpdateProject(event)
-
-                              if (saved) {
-                                setEditProjectOpen(false)
-                              }
-                            }}
+                          <Select
+                            value={editProjectStatus}
+                            onValueChange={(value) => setEditProjectStatus(value as typeof editProjectStatus)}
+                            disabled={isSaving}
                           >
-                            <Input
-                              id="edit-project-title"
-                              value={editProjectTitle}
-                              onChange={(event) => setEditProjectTitle(event.target.value)}
-                              placeholder="Project title"
-                              aria-label="Project title"
-                              disabled={isSaving}
-                            />
+                            <SelectTrigger id="edit-project-status" className="w-full" aria-label="Project status">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="active">Active</SelectItem>
+                              <SelectItem value="paused">Paused</SelectItem>
+                              <SelectItem value="done">Done</SelectItem>
+                            </SelectContent>
+                          </Select>
 
-                            <Textarea
-                              id="edit-project-description"
-                              value={editProjectDescription}
-                              onChange={(event) => setEditProjectDescription(event.target.value)}
-                              placeholder="Description"
-                              aria-label="Project description"
-                              className="min-h-32 resize-y"
-                              disabled={isSaving}
-                            />
-
-                            <Select
-                              value={editProjectStatus}
-                              onValueChange={(value) => setEditProjectStatus(value as typeof editProjectStatus)}
+                          <div className="flex justify-end gap-2 border-t pt-4">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setEditProjectOpen(false)}
                               disabled={isSaving}
                             >
-                              <SelectTrigger id="edit-project-status" className="w-full" aria-label="Project status">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="paused">Paused</SelectItem>
-                                <SelectItem value="done">Done</SelectItem>
-                              </SelectContent>
-                            </Select>
+                              Cancel
+                            </Button>
+                            <Button type="submit" disabled={isSaving || !editProjectTitle.trim()}>
+                              Save project
+                            </Button>
+                          </div>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
 
-                            <div className="flex justify-end gap-2 border-t pt-4">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setEditProjectOpen(false)}
-                                disabled={isSaving}
-                              >
-                                Cancel
-                              </Button>
-                              <Button type="submit" disabled={isSaving || !editProjectTitle.trim()}>
-                                Save project
-                              </Button>
-                            </div>
-                          </form>
-                        </DialogContent>
-                      </Dialog>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={async () => {
+                        const deleted = await handleDeleteProject()
 
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        onClick={async () => {
-                          const deleted = await handleDeleteProject()
+                        if (deleted) {
+                          navigate("/projects")
+                        }
+                      }}
+                      disabled={isSaving}
+                      aria-label="Delete project"
+                    >
+                      <Trash2Icon />
+                      Delete project
+                    </Button>
+                  </div>
+                </div>
 
-                          if (deleted) {
-                            navigate("/projects")
-                          }
-                        }}
-                        disabled={isSaving}
-                        aria-label="Delete project"
-                      >
-                        <Trash2Icon />
-                        Delete project
-                      </Button>
-                    </div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Created</p>
+                    <p className="mt-1 text-sm font-medium text-foreground">
+                      {formatProjectDate(selectedProject.createdAt)}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Updated</p>
+                    <p className="mt-1 text-sm font-medium text-foreground">
+                      {formatProjectDate(selectedProject.updatedAt)}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Tasks</p>
+                    <p className="mt-1 text-sm font-medium text-foreground">{selectedProject.tasks.length}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-border/60 bg-background/20 px-5 py-5 sm:px-6">
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">AI project tools</p>
+                    <p className="text-sm text-muted-foreground">
+                      Use AI to draft tasks, move items around, or get quick planning help.
+                    </p>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Created</p>
-                      <p className="mt-1 text-sm font-medium text-foreground">
-                        {formatProjectDate(selectedProject.createdAt)}
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Updated</p>
-                      <p className="mt-1 text-sm font-medium text-foreground">
-                        {formatProjectDate(selectedProject.updatedAt)}
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Tasks</p>
-                      <p className="mt-1 text-sm font-medium text-foreground">{selectedProject.tasks.length}</p>
-                    </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => void handleProjectAi("generate_tasks")}
+                      disabled={isAiRunning}
+                    >
+                      <PlusIcon />
+                      Generate tasks
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => void handleProjectAi("rebalance_board")}
+                      disabled={isAiRunning}
+                    >
+                      <ArrowUpDownIcon />
+                      Rebalance board
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => void handleProjectAi("help")}
+                      disabled={isAiRunning}
+                    >
+                      <SparklesIcon />
+                      Ask AI
+                    </Button>
+                  </div>
+
+                  <Textarea
+                    value={aiPrompt}
+                    onChange={(event) => setAiPrompt(event.target.value)}
+                    placeholder="Tell AI what you want it to do with this project..."
+                    aria-label="Project AI prompt"
+                    className="min-h-24 resize-y border-border/70 bg-background/40"
+                    disabled={isAiRunning}
+                  />
+
+                  <div className="rounded-xl border border-dashed border-border/70 bg-background/30 px-4 py-3 text-sm text-muted-foreground">
+                    {isAiRunning
+                      ? "AI is working on the project..."
+                      : aiResult || "Use AI to draft tasks, move items around, or get quick planning help."}
                   </div>
                 </div>
               </div>
             </section>
-
-            <Card className="border shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-base">AI project tools</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Textarea
-                  value={aiPrompt}
-                  onChange={(event) => setAiPrompt(event.target.value)}
-                  placeholder="Tell AI what you want it to do with this project..."
-                  aria-label="Project AI prompt"
-                  className="min-h-24 resize-y"
-                  disabled={isAiRunning}
-                />
-
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => void handleProjectAi("generate_tasks")}
-                    disabled={isAiRunning}
-                  >
-                    <PlusIcon />
-                    Generate tasks
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => void handleProjectAi("rebalance_board")}
-                    disabled={isAiRunning}
-                  >
-                    <ArrowUpDownIcon />
-                    Rebalance board
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => void handleProjectAi("help")}
-                    disabled={isAiRunning}
-                  >
-                    <SparklesIcon />
-                    Ask AI
-                  </Button>
-                </div>
-
-                <div className="rounded-xl border border-dashed bg-background/40 p-4 text-sm text-muted-foreground">
-                  {isAiRunning
-                    ? "AI is working on the project..."
-                    : aiResult || "Use AI to draft tasks, move items around, or get quick planning help."}
-                </div>
-              </CardContent>
-            </Card>
 
             <Card className="border shadow-sm">
               <CardHeader>

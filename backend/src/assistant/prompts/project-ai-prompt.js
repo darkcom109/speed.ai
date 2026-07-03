@@ -28,6 +28,13 @@ Rules:
 - Keep titles short and useful.
 - Use backlog or next for most generated tasks.
 - Only use in_progress or done if the request clearly implies it.
+- Assign each task a useful accentColor from the provided palette.
+- Make the colors feel meaningful, not random:
+  - blue / teal for technical or planning work
+  - green for progress, health, or completion
+  - amber / orange for coordination, meetings, or operations
+  - pink / red for urgent, financial, or high-priority work
+  - purple for creative, design, or research work
 - If you cannot help, return {"type":"generate_tasks","message":"No tasks generated.","tasks":[]}.
 `
   }

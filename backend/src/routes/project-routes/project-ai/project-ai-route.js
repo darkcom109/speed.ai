@@ -16,6 +16,61 @@ function normalizeAccentColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test(value) ? value : null
 }
 
+function getAccentColorFromTaskText(task) {
+  const text = `${task.title || ""} ${task.description || ""}`.toLowerCase()
+
+  const buckets = [
+    {
+      color: "#3b82f6",
+      keywords: ["api", "backend", "frontend", "build", "implement", "code", "deploy", "feature", "technical", "setup", "plan"],
+    },
+    {
+      color: "#a855f7",
+      keywords: ["design", "ui", "ux", "creative", "research", "wireframe", "prototype", "brand", "visual"],
+    },
+    {
+      color: "#22c55e",
+      keywords: ["progress", "progression", "complete", "completion", "review", "health", "improve", "finish", "ship"],
+    },
+    {
+      color: "#f59e0b",
+      keywords: ["meeting", "sync", "call", "schedule", "coordinate", "ops", "operation", "admin", "follow-up"],
+    },
+    {
+      color: "#ec4899",
+      keywords: ["urgent", "important", "finance", "bill", "payment", "invoice", "budget", "deadline", "priority"],
+    },
+    {
+      color: "#14b8a6",
+      keywords: ["note", "document", "docs", "write", "draft", "summary", "content", "knowledge"],
+    },
+  ]
+
+  for (const bucket of buckets) {
+    if (bucket.keywords.some((keyword) => text.includes(keyword))) {
+      return bucket.color
+    }
+  }
+
+  return null
+}
+
+function determineAccentColor(task, index, accentPalette) {
+  const textColor = getAccentColorFromTaskText(task)
+
+  if (textColor) {
+    return textColor
+  }
+
+  const normalizedAccentColor = normalizeAccentColor(task.accentColor)
+
+  if (normalizedAccentColor) {
+    return normalizedAccentColor
+  }
+
+  return accentPalette[index % accentPalette.length]
+}
+
 function normalizeDateValue(value) {
   if (value === null) {
     return null
@@ -132,11 +187,11 @@ projectRouter.post("/:projectId/ai", async (req, res) => {
 
     const tasks = Array.isArray(parsed.tasks)
       ? parsed.tasks
-          .map((task) => ({
+          .map((task, index) => ({
             title: typeof task.title === "string" ? task.title.trim() : "",
             description: typeof task.description === "string" ? task.description.trim() : "",
             status: taskStatusValues.has(task.status) ? task.status : "backlog",
-            accentColor: normalizeAccentColor(task.accentColor) || undefined,
+            accentColor: determineAccentColor(task, index, taskAccentPalette),
             dueDate: normalizeDateValue(task.dueDate),
           }))
           .filter((task) => task.title)
