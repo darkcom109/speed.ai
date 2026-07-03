@@ -71,6 +71,14 @@ function determineAccentColor(task, index, accentPalette) {
   return accentPalette[index % accentPalette.length]
 }
 
+function normalizeTaskSignature(task) {
+  const title = typeof task.title === "string" ? task.title.trim().toLowerCase() : ""
+  const description = typeof task.description === "string" ? task.description.trim().toLowerCase() : ""
+  const status = typeof task.status === "string" ? task.status.trim().toLowerCase() : ""
+
+  return `${title}|${description}|${status}`
+}
+
 function normalizeDateValue(value) {
   if (value === null) {
     return null
@@ -212,6 +220,22 @@ projectRouter.post("/:projectId/ai", async (req, res) => {
           .filter((task) => task.title)
       : []
 
+    const existingTaskSignatures = new Set(
+      project.tasks.map((task) => normalizeTaskSignature(task))
+    )
+    const seenTaskSignatures = new Set()
+
+    const uniqueTasks = tasks.filter((task) => {
+      const signature = normalizeTaskSignature(task)
+
+      if (existingTaskSignatures.has(signature) || seenTaskSignatures.has(signature)) {
+        return false
+      }
+
+      seenTaskSignatures.add(signature)
+      return true
+    })
+
     const moves = Array.isArray(parsed.moves)
       ? parsed.moves
           .map((move) => ({
@@ -224,7 +248,7 @@ projectRouter.post("/:projectId/ai", async (req, res) => {
     return res.status(200).json({
       type: mode,
       message: parsed.message || data.message.content,
-      tasks,
+      tasks: uniqueTasks,
       moves,
     })
   } catch {

@@ -56,6 +56,7 @@ Return this shape:
 Rules:
 - Create 3 to 7 tasks maximum.
 - Keep titles short and useful.
+- Do not repeat the same task or create near-duplicate tasks.
 - Use backlog or next for most generated tasks.
 - Only use in_progress or done if the request clearly implies it.
 - Assign each task a useful accentColor from the provided palette.
