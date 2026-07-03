@@ -968,17 +968,17 @@ export default function ProjectDetailPage() {
                     </Button>
                   </div>
 
-                  <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
+                  <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-stretch">
                     <Textarea
                       value={aiPrompt}
                       onChange={(event) => setAiPrompt(event.target.value)}
                       placeholder="Tell AI what you want it to do with this project..."
                       aria-label="Project AI prompt"
-                      className="min-h-24 resize-y border-border/70 bg-background/40"
+                      className="min-h-24 resize-y border-border/70 bg-background/40 lg:h-full"
                       disabled={isAiRunning}
                     />
 
-                    <div className="rounded-xl border border-dashed border-border/70 bg-background/30 px-4 py-3 text-sm whitespace-pre-line text-muted-foreground">
+                    <div className="flex h-full min-h-24 items-start rounded-xl border border-dashed border-border/70 bg-background/30 px-4 py-3 text-sm whitespace-pre-line text-muted-foreground">
                       {isAiRunning
                         ? "AI is working on the project..."
                         : aiResult || "Use AI to draft tasks, move items around, or get quick planning help."}
