@@ -18,6 +18,7 @@ import {
   CodeIcon,
   LayoutDashboardIcon,
   NotebookTextIcon,
+  SparklesIcon,
   ReceiptTextIcon,
   Settings2Icon,
   SquareCheckBigIcon,
@@ -131,6 +132,14 @@ const data = {
           url: "/notes",
           icon: (
             <NotebookTextIcon
+            />
+          ),
+        },
+        {
+          title: "Projects",
+          url: "/projects",
+          icon: (
+            <SparklesIcon
             />
           ),
         },

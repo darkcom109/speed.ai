@@ -17,6 +17,8 @@ import {
   SavingsPage,
   NotesPage,
   NoteEditorPage,
+  ProjectsPage,
+  ProjectDetailPage,
   GithubPage,
   TransportPage,
   TransportStationsPage,
@@ -73,6 +75,14 @@ const router = createBrowserRouter([
       {
         path: "notes",
         element: <NotesPage />
+      },
+      {
+        path: "projects",
+        element: <ProjectsPage />
+      },
+      {
+        path: "projects/:projectId",
+        element: <ProjectDetailPage />
       },
       {
         path: "github",

@@ -1,0 +1,947 @@
+import { useEffect, useMemo, useState } from "react"
+import { ArrowLeftIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { useNavigate, useParams } from "react-router"
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  TouchSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core"
+import type { DropAnimation } from "@dnd-kit/core"
+import { CSS } from "@dnd-kit/utilities"
+
+import Layout from "@/components/app/Layout"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
+import { formatTaskDueDateTime } from "@/app/tasks/utils/task-date"
+import { useProjects } from "@/app/projects/hooks/use-projects"
+import type { ProjectTask, ProjectTaskStatus } from "@/app/projects/types/project"
+
+const taskStatusColumns: Array<{ id: ProjectTaskStatus; label: string }> = [
+  { id: "backlog", label: "Backlog" },
+  { id: "next", label: "Next" },
+  { id: "in_progress", label: "In progress" },
+  { id: "done", label: "Done" },
+]
+
+const dragDropAnimation: DropAnimation = {
+  duration: 220,
+  easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+}
+
+const taskAccentPalette = ["#3b82f6", "#a855f7", "#ec4899", "#22c55e", "#f59e0b", "#14b8a6"]
+
+function isHexColor(value: string): value is `#${string}` {
+  return /^#[0-9a-fA-F]{6}$/.test(value)
+}
+
+function hexToRgb(hex: string) {
+  const normalized = hex.replace("#", "")
+  const red = Number.parseInt(normalized.slice(0, 2), 16)
+  const green = Number.parseInt(normalized.slice(2, 4), 16)
+  const blue = Number.parseInt(normalized.slice(4, 6), 16)
+
+  return { red, green, blue }
+}
+
+function rgbaFromHex(hex: string, alpha: number) {
+  const { red, green, blue } = hexToRgb(hex)
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`
+}
+
+function getTaskAccent(task: ProjectTask) {
+  const chosenColor = task.accentColor && isHexColor(task.accentColor) ? task.accentColor : null
+
+  if (chosenColor) {
+    return {
+      color: chosenColor,
+      soft: rgbaFromHex(chosenColor, 0.1),
+    }
+  }
+
+  const seed = `${task.id}-${task.title}`.split("").reduce((accumulator, character) => {
+    return (accumulator * 31 + character.charCodeAt(0)) >>> 0
+  }, 0)
+  const fallbackColor = taskAccentPalette[seed % taskAccentPalette.length]
+
+  return {
+    color: fallbackColor,
+    soft: rgbaFromHex(fallbackColor, 0.1),
+  }
+}
+
+function formatDateTimeInputValue(date: string | null) {
+  if (!date) {
+    return ""
+  }
+
+  const nextDate = new Date(date)
+  const year = nextDate.getFullYear()
+  const month = String(nextDate.getMonth() + 1).padStart(2, "0")
+  const day = String(nextDate.getDate()).padStart(2, "0")
+  const hours = String(nextDate.getHours()).padStart(2, "0")
+  const minutes = String(nextDate.getMinutes()).padStart(2, "0")
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+function formatProjectDate(date: string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(date))
+}
+
+function sortTasks(tasks: ProjectTask[]) {
+  return [...tasks].sort((left, right) => {
+    if (left.order !== right.order) {
+      return left.order - right.order
+    }
+
+    return new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+  })
+}
+
+type TaskBoardColumnProps = {
+  column: { id: ProjectTaskStatus; label: string }
+  tasks: ProjectTask[]
+  isSaving: boolean
+  onDeleteTask: (taskId: string) => void
+  onEditTask: (task: ProjectTask) => void
+}
+
+function TaskBoardColumn({
+  column,
+  tasks,
+  isSaving,
+  onDeleteTask,
+  onEditTask,
+}: TaskBoardColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: column.id,
+  })
+
+  return (
+    <section
+      ref={setNodeRef}
+      className={cn(
+        "space-y-3 rounded-xl border bg-muted/20 p-3 transition-colors",
+        isOver && "border-primary/40 bg-primary/5"
+      )}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-sm font-medium">{column.label}</h3>
+        <Badge variant="outline">{tasks.length}</Badge>
+      </div>
+
+      <div className="space-y-2">
+        {tasks.length === 0 ? (
+          <div className="rounded-lg border border-dashed px-3 py-4 text-sm text-muted-foreground">
+            No tasks here.
+          </div>
+        ) : (
+          tasks.map((task) => (
+          <DraggableTaskCard
+              key={task.id}
+              task={task}
+              isSaving={isSaving}
+              onDeleteTask={onDeleteTask}
+              onEditTask={onEditTask}
+            />
+          ))
+        )}
+      </div>
+    </section>
+  )
+}
+
+type DraggableTaskCardProps = {
+  task: ProjectTask
+  isSaving: boolean
+  onDeleteTask: (taskId: string) => void
+  onEditTask: (task: ProjectTask) => void
+}
+
+function DraggableTaskCard({
+  task,
+  isSaving,
+  onDeleteTask,
+  onEditTask,
+}: DraggableTaskCardProps) {
+  const accent = getTaskAccent(task)
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useDraggable({
+    id: task.id,
+    data: {
+      task,
+    },
+  })
+
+  return (
+    <article
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Translate.toString(transform),
+        transition,
+        boxShadow: `inset 3px 0 0 ${accent.color}`,
+        backgroundImage: `linear-gradient(180deg, ${accent.soft} 0%, rgba(0, 0, 0, 0) 56%)`,
+      }}
+      data-dragging={isDragging}
+      className={cn(
+        "cursor-grab space-y-3 rounded-lg border bg-background p-3 active:cursor-grabbing",
+        isDragging && "opacity-50 shadow-lg"
+      )}
+      {...attributes}
+      {...listeners}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 space-y-1">
+          <div className="flex items-center gap-2">
+            <span
+              className="size-2.5 rounded-full"
+              style={{ backgroundColor: accent.color }}
+              aria-hidden="true"
+            />
+            <p className="text-sm font-medium">{task.title}</p>
+          </div>
+          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+            {task.description || "No description."}
+          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            onClick={(event) => {
+              event.stopPropagation()
+              onEditTask(task)
+            }}
+            disabled={isSaving}
+            aria-label={`Edit ${task.title}`}
+          >
+            <PencilIcon />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            onClick={(event) => {
+              event.stopPropagation()
+              onDeleteTask(task.id)
+            }}
+            disabled={isSaving}
+            aria-label={`Delete ${task.title}`}
+          >
+            <Trash2Icon />
+          </Button>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {task.dueDate && (
+          <p className="text-xs text-muted-foreground">Due {formatTaskDueDateTime(task.dueDate)}</p>
+        )}
+      </div>
+    </article>
+  )
+}
+
+export default function ProjectDetailPage() {
+  const navigate = useNavigate()
+  const params = useParams()
+  const projectId = params.projectId || ""
+
+  const [editProjectOpen, setEditProjectOpen] = useState(false)
+  const [addTaskOpen, setAddTaskOpen] = useState(false)
+  const [editTaskOpen, setEditTaskOpen] = useState(false)
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
+  const [editingTask, setEditingTask] = useState<ProjectTask | null>(null)
+  const [editTaskTitle, setEditTaskTitle] = useState("")
+  const [editTaskDescription, setEditTaskDescription] = useState("")
+  const [editTaskStatus, setEditTaskStatus] = useState<ProjectTaskStatus>("backlog")
+  const [editTaskAccentColor, setEditTaskAccentColor] = useState("#3b82f6")
+  const [editTaskDueDate, setEditTaskDueDate] = useState("")
+
+  const {
+    selectedProject,
+    error,
+    isLoading,
+    isSaving,
+    editProjectTitle,
+    setEditProjectTitle,
+    editProjectDescription,
+    setEditProjectDescription,
+    editProjectStatus,
+    setEditProjectStatus,
+    taskTitle,
+    setTaskTitle,
+    taskDescription,
+    setTaskDescription,
+    taskStatus,
+    setTaskStatus,
+    taskAccentColor,
+    setTaskAccentColor,
+    taskDueDate,
+    setTaskDueDate,
+    handleUpdateProject,
+    handleDeleteProject,
+    handleCreateTask,
+    handleUpdateTask,
+    handleUpdateTaskStatus,
+    handleDeleteTask,
+  } = useProjects({
+    initialSelectedProjectId: projectId,
+  })
+
+  const groupedTasks = useMemo(() => {
+    if (!selectedProject) {
+      return taskStatusColumns.map((column) => ({
+        ...column,
+        tasks: [] as ProjectTask[],
+      }))
+    }
+
+    return taskStatusColumns.map((column) => ({
+      ...column,
+      tasks: sortTasks(
+        selectedProject.tasks.filter((task) => task.status === column.id)
+      ),
+    }))
+  }, [selectedProject])
+
+  const activeTask = useMemo(() => {
+    if (!selectedProject || !activeTaskId) {
+      return null
+    }
+
+    return selectedProject.tasks.find((task) => task.id === activeTaskId) || null
+  }, [activeTaskId, selectedProject])
+
+  useEffect(() => {
+    if (!editTaskOpen || !editingTask) {
+      return
+    }
+
+    setEditTaskTitle(editingTask.title)
+    setEditTaskDescription(editingTask.description || "")
+    setEditTaskStatus(editingTask.status)
+    setEditTaskAccentColor(
+      editingTask.accentColor && isHexColor(editingTask.accentColor)
+        ? editingTask.accentColor
+        : getTaskAccent(editingTask).color
+    )
+    setEditTaskDueDate(formatDateTimeInputValue(editingTask.dueDate))
+  }, [editTaskOpen, editingTask?.id])
+
+  useEffect(() => {
+    if (editTaskOpen) {
+      return
+    }
+
+    setEditingTask(null)
+    setEditTaskTitle("")
+    setEditTaskDescription("")
+    setEditTaskStatus("backlog")
+    setEditTaskAccentColor("#3b82f6")
+    setEditTaskDueDate("")
+  }, [editTaskOpen])
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 6,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 120,
+        tolerance: 8,
+      },
+    })
+  )
+
+  if (!isLoading && !selectedProject) {
+    return (
+      <Layout>
+        <div className="space-y-6">
+          <header>
+            <h2 className="text-xl font-semibold tracking-tight">Project</h2>
+            <p className="text-sm text-muted-foreground">
+              We could not find that project.
+            </p>
+          </header>
+
+          <Card className="border shadow-sm">
+            <CardContent className="flex min-h-[16rem] items-center justify-center p-6 text-center">
+              <div className="max-w-sm space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  The project may have been deleted or you may not have access to it.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate("/projects")}
+                >
+                  <ArrowLeftIcon />
+                  Back to projects
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    )
+  }
+
+  return (
+    <Layout>
+      <div className="space-y-6">
+        <header className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h2 className="text-xl font-semibold tracking-tight">
+              {selectedProject?.title || "Project"}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Plan work, keep tasks moving, and check where each project stands.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="outline" onClick={() => navigate("/projects")}>
+              <ArrowLeftIcon />
+              Back to projects
+            </Button>
+            <Badge
+              className={
+                selectedProject?.status === "done"
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  : selectedProject?.status === "paused"
+                    ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    : "border-primary/20 bg-primary/10 text-primary"
+              }
+            >
+              {selectedProject?.status}
+            </Badge>
+          </div>
+        </header>
+
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        {isLoading && <p className="text-sm text-muted-foreground">Loading project...</p>}
+
+        {selectedProject && (
+          <>
+            <section className="rounded-xl border border-border/70 bg-card/25 p-5 shadow-sm sm:p-6">
+              <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-lg font-semibold tracking-tight">{selectedProject.title}</h3>
+                        <Badge
+                          className={
+                            selectedProject.status === "done"
+                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                              : selectedProject.status === "paused"
+                                ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                : "border-primary/20 bg-primary/10 text-primary"
+                          }
+                        >
+                          {selectedProject.status}
+                        </Badge>
+                      </div>
+                      <p className="max-w-2xl text-sm text-muted-foreground">
+                        {selectedProject.description || "No description yet."}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Dialog open={addTaskOpen} onOpenChange={setAddTaskOpen}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <PlusIcon />
+                            Add task
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-md">
+                          <DialogHeader className="pr-8">
+                            <DialogTitle className="text-lg leading-6">Add task</DialogTitle>
+                            <DialogDescription>
+                              Create a task and place it into the right part of the board.
+                            </DialogDescription>
+                          </DialogHeader>
+
+                          <form
+                            className="grid gap-3"
+                            onSubmit={async (event) => {
+                              const created = await handleCreateTask(event)
+
+                              if (created) {
+                                setAddTaskOpen(false)
+                              }
+                            }}
+                          >
+                            <Input
+                              id="task-title"
+                              value={taskTitle}
+                              onChange={(event) => setTaskTitle(event.target.value)}
+                              placeholder="Task title"
+                              aria-label="Task title"
+                              disabled={isSaving}
+                            />
+
+                            <Textarea
+                              id="task-description"
+                              value={taskDescription}
+                              onChange={(event) => setTaskDescription(event.target.value)}
+                              placeholder="Description"
+                              aria-label="Task description"
+                              className="min-h-32 resize-y"
+                              disabled={isSaving}
+                            />
+
+                            <Select
+                              value={taskStatus}
+                              onValueChange={(value) => setTaskStatus(value as typeof taskStatus)}
+                              disabled={isSaving}
+                            >
+                              <SelectTrigger id="task-status" className="w-full" aria-label="Task status">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {taskStatusColumns.map((status) => (
+                                  <SelectItem key={status.id} value={status.id}>
+                                    {status.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between gap-3">
+                                <p className="text-sm font-medium">Colour</p>
+                                <Input
+                                  type="color"
+                                  value={taskAccentColor}
+                                  onChange={(event) => setTaskAccentColor(event.target.value)}
+                                  aria-label="Task colour"
+                                  className="h-8 w-14 cursor-pointer rounded-md border-border bg-transparent p-1"
+                                  disabled={isSaving}
+                                />
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                {taskAccentPalette.map((color) => (
+                                  <button
+                                    key={color}
+                                    type="button"
+                                    onClick={() => setTaskAccentColor(color)}
+                                    disabled={isSaving}
+                                    aria-label={`Choose ${color}`}
+                                    className={cn(
+                                      "size-8 rounded-full border transition-transform",
+                                      taskAccentColor === color
+                                        ? "scale-110 border-foreground shadow-md"
+                                        : "border-border hover:scale-105"
+                                    )}
+                                    style={{ backgroundColor: color }}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+
+                            <Input
+                              id="task-due-date"
+                              type="datetime-local"
+                              value={taskDueDate}
+                              onChange={(event) => setTaskDueDate(event.target.value)}
+                              aria-label="Due date and time"
+                              disabled={isSaving}
+                            />
+
+                            <div className="flex justify-end gap-2 border-t pt-4">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setAddTaskOpen(false)}
+                                disabled={isSaving}
+                              >
+                                Cancel
+                              </Button>
+                              <Button type="submit" disabled={isSaving || !taskTitle.trim()}>
+                                Add task
+                              </Button>
+                            </div>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+
+                      {editingTask && (
+                        <Dialog open={editTaskOpen} onOpenChange={setEditTaskOpen}>
+                          <DialogContent className="max-w-md">
+                            <DialogHeader className="pr-8">
+                              <DialogTitle className="text-lg leading-6">Edit task</DialogTitle>
+                              <DialogDescription>
+                                Update the task details, colour, and due date.
+                              </DialogDescription>
+                            </DialogHeader>
+
+                            <form
+                              className="grid gap-3"
+                              onSubmit={async (event) => {
+                                event.preventDefault()
+
+                                if (!editingTask) {
+                                  return
+                                }
+
+                                const saved = await handleUpdateTask(editingTask.id, {
+                                  title: editTaskTitle,
+                                  description: editTaskDescription,
+                                  status: editTaskStatus,
+                                  accentColor: editTaskAccentColor,
+                                  dueDate: editTaskDueDate ? new Date(editTaskDueDate).toISOString() : null,
+                                })
+
+                                if (saved) {
+                                  setEditTaskOpen(false)
+                                }
+                              }}
+                            >
+                              <Input
+                                id="edit-task-title"
+                                value={editTaskTitle}
+                                onChange={(event) => setEditTaskTitle(event.target.value)}
+                                placeholder="Task title"
+                                aria-label="Task title"
+                                disabled={isSaving}
+                              />
+
+                              <Textarea
+                                id="edit-task-description"
+                                value={editTaskDescription}
+                                onChange={(event) => setEditTaskDescription(event.target.value)}
+                                placeholder="Description"
+                                aria-label="Task description"
+                                className="min-h-32 resize-y"
+                                disabled={isSaving}
+                              />
+
+                              <Select
+                                value={editTaskStatus}
+                                onValueChange={(value) => setEditTaskStatus(value as ProjectTaskStatus)}
+                                disabled={isSaving}
+                              >
+                                <SelectTrigger id="edit-task-status" className="w-full" aria-label="Task status">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {taskStatusColumns.map((status) => (
+                                    <SelectItem key={status.id} value={status.id}>
+                                      {status.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between gap-3">
+                                  <p className="text-sm font-medium">Colour</p>
+                                  <Input
+                                    type="color"
+                                    value={editTaskAccentColor}
+                                    onChange={(event) => setEditTaskAccentColor(event.target.value)}
+                                    aria-label="Task colour"
+                                    className="h-8 w-14 cursor-pointer rounded-md border-border bg-transparent p-1"
+                                    disabled={isSaving}
+                                  />
+                                </div>
+
+                                <div className="flex flex-wrap gap-2">
+                                  {taskAccentPalette.map((color) => (
+                                    <button
+                                      key={color}
+                                      type="button"
+                                      onClick={() => setEditTaskAccentColor(color)}
+                                      disabled={isSaving}
+                                      aria-label={`Choose ${color}`}
+                                      className={cn(
+                                        "size-8 rounded-full border transition-transform",
+                                        editTaskAccentColor === color
+                                          ? "scale-110 border-foreground shadow-md"
+                                          : "border-border hover:scale-105"
+                                      )}
+                                      style={{ backgroundColor: color }}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+
+                              <Input
+                                id="edit-task-due-date"
+                                type="datetime-local"
+                                value={editTaskDueDate}
+                                onChange={(event) => setEditTaskDueDate(event.target.value)}
+                                aria-label="Due date and time"
+                                disabled={isSaving}
+                              />
+
+                              <div className="flex justify-end gap-2 border-t pt-4">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => setEditTaskOpen(false)}
+                                  disabled={isSaving}
+                                >
+                                  Cancel
+                                </Button>
+                                <Button type="submit" disabled={isSaving || !editTaskTitle.trim()}>
+                                  Save task
+                                </Button>
+                              </div>
+                            </form>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+
+                      <Dialog open={editProjectOpen} onOpenChange={setEditProjectOpen}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <PencilIcon />
+                            Edit project
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-md">
+                          <DialogHeader className="pr-8">
+                            <DialogTitle className="text-lg leading-6">Edit project</DialogTitle>
+                            <DialogDescription>
+                              Update the project title, description, and status.
+                            </DialogDescription>
+                          </DialogHeader>
+
+                          <form
+                            className="grid gap-3"
+                            onSubmit={async (event) => {
+                              const saved = await handleUpdateProject(event)
+
+                              if (saved) {
+                                setEditProjectOpen(false)
+                              }
+                            }}
+                          >
+                            <Input
+                              id="edit-project-title"
+                              value={editProjectTitle}
+                              onChange={(event) => setEditProjectTitle(event.target.value)}
+                              placeholder="Project title"
+                              aria-label="Project title"
+                              disabled={isSaving}
+                            />
+
+                            <Textarea
+                              id="edit-project-description"
+                              value={editProjectDescription}
+                              onChange={(event) => setEditProjectDescription(event.target.value)}
+                              placeholder="Description"
+                              aria-label="Project description"
+                              className="min-h-32 resize-y"
+                              disabled={isSaving}
+                            />
+
+                            <Select
+                              value={editProjectStatus}
+                              onValueChange={(value) => setEditProjectStatus(value as typeof editProjectStatus)}
+                              disabled={isSaving}
+                            >
+                              <SelectTrigger id="edit-project-status" className="w-full" aria-label="Project status">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="paused">Paused</SelectItem>
+                                <SelectItem value="done">Done</SelectItem>
+                              </SelectContent>
+                            </Select>
+
+                            <div className="flex justify-end gap-2 border-t pt-4">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setEditProjectOpen(false)}
+                                disabled={isSaving}
+                              >
+                                Cancel
+                              </Button>
+                              <Button type="submit" disabled={isSaving || !editProjectTitle.trim()}>
+                                Save project
+                              </Button>
+                            </div>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={async () => {
+                          const deleted = await handleDeleteProject()
+
+                          if (deleted) {
+                            navigate("/projects")
+                          }
+                        }}
+                        disabled={isSaving}
+                        aria-label="Delete project"
+                      >
+                        <Trash2Icon />
+                        Delete project
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Created</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">
+                        {formatProjectDate(selectedProject.createdAt)}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Updated</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">
+                        {formatProjectDate(selectedProject.updatedAt)}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Tasks</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">{selectedProject.tasks.length}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <Card className="border shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-base">Board</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragStart={(event: DragStartEvent) => {
+                    if (selectedProject?.tasks.some((task) => task.id === String(event.active.id))) {
+                      setActiveTaskId(String(event.active.id))
+                    }
+                  }}
+                  onDragEnd={async (event: DragEndEvent) => {
+                    const taskId = String(event.active.id)
+                    const overId = event.over?.id
+
+                    if (!selectedProject || !overId || typeof overId !== "string") {
+                      setActiveTaskId(null)
+                      return
+                    }
+
+                    if (!taskStatusColumns.some((column) => column.id === overId)) {
+                      setActiveTaskId(null)
+                      return
+                    }
+
+                    const task = selectedProject.tasks.find((item) => item.id === taskId)
+
+                    if (!task || task.status === overId) {
+                      setActiveTaskId(null)
+                      return
+                    }
+
+                    void handleUpdateTaskStatus(task, overId as ProjectTaskStatus)
+                    setActiveTaskId(null)
+                  }}
+                  onDragCancel={() => setActiveTaskId(null)}
+                >
+                  <div className="grid gap-4 xl:grid-cols-4">
+                    {groupedTasks.map((column) => (
+                      <TaskBoardColumn
+                        key={column.id}
+                        column={column}
+                        tasks={column.tasks}
+                        isSaving={isSaving}
+                        onDeleteTask={handleDeleteTask}
+                        onEditTask={(task) => {
+                          setEditingTask(task)
+                          setEditTaskOpen(true)
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <DragOverlay dropAnimation={dragDropAnimation}>
+                    {activeTask ? (
+                      <article
+                        className="w-[18rem] space-y-3 rounded-lg border border-border/70 bg-background p-3 shadow-xl"
+                        style={{
+                          boxShadow: `inset 3px 0 0 ${getTaskAccent(activeTask).color}`,
+                          backgroundImage: `linear-gradient(180deg, ${getTaskAccent(activeTask).soft} 0%, rgba(0, 0, 0, 0) 56%)`,
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="size-2.5 rounded-full"
+                                style={{ backgroundColor: getTaskAccent(activeTask).color }}
+                                aria-hidden="true"
+                              />
+                              <p className="text-sm font-medium">{activeTask.title}</p>
+                            </div>
+                            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                              {activeTask.description || "No description."}
+                            </p>
+                          </div>
+                          <Button type="button" variant="ghost" size="icon-xs" tabIndex={-1}>
+                            <Trash2Icon />
+                          </Button>
+                        </div>
+
+                        <div className="space-y-2">
+                          {activeTask.dueDate && (
+                            <p className="text-xs text-muted-foreground">
+                              Due {formatTaskDueDateTime(activeTask.dueDate)}
+                            </p>
+                          )}
+                        </div>
+                      </article>
+                    ) : null}
+                  </DragOverlay>
+                </DndContext>
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
+    </Layout>
+  )
+}
