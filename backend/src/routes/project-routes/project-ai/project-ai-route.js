@@ -185,6 +185,21 @@ projectRouter.post("/:projectId/ai", async (req, res) => {
       })
     }
 
+    if (mode === "brief") {
+      const brief = parsed.brief && typeof parsed.brief === "object" ? parsed.brief : {}
+
+      return res.status(200).json({
+        type: "brief",
+        message: parsed.message || data.message.content,
+        brief: {
+          summary: typeof brief.summary === "string" ? brief.summary.trim() : "",
+          goals: Array.isArray(brief.goals) ? brief.goals.filter((item) => typeof item === "string") : [],
+          milestones: Array.isArray(brief.milestones) ? brief.milestones.filter((item) => typeof item === "string") : [],
+          firstTasks: Array.isArray(brief.firstTasks) ? brief.firstTasks.filter((item) => typeof item === "string") : [],
+        },
+      })
+    }
+
     const tasks = Array.isArray(parsed.tasks)
       ? parsed.tasks
           .map((task, index) => ({

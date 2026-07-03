@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/api-client"
 import type { ProjectTaskStatus } from "@/app/projects/types/project"
 
-export type ProjectAiMode = "generate_tasks" | "rebalance_board" | "help"
+export type ProjectAiMode = "generate_tasks" | "rebalance_board" | "help" | "brief"
 
 export type ProjectAiTaskSuggestion = {
   title: string
@@ -21,6 +21,12 @@ export type ProjectAiResponse = {
   message: string
   tasks: ProjectAiTaskSuggestion[]
   moves: ProjectAiMoveSuggestion[]
+  brief?: {
+    summary: string
+    goals: string[]
+    milestones: string[]
+    firstTasks: string[]
+  }
 }
 
 export async function runProjectAi(

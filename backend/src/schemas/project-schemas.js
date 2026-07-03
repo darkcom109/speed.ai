@@ -2,7 +2,7 @@ import { z } from "zod"
 
 const projectStatusSchema = z.enum(["active", "paused", "done"])
 const projectTaskStatusSchema = z.enum(["backlog", "next", "in_progress", "done"])
-const projectAiModeSchema = z.enum(["generate_tasks", "rebalance_board", "help"])
+const projectAiModeSchema = z.enum(["generate_tasks", "rebalance_board", "help", "brief"])
 
 const createProjectSchema = z.object({
   title: z.string().min(1, "Title is required"),

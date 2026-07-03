@@ -127,6 +127,31 @@ function sortTasks(tasks: ProjectTask[]) {
   })
 }
 
+function formatProjectBrief(
+  brief: {
+    summary: string
+    goals: string[]
+    milestones: string[]
+    firstTasks: string[]
+  } | undefined,
+  message: string
+) {
+  if (!brief) {
+    return message
+  }
+
+  const lines = [
+    message,
+    "",
+    brief.summary ? `Summary: ${brief.summary}` : "",
+    brief.goals.length > 0 ? `Goals:\n${brief.goals.map((goal) => `- ${goal}`).join("\n")}` : "",
+    brief.milestones.length > 0 ? `Milestones:\n${brief.milestones.map((milestone) => `- ${milestone}`).join("\n")}` : "",
+    brief.firstTasks.length > 0 ? `First tasks:\n${brief.firstTasks.map((task) => `- ${task}`).join("\n")}` : "",
+  ].filter(Boolean)
+
+  return lines.join("\n")
+}
+
 type TaskBoardColumnProps = {
   column: { id: ProjectTaskStatus; label: string }
   tasks: ProjectTask[]
@@ -402,6 +427,12 @@ export default function ProjectDetailPage() {
         mode,
         prompt: aiPrompt.trim() || undefined,
       })
+
+      if (response.type === "brief") {
+        setAiResult(formatProjectBrief(response.brief, response.message))
+        toast.info("Project brief ready")
+        return
+      }
 
       if (response.type === "help") {
         setAiResult(response.message)
@@ -914,9 +945,18 @@ export default function ProjectDetailPage() {
                       variant="outline"
                       onClick={() => void handleProjectAi("rebalance_board")}
                       disabled={isAiRunning}
-                    >
+                      >
                       <ArrowUpDownIcon />
                       Rebalance board
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => void handleProjectAi("brief")}
+                      disabled={isAiRunning}
+                    >
+                      <SparklesIcon />
+                      Generate brief
                     </Button>
                     <Button
                       type="button"
@@ -937,7 +977,7 @@ export default function ProjectDetailPage() {
                     disabled={isAiRunning}
                   />
 
-                  <div className="rounded-xl border border-dashed border-border/70 bg-background/30 px-4 py-3 text-sm text-muted-foreground">
+                  <div className="rounded-xl border border-dashed border-border/70 bg-background/30 px-4 py-3 text-sm whitespace-pre-line text-muted-foreground">
                     {isAiRunning
                       ? "AI is working on the project..."
                       : aiResult || "Use AI to draft tasks, move items around, or get quick planning help."}
