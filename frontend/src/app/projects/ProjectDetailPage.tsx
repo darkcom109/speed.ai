@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { ArrowLeftIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { ArrowLeftIcon, ArrowUpDownIcon, PencilIcon, PlusIcon, SparklesIcon, Trash2Icon } from "lucide-react"
 import { useNavigate, useParams } from "react-router"
 import {
   closestCenter,
@@ -34,8 +34,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { formatTaskDueDateTime } from "@/app/tasks/utils/task-date"
+import { createProjectTask, updateProjectTask } from "@/app/projects/api/projects-api"
+import { runProjectAi, type ProjectAiMode } from "@/app/projects/api/project-ai-api"
 import { useProjects } from "@/app/projects/hooks/use-projects"
 import type { ProjectTask, ProjectTaskStatus } from "@/app/projects/types/project"
+import { toast } from "@/lib/single-toast"
 
 const taskStatusColumns: Array<{ id: ProjectTaskStatus; label: string }> = [
   { id: "backlog", label: "Backlog" },
@@ -276,6 +279,9 @@ export default function ProjectDetailPage() {
   const [editProjectOpen, setEditProjectOpen] = useState(false)
   const [addTaskOpen, setAddTaskOpen] = useState(false)
   const [editTaskOpen, setEditTaskOpen] = useState(false)
+  const [aiPrompt, setAiPrompt] = useState("")
+  const [aiResult, setAiResult] = useState("")
+  const [isAiRunning, setIsAiRunning] = useState(false)
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
   const [editingTask, setEditingTask] = useState<ProjectTask | null>(null)
   const [editTaskTitle, setEditTaskTitle] = useState("")
@@ -311,6 +317,7 @@ export default function ProjectDetailPage() {
     handleUpdateTask,
     handleUpdateTaskStatus,
     handleDeleteTask,
+    refreshProjects,
   } = useProjects({
     initialSelectedProjectId: projectId,
   })
@@ -381,6 +388,75 @@ export default function ProjectDetailPage() {
       },
     })
   )
+
+  async function handleProjectAi(mode: ProjectAiMode) {
+    if (!selectedProject || isAiRunning) {
+      return
+    }
+
+    try {
+      setIsAiRunning(true)
+      setAiResult("")
+
+      const response = await runProjectAi(selectedProject.id, {
+        mode,
+        prompt: aiPrompt.trim() || undefined,
+      })
+
+      if (response.type === "help") {
+        setAiResult(response.message)
+        toast.info("AI advice ready")
+        return
+      }
+
+      if (mode === "generate_tasks") {
+        let createdCount = 0
+
+        for (const suggestion of response.tasks) {
+          await createProjectTask(selectedProject.id, {
+            title: suggestion.title,
+            description: suggestion.description || undefined,
+            status: suggestion.status,
+            accentColor: suggestion.accentColor,
+            dueDate: suggestion.dueDate || undefined,
+          })
+          createdCount += 1
+        }
+
+        if (createdCount > 0) {
+          await refreshProjects()
+        }
+
+        setAiResult(response.message || `Added ${createdCount} task${createdCount === 1 ? "" : "s"}.`)
+        toast.success(createdCount > 0 ? `Added ${createdCount} task${createdCount === 1 ? "" : "s"}` : "No tasks generated")
+        return
+      }
+
+      if (mode === "rebalance_board") {
+        let movedCount = 0
+
+        for (const move of response.moves) {
+          await updateProjectTask(selectedProject.id, move.taskId, {
+            status: move.status,
+          })
+          movedCount += 1
+        }
+
+        if (movedCount > 0) {
+          await refreshProjects()
+        }
+
+        setAiResult(response.message || `Moved ${movedCount} task${movedCount === 1 ? "" : "s"}.`)
+        toast.success(movedCount > 0 ? `Moved ${movedCount} task${movedCount === 1 ? "" : "s"}` : "No task moves suggested")
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "AI project tool failed"
+      setAiResult(message)
+      toast.error(message)
+    } finally {
+      setIsAiRunning(false)
+    }
+  }
 
   if (!isLoading && !selectedProject) {
     return (
@@ -820,6 +896,57 @@ export default function ProjectDetailPage() {
                 </div>
               </div>
             </section>
+
+            <Card className="border shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-base">AI project tools</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Textarea
+                  value={aiPrompt}
+                  onChange={(event) => setAiPrompt(event.target.value)}
+                  placeholder="Tell AI what you want it to do with this project..."
+                  aria-label="Project AI prompt"
+                  className="min-h-24 resize-y"
+                  disabled={isAiRunning}
+                />
+
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => void handleProjectAi("generate_tasks")}
+                    disabled={isAiRunning}
+                  >
+                    <PlusIcon />
+                    Generate tasks
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => void handleProjectAi("rebalance_board")}
+                    disabled={isAiRunning}
+                  >
+                    <ArrowUpDownIcon />
+                    Rebalance board
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => void handleProjectAi("help")}
+                    disabled={isAiRunning}
+                  >
+                    <SparklesIcon />
+                    Ask AI
+                  </Button>
+                </div>
+
+                <div className="rounded-xl border border-dashed bg-background/40 p-4 text-sm text-muted-foreground">
+                  {isAiRunning
+                    ? "AI is working on the project..."
+                    : aiResult || "Use AI to draft tasks, move items around, or get quick planning help."}
+                </div>
+              </CardContent>
+            </Card>
 
             <Card className="border shadow-sm">
               <CardHeader>

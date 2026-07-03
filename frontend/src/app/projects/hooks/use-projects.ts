@@ -477,6 +477,7 @@ export function useProjects(options: UseProjectsOptions = {}) {
     projects,
     filteredProjects,
     selectedProject,
+    refreshProjects: loadProjects,
     projectCounts,
     error,
     isLoading,

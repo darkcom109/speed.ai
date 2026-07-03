@@ -2,6 +2,7 @@ import { z } from "zod"
 
 const projectStatusSchema = z.enum(["active", "paused", "done"])
 const projectTaskStatusSchema = z.enum(["backlog", "next", "in_progress", "done"])
+const projectAiModeSchema = z.enum(["generate_tasks", "rebalance_board", "help"])
 
 const createProjectSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -31,9 +32,15 @@ const updateProjectTaskSchema = z.object({
   dueDate: z.string().datetime().nullable().optional(),
 })
 
+const projectAiRequestSchema = z.object({
+  mode: projectAiModeSchema,
+  prompt: z.string().optional(),
+})
+
 export {
   createProjectSchema,
   updateProjectSchema,
   createProjectTaskSchema,
   updateProjectTaskSchema,
+  projectAiRequestSchema,
 }

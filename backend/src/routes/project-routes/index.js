@@ -3,6 +3,7 @@ import "./create-project-task/create-project-task-route.js"
 import "./delete-project/delete-project-route.js"
 import "./delete-project-task/delete-project-task-route.js"
 import "./get-projects/get-projects-route.js"
+import "./project-ai/project-ai-route.js"
 import "./update-project/update-project-route.js"
 import "./update-project-task/update-project-task-route.js"
 
