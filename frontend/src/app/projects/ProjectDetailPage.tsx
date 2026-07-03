@@ -419,7 +419,7 @@ export default function ProjectDetailPage() {
     <Layout>
       <div className="space-y-6">
         <header className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-1">
+          <div>
             <h2 className="text-xl font-semibold tracking-tight">
               {selectedProject?.title || "Project"}
             </h2>
@@ -433,17 +433,6 @@ export default function ProjectDetailPage() {
               <ArrowLeftIcon />
               Back to projects
             </Button>
-            <Badge
-              className={
-                selectedProject?.status === "done"
-                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                  : selectedProject?.status === "paused"
-                    ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                    : "border-primary/20 bg-primary/10 text-primary"
-              }
-            >
-              {selectedProject?.status}
-            </Badge>
           </div>
         </header>
 
@@ -456,20 +445,9 @@ export default function ProjectDetailPage() {
               <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="space-y-1.5">
+                    <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="text-lg font-semibold tracking-tight">{selectedProject.title}</h3>
-                        <Badge
-                          className={
-                            selectedProject.status === "done"
-                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                              : selectedProject.status === "paused"
-                                ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                                : "border-primary/20 bg-primary/10 text-primary"
-                          }
-                        >
-                          {selectedProject.status}
-                        </Badge>
                       </div>
                       <p className="max-w-2xl text-sm text-muted-foreground">
                         {selectedProject.description || "No description yet."}
