@@ -239,6 +239,12 @@ export default function ResearchPage() {
         }
 
         if (event.type === "done") {
+          const finishedSteps = makeInitialSteps(goal).map((step) => ({
+            ...step,
+            state: "done" as const,
+          }))
+
+          setSteps(finishedSteps)
           setResult({
             goal,
             prompt,
@@ -254,6 +260,8 @@ export default function ResearchPage() {
             },
             done: true,
           })
+          setIteration((event.loop?.iterations.length || iteration) || 0)
+          setFinding(event.message || "Research complete.")
         }
       }
 
