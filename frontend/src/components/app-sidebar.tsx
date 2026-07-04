@@ -18,10 +18,10 @@ import {
   CodeIcon,
   LayoutDashboardIcon,
   NotebookTextIcon,
-  SparklesIcon,
   ReceiptTextIcon,
   Settings2Icon,
   SquareCheckBigIcon,
+  SparklesIcon,
   TrainFrontIcon,
 } from "lucide-react"
 import type { UserData } from "@/app/login/types/user-data"
@@ -173,6 +173,14 @@ const data = {
               url: "/transport/stations",
             },
           ],
+        },
+        {
+          title: "Research",
+          url: "/research",
+          icon: (
+            <SparklesIcon
+            />
+          ),
         },
       ],
     },

@@ -19,6 +19,7 @@ import {
   NoteEditorPage,
   ProjectsPage,
   ProjectDetailPage,
+  ResearchPage,
   GithubPage,
   TransportPage,
   TransportStationsPage,
@@ -83,6 +84,10 @@ const router = createBrowserRouter([
       {
         path: "projects/:projectId",
         element: <ProjectDetailPage />
+      },
+      {
+        path: "research",
+        element: <ResearchPage />
       },
       {
         path: "github",
