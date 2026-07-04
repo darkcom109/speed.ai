@@ -301,14 +301,6 @@ export default function ResearchPage() {
     }
   }
 
-  function resetLoop() {
-    setIsRunning(false)
-    setIteration(0)
-    setSteps(makeInitialSteps(goal))
-    setFinding("Reset complete. You can try another research goal.")
-    setResult(null)
-  }
-
   const activeSteps = isRunning ? steps : result ? steps : []
 
   return (
@@ -382,9 +374,6 @@ export default function ResearchPage() {
                     <Button onClick={runLoop} disabled={isRunning} className="rounded-full px-5">
                       {isRunning ? <Loader2Icon className="size-4 animate-spin" /> : <PlayIcon />}
                       Run research
-                    </Button>
-                    <Button variant="outline" onClick={resetLoop} className="rounded-full px-5">
-                      Reset
                     </Button>
                   </div>
                 </div>
