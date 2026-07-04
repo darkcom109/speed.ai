@@ -138,6 +138,8 @@ export default function NoteFormattingToolbar({
     { label: "Add row after", onClick: () => editor.chain().focus().addRowAfter().run() },
     { label: "Add column before", onClick: () => editor.chain().focus().addColumnBefore().run() },
     { label: "Add column after", onClick: () => editor.chain().focus().addColumnAfter().run() },
+    { label: "Delete row", onClick: () => editor.chain().focus().deleteRow().run() },
+    { label: "Delete column", onClick: () => editor.chain().focus().deleteColumn().run() },
     { label: "Delete table", onClick: () => editor.chain().focus().deleteTable().run() },
   ]
 
