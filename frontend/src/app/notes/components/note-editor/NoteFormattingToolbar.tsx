@@ -13,6 +13,7 @@ import {
   ListOrderedIcon,
   ListTodoIcon,
   Loader2Icon,
+  Table2Icon,
   SparklesIcon,
 } from "lucide-react"
 import { evaluate, format } from "mathjs"
@@ -121,6 +122,23 @@ export default function NoteFormattingToolbar({
       label: "Explain simply",
       instruction: "Explain the selected text in simpler wording.",
     },
+  ]
+
+  const tableActions = [
+    {
+      label: "Insert 3x3 table",
+      onClick: () =>
+        editor
+          .chain()
+          .focus()
+          .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+          .run(),
+    },
+    { label: "Add row before", onClick: () => editor.chain().focus().addRowBefore().run() },
+    { label: "Add row after", onClick: () => editor.chain().focus().addRowAfter().run() },
+    { label: "Add column before", onClick: () => editor.chain().focus().addColumnBefore().run() },
+    { label: "Add column after", onClick: () => editor.chain().focus().addColumnAfter().run() },
+    { label: "Delete table", onClick: () => editor.chain().focus().deleteTable().run() },
   ]
 
   function insertTemplate(templateId: string) {
@@ -346,6 +364,28 @@ export default function NoteFormattingToolbar({
               <span className="text-xs text-muted-foreground">
                 {template.description}
               </span>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Table options"
+            title="Table options"
+          >
+            <Table2Icon />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-56">
+          <DropdownMenuLabel>Tables</DropdownMenuLabel>
+          {tableActions.map((action) => (
+            <DropdownMenuItem key={action.label} onSelect={action.onClick}>
+              {action.label}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
