@@ -165,6 +165,7 @@ assistantRouter.post("/research", async (req, res) => {
 
   const { goal, prompt = "", maxIterations = 4 } = validationResult.data
   const minimumResearchActions = 2
+  const streamProgress = req.query.stream === "1" || req.headers["x-stream-progress"] === "1"
 
   const loop = {
     goal,
@@ -177,6 +178,28 @@ assistantRouter.post("/research", async (req, res) => {
   }
 
   try {
+    if (streamProgress) {
+      res.setHeader("Content-Type", "application/x-ndjson")
+      res.setHeader("Cache-Control", "no-cache, no-transform")
+      res.setHeader("Connection", "keep-alive")
+      res.flushHeaders?.()
+    }
+
+    const sendProgress = (payload) => {
+      if (!streamProgress) {
+        return
+      }
+
+      res.write(`${JSON.stringify(payload)}\n`)
+    }
+
+    sendProgress({
+      type: "status",
+      stage: "plan",
+      message: "Planning the research...",
+      loop,
+    })
+
     let nextAction = await askResearchModel({
       goal,
       prompt,
@@ -188,6 +211,13 @@ assistantRouter.post("/research", async (req, res) => {
       const parsedAction = JSON.parse(cleanJsonResponse(nextAction))
 
       if (parsedAction.type === "search" && typeof parsedAction.query === "string") {
+        sendProgress({
+          type: "status",
+          stage: "search",
+          message: `Searching for: ${parsedAction.query}`,
+          loop,
+        })
+
         const results = await runWebSearch(parsedAction.query)
         loop.iterations.push({
           type: "search",
@@ -200,6 +230,13 @@ assistantRouter.post("/research", async (req, res) => {
         })
         loop.sources.push(...results)
 
+        sendProgress({
+          type: "step",
+          step: "search",
+          message: `Found ${results.length} source${results.length === 1 ? "" : "s"} for the query.`,
+          loop,
+        })
+
         nextAction = await askResearchModel({
           goal,
           prompt,
@@ -210,6 +247,13 @@ assistantRouter.post("/research", async (req, res) => {
       }
 
       if (parsedAction.type === "fetch" && typeof parsedAction.url === "string") {
+        sendProgress({
+          type: "status",
+          stage: "fetch",
+          message: `Fetching: ${parsedAction.url}`,
+          loop,
+        })
+
         const fetched = await runWebFetch(parsedAction.url)
         loop.iterations.push({
           type: "fetch",
@@ -217,6 +261,13 @@ assistantRouter.post("/research", async (req, res) => {
           reason: typeof parsedAction.reason === "string" ? parsedAction.reason : "",
         })
         loop.fetches.push(fetched)
+
+        sendProgress({
+          type: "step",
+          step: "fetch",
+          message: `Fetched ${fetched.title || parsedAction.url}.`,
+          loop,
+        })
 
         nextAction = await askResearchModel({
           goal,
@@ -229,6 +280,13 @@ assistantRouter.post("/research", async (req, res) => {
 
       if (parsedAction.type === "final") {
         if (loop.iterations.length < minimumResearchActions) {
+          sendProgress({
+            type: "status",
+            stage: "search",
+            message: "The agent tried to finish too early. Forcing one more search.",
+            loop,
+          })
+
           const fallbackQuery = buildFallbackSearchQuery(goal, prompt)
           const results = await runWebSearch(fallbackQuery)
 
@@ -243,6 +301,13 @@ assistantRouter.post("/research", async (req, res) => {
           })
           loop.sources.push(...results)
 
+          sendProgress({
+            type: "step",
+            step: "search",
+            message: `Forced extra search found ${results.length} source${results.length === 1 ? "" : "s"}.`,
+            loop,
+          })
+
           nextAction = await askResearchModel({
             goal,
             prompt,
@@ -253,7 +318,7 @@ assistantRouter.post("/research", async (req, res) => {
           continue
         }
 
-        return res.status(200).json({
+        const payload = {
           goal,
           prompt,
           loop,
@@ -263,11 +328,25 @@ assistantRouter.post("/research", async (req, res) => {
             ? parsedAction.sources.filter((item) => item && typeof item === "object")
             : loop.sources,
           done: true,
-        })
+        }
+
+        if (streamProgress) {
+          sendProgress({ type: "done", ...payload })
+          return res.end()
+        }
+
+        return res.status(200).json(payload)
       }
 
       break
     }
+
+    sendProgress({
+      type: "status",
+      stage: "synth",
+      message: "Synthesizing final answer...",
+      loop,
+    })
 
     const finalAnswer = await askResearchModel({
       goal,
@@ -278,7 +357,7 @@ assistantRouter.post("/research", async (req, res) => {
 
     const parsedFinal = JSON.parse(cleanJsonResponse(finalAnswer))
 
-    return res.status(200).json({
+    const payload = {
       goal,
       prompt,
       loop,
@@ -288,9 +367,24 @@ assistantRouter.post("/research", async (req, res) => {
         ? parsedFinal.sources.filter((item) => item && typeof item === "object")
         : loop.sources,
       done: true,
-    })
+    }
+
+    if (streamProgress) {
+      sendProgress({ type: "done", ...payload })
+      return res.end()
+    }
+
+    return res.status(200).json(payload)
   } catch (error) {
     console.error("Research engine failed:", error)
+
+    if (streamProgress) {
+      sendProgress({
+        type: "error",
+        error: error instanceof Error ? error.message : "Research engine failed",
+      })
+      return res.end()
+    }
 
     return res.status(500).json({
       error: error instanceof Error ? error.message : "Research engine failed",
