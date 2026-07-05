@@ -4,6 +4,7 @@ import {
   AppearanceOptions,
   SettingsHeader,
   AccountOptions,
+  NotificationOptions,
 } from "@/app/settings/components"
 
 /**
@@ -22,7 +23,10 @@ export default function SettingsPage() {
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]">
-        <AppearanceOptions theme={theme} setTheme={setTheme} />
+        <div className="grid gap-4">
+          <AppearanceOptions theme={theme} setTheme={setTheme} />
+          <NotificationOptions />
+        </div>
 
         <AccountOptions
           user={user}

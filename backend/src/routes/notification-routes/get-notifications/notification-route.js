@@ -5,6 +5,7 @@ import { notificationRouter } from "../notification-router.js"
 // Route for creating notifications
 notificationRouter.get("/", async (req, res) => {
     try {
+        const timeZone = typeof req.query.timeZone === "string" ? req.query.timeZone : undefined
         const tasks = await prisma.task.findMany({
             where: {
                 userId: req.userId,
@@ -24,7 +25,7 @@ notificationRouter.get("/", async (req, res) => {
             },
         })
 
-        const notifications = buildTaskNotifications(tasks)
+        const notifications = buildTaskNotifications(tasks, timeZone)
 
         return res.status(200).json({
             notifications,
