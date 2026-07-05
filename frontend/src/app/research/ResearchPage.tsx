@@ -160,9 +160,9 @@ function StagePill({ step }: { step: ResearchStep }) {
 }
 
 export default function ResearchPage() {
-  const [goal, setGoal] = useState("Research the best way to build a recursive AI agent")
+  const [goal, setGoal] = useState("")
   const [prompt, setPrompt] = useState(
-    "Find a strong architecture, recommend a model, and outline the iterative loop."
+    "Research the topic I give you and summarize the key facts clearly."
   )
   const [isRunning, setIsRunning] = useState(false)
   const [iteration, setIteration] = useState(0)
@@ -181,13 +181,20 @@ export default function ResearchPage() {
   async function runLoop() {
     if (isRunning) return
 
+    const effectiveGoal = goal.trim() || prompt.trim()
+
+    if (!effectiveGoal) {
+      toast.error("Add a goal or prompt before running research")
+      return
+    }
+
     setIsRunning(true)
     setIteration(0)
     setResult(null)
 
     try {
       setFinding("Running the research agent...")
-      setSteps(makeInitialSteps(goal))
+      setSteps(makeInitialSteps(effectiveGoal))
 
       const response = await fetch(`${apiClient.defaults.baseURL}/assistant/research?stream=1`, {
         method: "POST",
@@ -196,7 +203,7 @@ export default function ResearchPage() {
           "x-stream-progress": "1",
         },
         body: JSON.stringify({
-          goal,
+          goal: effectiveGoal,
           prompt,
           maxIterations: 6,
         }),
@@ -231,7 +238,7 @@ export default function ResearchPage() {
 
         if (event.loop) {
           setIteration(event.loop.iterations.length)
-          setSteps(makeStepsFromLoop(goal, event.loop))
+          setSteps(makeStepsFromLoop(effectiveGoal, event.loop))
         }
 
         if (event.message) {
@@ -239,14 +246,14 @@ export default function ResearchPage() {
         }
 
         if (event.type === "done") {
-          const finishedSteps = makeInitialSteps(goal).map((step) => ({
+          const finishedSteps = makeInitialSteps(effectiveGoal).map((step) => ({
             ...step,
             state: "done" as const,
           }))
 
           setSteps(finishedSteps)
           setResult({
-            goal,
+            goal: effectiveGoal,
             prompt,
             message: event.message || "Research complete.",
             findings: event.findings || [],
@@ -336,8 +343,8 @@ export default function ResearchPage() {
                       What should the agent research?
                     </h3>
                     <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-                      Add a question, compare options, or hand it a goal. We’ll move straight into
-                      the loading state and then show the finished result.
+                      Add a person, company, topic, or question. We&apos;ll move straight into the
+                      loading state and then show the finished result.
                     </p>
                   </div>
                 </div>
@@ -346,7 +353,7 @@ export default function ResearchPage() {
                 <Textarea
                   value={prompt}
                   onChange={(event) => setPrompt(event.target.value)}
-                  placeholder="Ask the research engine to build, compare, explain, or verify..."
+                  placeholder="Ask the research engine to research a person, company, topic, or question..."
                   className="min-h-36 resize-none border-0 bg-transparent px-1 py-1.5 text-base shadow-none focus-visible:ring-0 sm:px-2 sm:py-2"
                 />
 
