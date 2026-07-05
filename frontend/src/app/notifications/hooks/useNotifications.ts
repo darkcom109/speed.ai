@@ -156,8 +156,10 @@ export default function useNotifications() {
       oscillator.stop(now + duration + 0.05)
     }
 
-    if (alarmTitle === "Task Due Soon") {
-      createBeep(880, 0.5, 0)
+    if (alarmTitle !== "Due Now") {
+      createBeep(660, 0.45, 0)
+      createBeep(880, 0.45, 0.22)
+      createBeep(990, 0.5, 0.44)
       return
     }
 
@@ -198,7 +200,7 @@ export default function useNotifications() {
       window.clearInterval(alarmTimerRef.current)
     }
 
-    if (activeAlarm?.title === "Task Due Soon") {
+    if (activeAlarm?.title !== "Due Now") {
       playAlarmPattern(audioContext, activeAlarm.title)
       return
     }
@@ -222,7 +224,11 @@ export default function useNotifications() {
         const newNotifications = loadedNotifications.filter(
           (notification) => !previousIds.has(notification.id)
         )
-        const nextAlarm = newNotifications[0] ?? null
+        const nextAlarm =
+          newNotifications.find((notification) => notification.title === "Due Now") ??
+          newNotifications.find((notification) => notification.priority === "high") ??
+          newNotifications[0] ??
+          null
 
         newNotifications.forEach((notification) => {
           const shouldSkipToastForAlarm = nextAlarm?.id === notification.id
@@ -271,7 +277,7 @@ export default function useNotifications() {
     loadNotifications()
 
     window.addEventListener("tasks-updated", loadNotifications)
-    const interval = window.setInterval(loadNotifications, 15000)
+    const interval = window.setInterval(loadNotifications, 5000)
 
     return () => {
       window.removeEventListener("tasks-updated", loadNotifications)

@@ -6,6 +6,8 @@ import {
   AccountOptions,
   NotificationOptions,
 } from "@/app/settings/components"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 
 /**
  * Renders appearance and account options
@@ -13,7 +15,7 @@ import {
  * @returns The settings page layout
  */
 export default function SettingsPage() {
-  const { user, error, theme, setTheme, handleLogout, handleDeleteAccount } =
+  const { user, error, isLoading, theme, setTheme, handleLogout, handleDeleteAccount } =
     useSettings()
 
   return (
@@ -22,18 +24,57 @@ export default function SettingsPage() {
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]">
-        <div className="grid gap-4">
-          <AppearanceOptions theme={theme} setTheme={setTheme} />
-          <NotificationOptions />
-        </div>
+      {isLoading ? (
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]">
+          <div className="grid gap-4">
+            <Card>
+              <CardHeader className="space-y-2">
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-4 w-56" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-3/4" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="space-y-2">
+                <Skeleton className="h-5 w-28" />
+                <Skeleton className="h-4 w-64" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-2/3" />
+              </CardContent>
+            </Card>
+          </div>
 
-        <AccountOptions
-          user={user}
-          handleLogout={handleLogout}
-          handleDeleteAccount={handleDeleteAccount}
-        />
-      </div>
+          <Card>
+            <CardHeader className="space-y-2">
+              <Skeleton className="h-5 w-28" />
+              <Skeleton className="h-4 w-48" />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]">
+          <div className="grid gap-4">
+            <AppearanceOptions theme={theme} setTheme={setTheme} />
+            <NotificationOptions />
+          </div>
+
+          <AccountOptions
+            user={user}
+            handleLogout={handleLogout}
+            handleDeleteAccount={handleDeleteAccount}
+          />
+        </div>
+      )}
     </Layout>
   )
 }
