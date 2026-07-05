@@ -4,6 +4,7 @@ import type { AppNotification } from "@/app/notifications/types/notification"
 import { toast } from "@/lib/single-toast"
 
 const notificationPreferencesStorageKey = "speed-ai-notification-preferences"
+const activeAlarmStorageKey = "speed-ai-active-alarm"
 
 export type NotificationSoundType = "beep" | "double" | "chime"
 
@@ -55,12 +56,31 @@ function readStoredNotificationPreferences() {
   }
 }
 
+function readStoredActiveAlarm() {
+  if (typeof window === "undefined") {
+    return null
+  }
+
+  try {
+    const rawValue = window.localStorage.getItem(activeAlarmStorageKey)
+
+    if (!rawValue) {
+      return null
+    }
+
+    return JSON.parse(rawValue) as AppNotification
+  } catch {
+    return null
+  }
+}
+
 export default function useNotifications() {
   const initialPreferences = readStoredNotificationPreferences()
+  const initialActiveAlarm = readStoredActiveAlarm()
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(true)
-  const [activeAlarm, setActiveAlarm] = useState<AppNotification | null>(null)
+  const [activeAlarm, setActiveAlarm] = useState<AppNotification | null>(initialActiveAlarm)
   const [browserAlertsEnabled, setBrowserAlertsEnabled] = useState(
     initialPreferences.browserAlertsEnabled
   )
@@ -87,6 +107,19 @@ export default function useNotifications() {
       })
     )
   }, [browserAlertsEnabled, soundEnabled, soundVolume, soundType])
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return
+    }
+
+    if (activeAlarm) {
+      window.localStorage.setItem(activeAlarmStorageKey, JSON.stringify(activeAlarm))
+      return
+    }
+
+    window.localStorage.removeItem(activeAlarmStorageKey)
+  }, [activeAlarm])
 
   function stopAlarmSound() {
     if (alarmTimerRef.current !== null) {
@@ -165,6 +198,11 @@ export default function useNotifications() {
       window.clearInterval(alarmTimerRef.current)
     }
 
+    if (activeAlarm?.title === "Task Due Soon") {
+      playAlarmPattern(audioContext, activeAlarm.title)
+      return
+    }
+
     playAlarmPattern(audioContext, activeAlarm?.title)
     alarmTimerRef.current = window.setInterval(
       () => playAlarmPattern(audioContext, activeAlarm?.title),
@@ -184,9 +222,12 @@ export default function useNotifications() {
         const newNotifications = loadedNotifications.filter(
           (notification) => !previousIds.has(notification.id)
         )
+        const nextAlarm = newNotifications[0] ?? null
 
         newNotifications.forEach((notification) => {
-          if (browserAlertsEnabled) {
+          const shouldSkipToastForAlarm = nextAlarm?.id === notification.id
+
+          if (browserAlertsEnabled && !shouldSkipToastForAlarm) {
             toast.info(notification.title, {
               description: notification.message,
               duration: 8000,
@@ -194,8 +235,8 @@ export default function useNotifications() {
           }
         })
 
-        if (newNotifications.length > 0 && !activeAlarm && browserAlertsEnabled) {
-          setActiveAlarm(newNotifications[0] ?? null)
+        if (nextAlarm && !activeAlarm && browserAlertsEnabled) {
+          setActiveAlarm(nextAlarm)
         }
 
         if (browserAlertsEnabled && typeof window !== "undefined" && "Notification" in window) {

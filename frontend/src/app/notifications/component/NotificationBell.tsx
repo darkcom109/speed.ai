@@ -86,9 +86,9 @@ export default function NotificationBell() {
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold">Alarm</p>
-              <p className="mt-1 text-sm text-muted-foreground">{activeAlarm.title}</p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">{activeAlarm.message}</p>
+              <p className="text-sm font-semibold">{activeAlarm.taskTitle}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{activeAlarm.title}</p>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">{activeAlarm.message}</p>
 
               <div className="mt-3 flex items-center justify-end">
                 <Button
