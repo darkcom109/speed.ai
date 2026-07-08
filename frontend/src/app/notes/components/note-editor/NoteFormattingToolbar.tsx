@@ -322,7 +322,7 @@ export default function NoteFormattingToolbar({
   ]
 
   return (
-    <div className="sticky top-0 z-20 flex flex-wrap items-center gap-1 border-b bg-background/95 px-4 py-2 shadow-sm backdrop-blur">
+    <div className="flex flex-wrap items-center gap-1 border-b bg-background/95 px-4 py-2 shadow-sm backdrop-blur">
       {formattingButtons.map((button) => {
         const Icon = button.icon
 
