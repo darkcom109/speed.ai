@@ -2,13 +2,15 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { BrainCircuitIcon, Loader2Icon, PlayIcon, SparklesIcon } from "lucide-react"
-import { quickPrompts } from "../utils"
+import type { ResearchStep } from "../types"
+import { makeInitialSteps, quickPrompts } from "../utils"
 
 type ResearchComposerProps = {
   prompt: string
   setPrompt: (value: string) => void
   onRun: () => void
   isRunning: boolean
+  steps?: ResearchStep[]
 }
 
 export default function ResearchComposer({
@@ -16,7 +18,10 @@ export default function ResearchComposer({
   setPrompt,
   onRun,
   isRunning,
+  steps,
 }: ResearchComposerProps) {
+  const previewSteps = steps ?? makeInitialSteps(prompt)
+
   return (
     <section className="relative overflow-hidden rounded-[32px] border border-border/70 bg-card shadow-sm">
       <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
@@ -82,6 +87,38 @@ export default function ResearchComposer({
           <p className="mt-2 text-xs text-muted-foreground">
             Planning, search, inspection, and synthesis run as one flow.
           </p>
+
+          <div className="mt-6 space-y-3">
+            {previewSteps.map((step, index) => (
+              <div
+                key={step.id}
+                className="rounded-2xl border border-border/70 bg-background/80 p-4"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex size-7 items-center justify-center rounded-full border border-border/70 bg-background text-xs font-semibold">
+                    {index + 1}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">{step.title}</span>
+                      <span
+                        className={`size-2 rounded-full ${
+                          step.state === "done"
+                            ? "bg-emerald-500"
+                            : step.state === "running"
+                              ? "bg-primary"
+                              : "bg-muted-foreground"
+                        }`}
+                      />
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      {step.detail}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -51,6 +51,11 @@ const fallbackUser: SidebarUser = {
 let cachedSidebarUser: SidebarUser | null = null
 let pendingSidebarUser: Promise<SidebarUser> | null = null
 
+function clearSidebarUserCache() {
+  cachedSidebarUser = null
+  pendingSidebarUser = null
+}
+
 async function getSidebarUser() {
   if (cachedSidebarUser) {
     return cachedSidebarUser

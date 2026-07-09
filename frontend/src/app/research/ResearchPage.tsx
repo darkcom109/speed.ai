@@ -47,6 +47,7 @@ export default function ResearchPage() {
             setPrompt={setPrompt}
             onRun={runLoop}
             isRunning={isRunning}
+            steps={steps}
           />
         ) : isRunning ? (
           <ResearchFlowPanel

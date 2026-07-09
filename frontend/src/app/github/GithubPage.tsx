@@ -1,169 +1,161 @@
 import {
+  ArrowRightIcon,
+  BadgeInfoIcon,
   CodeIcon,
   ExternalLinkIcon,
-  GitBranchIcon,
   SearchIcon,
   StarIcon,
-  UsersIcon,
 } from "lucide-react"
 
+import Layout from "@/components/app/Layout"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import Layout from "@/components/app/Layout"
 import useGithub from "@/app/github/hooks/useGithub"
 
 export default function GithubPage() {
-  const {
-    username,
-    githubData,
-    error,
-    isLoading,
-    setUsername,
-    handleSearchGithub
-  } = useGithub()
+  const { username, githubData, error, isLoading, setUsername, handleSearchGithub } =
+    useGithub()
 
   return (
     <Layout>
-      <div>
-        <h2 className="text-xl font-semibold tracking-tight">GitHub</h2>
-        <p className="text-sm text-muted-foreground">
-          Search a public GitHub profile and view recent activity.
-        </p>
-      </div>
+      <div className="space-y-8">
+        <header className="space-y-2">
+          <h2 className="text-xl font-semibold tracking-tight">Rate My GitHub</h2>
+          <p className="text-sm text-muted-foreground">
+            Type a GitHub username and get a score out of 100, plus what&apos;s working and what
+            could improve.
+          </p>
+        </header>
 
-      <form
-        onSubmit={handleSearchGithub}
-        className="flex max-w-xl items-center gap-2 rounded-lg border bg-card p-2"
-      >
-        <Input
-          value={username}
-          onChange={(event) => setUsername(event.target.value)}
-          placeholder="GitHub username"
-          className="border-0 shadow-none focus-visible:ring-0"
-        />
-        <Button type="submit" disabled={isLoading}>
-          <SearchIcon className="size-4" />
-          Search
-        </Button>
-      </form>
-
-      {isLoading && <p className="text-sm text-muted-foreground">Loading GitHub data...</p>}
-
-      {error && <p className="text-sm text-destructive">{error}</p>}
-
-      {githubData && (
-        <div className="grid gap-4 xl:grid-cols-[22rem_minmax(0,1fr)]">
-          <section className="rounded-lg border bg-card p-4">
-            <div className="flex items-start gap-3">
-              <img
-                src={githubData.profile.avatarUrl}
-                alt={githubData.profile.username}
-                className="size-16 rounded-lg border"
-              />
-              <div className="min-w-0">
-                <h3 className="truncate text-lg font-semibold">
-                  {githubData.profile.name || githubData.profile.username}
-                </h3>
-                <p className="truncate text-sm text-muted-foreground">
-                  @{githubData.profile.username}
-                </p>
-                <a
-                  href={githubData.profile.profileUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:underline"
-                >
-                  View profile
-                  <ExternalLinkIcon className="size-3.5" />
-                </a>
+        <section className="rounded-[28px] border border-border/70 bg-card p-6 shadow-sm">
+          <form onSubmit={handleSearchGithub} className="space-y-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+              <div className="relative flex-1">
+                <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  placeholder="github username"
+                  className="h-12 rounded-2xl pl-10"
+                />
               </div>
+              <Button type="submit" disabled={isLoading} className="h-12 rounded-2xl px-5">
+                {isLoading ? "Rating..." : "Rate profile"}
+                <ArrowRightIcon className="size-4" />
+              </Button>
             </div>
 
-            {githubData.profile.bio && (
-              <p className="mt-4 text-sm text-muted-foreground">
-                {githubData.profile.bio}
-              </p>
-            )}
+            <p className="text-xs text-muted-foreground">
+              We fetch the public profile, recent repos, and activity, then ask Ollama for a
+              concise score and review.
+            </p>
+          </form>
 
-            <div className="mt-4 grid grid-cols-3 gap-2 text-sm">
-              <div className="rounded-md border bg-background p-2">
-                <p className="font-semibold">{githubData.profile.publicRepos}</p>
-                <p className="text-xs text-muted-foreground">Repos</p>
-              </div>
-              <div className="rounded-md border bg-background p-2">
-                <p className="font-semibold">{githubData.profile.followers}</p>
-                <p className="text-xs text-muted-foreground">Followers</p>
-              </div>
-              <div className="rounded-md border bg-background p-2">
-                <p className="font-semibold">{githubData.profile.following}</p>
-                <p className="text-xs text-muted-foreground">Following</p>
-              </div>
-            </div>
+          {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+        </section>
+
+        {!githubData ? (
+          <section className="rounded-[28px] border border-dashed border-border/70 bg-muted/10 p-8 text-sm text-muted-foreground">
+            Enter a username above to generate a rating.
           </section>
-
-          <section className="rounded-lg border bg-card">
-            <div className="border-b px-4 py-3">
-              <h3 className="text-sm font-medium">Recently updated repos</h3>
-            </div>
-            <div className="grid gap-3 p-4 md:grid-cols-2">
-              {githubData.repos.map((repo) => (
-                <a
-                  key={repo.id}
-                  href={repo.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-md border bg-background p-3 transition-colors hover:bg-muted"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{repo.name}</p>
-                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                        {repo.description || "No description"}
-                      </p>
-                    </div>
-                    <CodeIcon className="size-4 shrink-0 text-muted-foreground" />
+        ) : (
+          <div className="grid gap-4 xl:grid-cols-[22rem_minmax(0,1fr)]">
+            <section className="rounded-[28px] border border-border/70 bg-card p-6 shadow-sm">
+              <div className="flex items-start gap-4">
+                <img
+                  src={githubData.profile.avatarUrl}
+                  alt={githubData.profile.username}
+                  className="size-16 rounded-2xl border border-border/70"
+                />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="truncate text-lg font-semibold">
+                      {githubData.profile.name || githubData.profile.username}
+                    </h3>
+                    <Badge variant="secondary" className="rounded-full">
+                      {githubData.rating?.score ?? 0}/100
+                    </Badge>
                   </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                    {repo.language && <span>{repo.language}</span>}
-                    <span className="inline-flex items-center gap-1">
-                      <StarIcon className="size-3.5" />
-                      {repo.stars}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <GitBranchIcon className="size-3.5" />
-                      {repo.forks}
-                    </span>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-lg border bg-card xl:col-span-2">
-            <div className="border-b px-4 py-3">
-              <h3 className="text-sm font-medium">Recent activity</h3>
-            </div>
-            <div className="divide-y">
-              {githubData.activity.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-center gap-3 px-4 py-3 text-sm"
-                >
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-                    <UsersIcon className="size-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate font-medium">{activity.type}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {activity.repo} - {new Date(activity.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
+                  <p className="truncate text-sm text-muted-foreground">
+                    @{githubData.profile.username}
+                  </p>
+                  <a
+                    href={githubData.profile.profileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                  >
+                    Open GitHub
+                    <ExternalLinkIcon className="size-3.5" />
+                  </a>
                 </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      )}
-    </Layout> 
+              </div>
+
+              {githubData.profile.bio && (
+                <p className="mt-4 text-sm leading-6 text-muted-foreground">
+                  {githubData.profile.bio}
+                </p>
+              )}
+
+              <div className="mt-5 grid grid-cols-3 gap-2 text-sm">
+                <div className="rounded-2xl border border-border/70 bg-background p-3">
+                  <p className="font-semibold">{githubData.profile.publicRepos}</p>
+                  <p className="text-xs text-muted-foreground">Repos</p>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-background p-3">
+                  <p className="font-semibold">{githubData.profile.followers}</p>
+                  <p className="text-xs text-muted-foreground">Followers</p>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-background p-3">
+                  <p className="font-semibold">{githubData.profile.following}</p>
+                  <p className="text-xs text-muted-foreground">Following</p>
+                </div>
+              </div>
+
+              <div className="mt-5 rounded-2xl border border-border/70 bg-background p-4">
+                <div className="flex items-center gap-2">
+                  <BadgeInfoIcon className="size-4 text-primary" />
+                  <p className="text-sm font-medium">AI verdict</p>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {githubData.rating?.summary || "No rating generated."}
+                </p>
+              </div>
+            </section>
+
+            <section className="space-y-4">
+              <div className="rounded-[28px] border border-border/70 bg-card p-6 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <StarIcon className="size-4 text-primary" />
+                  <h3 className="text-sm font-medium">Strengths</h3>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                  {(githubData.rating?.strengths || []).map((item) => (
+                    <li key={item} className="rounded-2xl border border-border/70 bg-background p-3">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="rounded-[28px] border border-border/70 bg-card p-6 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <CodeIcon className="size-4 text-primary" />
+                  <h3 className="text-sm font-medium">Improvement ideas</h3>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                  {(githubData.rating?.improvements || []).map((item) => (
+                    <li key={item} className="rounded-2xl border border-border/70 bg-background p-3">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          </div>
+        )}
+      </div>
+    </Layout>
   )
 }
