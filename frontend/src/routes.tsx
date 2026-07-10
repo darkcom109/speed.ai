@@ -4,6 +4,8 @@ import {
 } from "react-router"
 import AppLayout from "./AppLayout"
 
+import { redirectAuthenticatedUser } from "@/hooks/use-auth-redirect"
+
 import {
   HomePage,
   LoginPage,
@@ -31,19 +33,22 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <HomePage />
+        element: <HomePage />,
+        loader: redirectAuthenticatedUser,
       },
       {
         path: "login",
-        element: <LoginPage />
+        element: <LoginPage />,
+        loader: redirectAuthenticatedUser,
       },
       {
         path: "signup",
-        element: <SignupPage />
+        element: <SignupPage />,
+        loader: redirectAuthenticatedUser,
       },
       {
         path: "dashboard",
-        element: <DashboardPage />
+        element: <DashboardPage />,
       },
       {
         path: "settings",
