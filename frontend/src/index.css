@@ -265,3 +265,35 @@ input[type="number"] {
     @apply font-sans;
     }
 }
+@keyframes research-stage-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.99);
+  }
+}
+
+@keyframes research-stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+}
+
+.research-stage {
+  view-transition-name: research-stage;
+}
+
+::view-transition-old(research-stage) {
+  animation: 180ms ease-in both research-stage-out;
+}
+
+::view-transition-new(research-stage) {
+  animation: 320ms ease-out both research-stage-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(research-stage),
+  ::view-transition-new(research-stage) {
+    animation: none;
+  }
+}

@@ -41,6 +41,9 @@ Return one of these shapes:
 
 Rules:
 - Prefer practical, high-signal queries.
+- Follow the supplied research strategy to vary the evidence path between runs.
+- Vary search wording and source selection while staying tightly relevant to the goal.
+- Never randomize facts or make claims unsupported by the gathered evidence.
 - Do not return final until you have completed at least two real research actions beyond planning.
 - Prefer at least one search and one fetch before you return final.
 - If the evidence is enough, stop and return final.
