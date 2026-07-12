@@ -18,6 +18,7 @@ export type GithubRepo = {
   stars: number
   forks: number
   updatedAt: string
+  hasReadme: boolean
 }
 
 export type GithubActivity = {
@@ -33,8 +34,28 @@ export type GithubData = {
   activity: GithubActivity[]
   rating: {
     score: number
+    grade: string
     summary: string
     strengths: string[]
     improvements: string[]
+    categories: Array<{
+      key: string
+      label: string
+      score: number
+      maxScore: number
+      evidence: string
+    }>
+    metrics: {
+      originalRepos: number
+      languages: number
+      totalStars: number
+      totalForks: number
+      readmeCoverage: number
+      descriptionCoverage: number
+      recentEvents: number
+      activeRepos: number
+      latestActivityAt: string | null
+    }
+    evaluatedAt: string
   } | null
 }
