@@ -1,3 +1,3 @@
-import "./forecast-algorithms/linear-regression-route.js"
+import "./forecast-algorithms/adaptive-forecast-route.js"
 
 export { futurePredictionRouter } from "./future-prediction-router.js"
