@@ -16,7 +16,7 @@ vi.mock("@/app/settings/hooks/useSettings", () => ({
 
 vi.mock("@/app/settings/components", () => ({
   SettingsHeader: () => <header>Settings header</header>,
-  AppearanceOptions: () => <section>Appearance options</section>,
+  NotificationOptions: () => <section>Notification options</section>,
   AccountOptions: () => <section>Account options</section>,
 }))
 
@@ -25,8 +25,6 @@ describe("SettingsPage", () => {
     vi.mocked(useSettings).mockReturnValue({
       user: { name: "Alex Garcia", email: "alex@example.com" },
       error: "Unable to load settings",
-      theme: "dark",
-      setTheme: vi.fn(),
       handleLogout: vi.fn(),
       handleDeleteAccount: vi.fn(),
     })
@@ -34,7 +32,7 @@ describe("SettingsPage", () => {
     render(<SettingsPage />)
 
     expect(screen.getByText("Settings header")).toBeInTheDocument()
-    expect(screen.getByText("Appearance options")).toBeInTheDocument()
+    expect(screen.getByText("Notification options")).toBeInTheDocument()
     expect(screen.getByText("Account options")).toBeInTheDocument()
     expect(screen.getByText("Unable to load settings")).toBeInTheDocument()
   })

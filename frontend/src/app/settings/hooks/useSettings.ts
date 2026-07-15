@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 
-import { useTheme } from "@/components/theme-provider"
 import { clearGoogleSession } from "@/app/login/utils/clear-google-session"
 import { apiClient } from "@/lib/api-client"
 
@@ -15,7 +14,6 @@ export default function useSettings() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
-  const { theme, setTheme } = useTheme()
 
   async function handleLogout() {
     try {
@@ -64,8 +62,6 @@ export default function useSettings() {
     user,
     error,
     isLoading,
-    theme,
-    setTheme,
     handleLogout,
     handleDeleteAccount
   }
