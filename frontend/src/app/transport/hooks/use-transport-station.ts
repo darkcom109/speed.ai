@@ -57,6 +57,9 @@ export default function useTransportStation() {
       const stations = await searchTflStations(trimmedQuery)
 
       setStations(stations)
+      if (stations.length === 0) {
+        setError(`No stations found for "${trimmedQuery}"`)
+      }
     } catch (error) {
       setStations([])
       setError(

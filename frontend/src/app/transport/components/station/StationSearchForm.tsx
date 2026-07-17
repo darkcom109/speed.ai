@@ -1,7 +1,5 @@
-import type { 
-  Dispatch, FormEventHandler, SetStateAction 
-} from "react"
-import { SearchIcon } from "lucide-react"
+import type { Dispatch, FormEventHandler, SetStateAction } from "react"
+import { LoaderCircleIcon, SearchIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,6 +9,7 @@ type StationSearchFormProps = {
   setQuery: Dispatch<SetStateAction<string>>
   isSearching: boolean
   onSearchStations: FormEventHandler<HTMLFormElement>
+  prominent?: boolean
 }
 
 export default function StationSearchForm({
@@ -18,20 +17,34 @@ export default function StationSearchForm({
   setQuery,
   isSearching,
   onSearchStations,
+  prominent = false,
 }: StationSearchFormProps) {
   return (
     <form
       onSubmit={onSearchStations}
-      className="flex max-w-2xl items-center gap-2 rounded-lg border bg-card p-2"
+      className={`flex w-full items-center rounded-lg border bg-card shadow-sm ${
+        prominent
+          ? "mx-auto h-14 gap-2 px-2"
+          : "h-10 min-w-0 flex-1 gap-1 pr-1 pl-3"
+      }`}
     >
       <Input
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Search station"
-        className="h-10 border-0 bg-muted/60 shadow-none focus-visible:ring-0"
+        autoFocus={prominent}
+        className={`${prominent ? "text-base" : "text-sm"} h-full rounded-none border-0 bg-transparent px-0 shadow-none focus-visible:ring-0 dark:bg-transparent`}
       />
-      <Button type="submit" className="h-10" disabled={isSearching}>
-        <SearchIcon className="size-4" />
+      <Button
+        type="submit"
+        className={prominent ? "h-10 px-5" : "h-8"}
+        disabled={isSearching || !query.trim()}
+      >
+        {isSearching ? (
+          <LoaderCircleIcon className="size-4 animate-spin" />
+        ) : (
+          <SearchIcon className="size-4" />
+        )}
         Search
       </Button>
     </form>

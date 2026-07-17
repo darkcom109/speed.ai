@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { render, screen } from "@testing-library/react"
+import { MemoryRouter } from "react-router"
 import { describe, expect, it, vi } from "vitest"
 
 import useTransportStation from "@/app/transport/hooks/use-transport-station"
@@ -15,24 +16,23 @@ vi.mock("@/components/site-header", () => ({
 }))
 
 vi.mock("@/components/ui/sidebar", () => ({
-  SidebarInset: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  SidebarInset: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
   SidebarProvider: ({ children }: { children: ReactNode }) => (
     <div>{children}</div>
   ),
 }))
 
 vi.mock("@/app/transport/components/station", () => ({
-  StationArrivalsPanel: ({
-    arrivals,
-  }: {
-    arrivals: unknown[]
-  }) => <section>Arrivals: {arrivals.length}</section>,
+  NearbyStationsMap: () => <section>Nearby stations map</section>,
+  StationArrivalsPanel: ({ arrivals }: { arrivals: unknown[] }) => (
+    <section>Arrivals: {arrivals.length}</section>
+  ),
   StationHeader: () => <section>Station header</section>,
-  StationList: ({
-    stations,
-  }: {
-    stations: unknown[]
-  }) => <section>Stations: {stations.length}</section>,
+  StationList: ({ stations }: { stations: unknown[] }) => (
+    <section>Stations: {stations.length}</section>
+  ),
   StationSearchForm: ({ query }: { query: string }) => (
     <section>Search query: {query}</section>
   ),
@@ -60,7 +60,11 @@ describe("TransportStationsPage", () => {
       handleSelectStation: vi.fn(),
     })
 
-    render(<TransportStationsPage />)
+    render(
+      <MemoryRouter>
+        <TransportStationsPage />
+      </MemoryRouter>
+    )
 
     expect(screen.getByText("Station header")).toBeInTheDocument()
     expect(screen.getByText("Search query: Bank")).toBeInTheDocument()
@@ -83,7 +87,11 @@ describe("TransportStationsPage", () => {
       handleSelectStation: vi.fn(),
     })
 
-    render(<TransportStationsPage />)
+    render(
+      <MemoryRouter>
+        <TransportStationsPage />
+      </MemoryRouter>
+    )
 
     expect(screen.getByText("Unable to search stations")).toBeInTheDocument()
   })

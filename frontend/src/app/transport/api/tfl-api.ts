@@ -1,5 +1,9 @@
 import type { TflStatusData } from "@/app/transport/types/tfl-status"
-import type { TflArrival, TflStation } from "@/app/transport/types/tfl-station"
+import type {
+  NearbyTflStation,
+  TflArrival,
+  TflStation,
+} from "@/app/transport/types/tfl-station"
 import { apiClient } from "@/lib/api-client"
 
 // Returns TFL status of train lines
@@ -30,4 +34,19 @@ export async function getTflStationArrivals(
   )
 
   return data.arrivals
+}
+
+// Returns nearby stations for the supplied browser coordinates.
+export async function getNearbyTflStations(
+  latitude: number,
+  longitude: number
+): Promise<NearbyTflStation[]> {
+  const { data } = await apiClient.get<{ stations: NearbyTflStation[] }>(
+    "/tfl/stations/nearby",
+    {
+      params: { lat: latitude, lon: longitude },
+    }
+  )
+
+  return data.stations
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 
 import {
+  getNearbyTflStations,
   getTflStationArrivals,
   searchTflStations,
 } from "@/app/transport/api/tfl-api"
@@ -53,5 +54,25 @@ describe("tfl-api", () => {
     expect(apiClient.get).toHaveBeenCalledWith(
       "/tfl/stations/station%2Fid/arrivals"
     )
+  })
+
+  it("returns nearby stations for browser coordinates", async () => {
+    const stations = [
+      {
+        id: "940GZZLUBNK",
+        name: "Bank",
+        modes: ["tube"],
+        latitude: 51.5133,
+        longitude: -0.0886,
+        distanceMetres: 240,
+      },
+    ]
+
+    vi.mocked(apiClient.get).mockResolvedValueOnce({ data: { stations } })
+
+    await expect(getNearbyTflStations(51.51, -0.09)).resolves.toEqual(stations)
+    expect(apiClient.get).toHaveBeenCalledWith("/tfl/stations/nearby", {
+      params: { lat: 51.51, lon: -0.09 },
+    })
   })
 })
