@@ -3,6 +3,7 @@ import { useNavigate } from "react-router"
 
 import { clearGoogleSession } from "@/app/login/utils/clear-google-session"
 import { apiClient } from "@/lib/api-client"
+import { clearSidebarUser } from "@/lib/sidebar-user-store"
 
 type User = {
   name: string
@@ -22,6 +23,7 @@ export default function useSettings() {
       await apiClient.post("/auth/logout")
 
       clearGoogleSession()
+      clearSidebarUser()
       navigate("/login")
     } catch {
       setError("Unable to log out")
@@ -33,6 +35,7 @@ export default function useSettings() {
       await apiClient.delete("/auth/me")
 
       clearGoogleSession()
+      clearSidebarUser()
       navigate("/signup")
     } catch {
       setError("Unable to delete account")
@@ -46,7 +49,7 @@ export default function useSettings() {
         setIsLoading(true)
 
         const { data } = await apiClient.get<{ user: User }>("/auth/me")
-        
+
         setUser(data.user)
       } catch {
         setError("Unable to load settings")
@@ -63,6 +66,6 @@ export default function useSettings() {
     error,
     isLoading,
     handleLogout,
-    handleDeleteAccount
+    handleDeleteAccount,
   }
 }
