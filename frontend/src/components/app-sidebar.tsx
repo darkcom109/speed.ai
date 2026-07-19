@@ -19,7 +19,6 @@ import {
   NotebookTextIcon,
   ReceiptTextIcon,
   Settings2Icon,
-  SquareCheckBigIcon,
   SparklesIcon,
   TrainFrontIcon,
 } from "lucide-react"
@@ -45,13 +44,8 @@ const data = {
       title: "Workspace",
       items: [
         {
-          title: "Tasks",
-          url: "/tasks",
-          icon: <SquareCheckBigIcon />,
-        },
-        {
-          title: "Calendar",
-          url: "/calendar",
+          title: "Planning",
+          url: "/planning",
           icon: <CalendarDaysIcon />,
         },
         {

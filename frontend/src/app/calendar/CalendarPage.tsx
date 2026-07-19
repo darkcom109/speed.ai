@@ -5,54 +5,75 @@ import {
   CalendarWeekDays,
 } from "@/app/calendar/components"
 import useCalendar from "@/app/calendar/hooks/use-calendar"
+import type { Task } from "@/app/tasks/types"
 import Layout from "@/components/app/Layout"
+import { cn } from "@/lib/utils"
 
 export default function CalendarPage() {
+  return (
+    <Layout>
+      <CalendarContent />
+    </Layout>
+  )
+}
+
+export function CalendarContent({
+  tasks,
+  embedded = false,
+}: {
+  tasks?: Task[]
+  embedded?: boolean
+}) {
   const {
-    isLoading,
     error,
     previewTask,
     setPreviewTask,
     currentMonthLabel,
     goToPreviousMonth,
     goToNextMonth,
-    hasTasksDueThisMonth,
     weekDays,
     blankDays,
     days,
     today,
     isSameDay,
     getTasksForDay,
-  } = useCalendar()
+  } = useCalendar(tasks)
 
   return (
-    <Layout>
+    <div
+      className={cn(
+        embedded
+          ? "flex min-h-0 flex-col overflow-hidden rounded-lg border bg-card xl:h-full"
+          : "flex flex-col gap-4"
+      )}
+    >
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <CalendarMonthControls 
-        goToPreviousMonth={goToPreviousMonth}
-        currentMonthLabel={currentMonthLabel}
-        goToNextMonth={goToNextMonth}
-      />
+      <div
+        className={cn(embedded && "flex min-h-16 items-center border-b px-3")}
+      >
+        <div className="w-full">
+          <CalendarMonthControls
+            goToPreviousMonth={goToPreviousMonth}
+            currentMonthLabel={currentMonthLabel}
+            goToNextMonth={goToNextMonth}
+          />
+        </div>
+      </div>
 
-      {!isLoading && !error && !hasTasksDueThisMonth && (
-        <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-          No tasks due this month.
-        </p>
-      )}
-      
-      <CalendarWeekDays 
-        weekDays={weekDays}
-      />
+      <div className={cn(embedded && "min-h-0 flex-1 overflow-y-auto")}>
+        <CalendarWeekDays weekDays={weekDays} embedded={embedded} />
 
-      <CalendarGrid 
-        blankDays={blankDays}
-        days={days}
-        today={today}
-        isSameDay={isSameDay}
-        getTasksForDay={getTasksForDay}
-        setPreviewTask={setPreviewTask}
-      />
+        <CalendarGrid
+          blankDays={blankDays}
+          days={days}
+          today={today}
+          isSameDay={isSameDay}
+          getTasksForDay={getTasksForDay}
+          setPreviewTask={setPreviewTask}
+          embedded={embedded}
+        />
+      </div>
 
       <CalendarTaskPreviewDialog
         task={previewTask}
@@ -62,6 +83,6 @@ export default function CalendarPage() {
           }
         }}
       />
-    </Layout>
+    </div>
   )
 }

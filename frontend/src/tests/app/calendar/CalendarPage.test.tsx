@@ -43,7 +43,9 @@ describe("CalendarPage", () => {
     render(<CalendarPage />)
 
     expect(screen.getByText("Month controls")).toBeInTheDocument()
-    expect(screen.getByText("No tasks due this month.")).toBeInTheDocument()
+    expect(
+      screen.queryByText("No tasks due this month.")
+    ).not.toBeInTheDocument()
     expect(screen.getByText("Week days")).toBeInTheDocument()
     expect(screen.getByText("Calendar grid")).toBeInTheDocument()
     expect(screen.getByText("Task preview")).toBeInTheDocument()
