@@ -18,6 +18,7 @@ type LayoutProps = {
 export default function Layout({ children, title }: LayoutProps) {
   return (
     <SidebarProvider
+      className="h-svh min-h-0 overflow-hidden"
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
@@ -26,10 +27,10 @@ export default function Layout({ children, title }: LayoutProps) {
       }
     >
       <AppSidebar variant="inset" />
-      <SidebarInset>
+      <SidebarInset className="min-h-0 overflow-hidden">
         <SiteHeader title={title} />
-        <main className="flex flex-1 p-4 lg:p-6">
-          <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4">
+        <main className="flex min-h-0 flex-1 overflow-y-auto p-4 lg:p-6">
+          <div className="mx-auto flex w-full max-w-7xl flex-col gap-4">
             {children}
           </div>
         </main>

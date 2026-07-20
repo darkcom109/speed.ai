@@ -67,4 +67,15 @@ describe("useTasks", () => {
     expect(result.current.completedTasks).toHaveLength(1)
     expect(result.current.activeTasks).toHaveLength(0)
   })
+
+  it("filters the list to completed tasks", async () => {
+    const { result } = renderHook(() => useTasks())
+
+    await waitFor(() => expect(result.current.tasks).toHaveLength(2))
+
+    act(() => result.current.setTaskFilter("completed"))
+
+    expect(result.current.activeTasks).toHaveLength(0)
+    expect(result.current.completedTasks).toEqual([tasks[1]])
+  })
 })

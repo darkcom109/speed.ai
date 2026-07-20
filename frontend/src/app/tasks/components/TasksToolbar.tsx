@@ -76,6 +76,7 @@ export default function TasksToolbar({
             <SelectItem value="overdue">Overdue</SelectItem>
             <SelectItem value="next-7-days">Next 7 days</SelectItem>
             <SelectItem value="no-date">No due date</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
           </SelectContent>
         </Select>
       </div>

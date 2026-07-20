@@ -15,7 +15,7 @@ export default function PlanningPage() {
         </p>
       </div>
 
-      <div className="grid min-h-0 gap-4 xl:h-[min(964px,calc(100vh-7.5rem))] xl:grid-cols-[minmax(18rem,1fr)_minmax(0,3fr)] xl:items-stretch">
+      <div className="grid min-h-0 gap-4 xl:h-[min(964px,calc(100vh-8.5rem))] xl:grid-cols-[minmax(18rem,1fr)_minmax(0,3fr)] xl:items-stretch">
         <PlanningTasksPanel model={tasks} />
         <section className="min-w-0 xl:h-full">
           <CalendarContent tasks={tasks.tasks} embedded />
