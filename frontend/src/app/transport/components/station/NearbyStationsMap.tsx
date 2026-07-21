@@ -123,28 +123,34 @@ export default function NearbyStationsMap({
             </div>
           </div>
         ) : (
-          <div className="flex min-h-64 flex-col items-center justify-center border-b px-6 py-8 text-center lg:h-[25rem] lg:border-r lg:border-b-0">
-            {isLoading ? (
-              <LoaderCircleIcon className="size-6 animate-spin text-muted-foreground" />
-            ) : (
-              <LocateFixedIcon className="size-7 text-muted-foreground" />
-            )}
-            <h3 className="mt-4 text-base font-semibold">
-              {status === "ready"
-                ? "No nearby stations"
-                : isLoading
-                  ? "Finding nearby stations"
-                  : "Find stations near you"}
-            </h3>
-            <p className="mt-1 max-w-52 text-sm text-muted-foreground">
-              {status === "ready"
-                ? "No supported TfL stations were found within 5 km."
-                : "Use your location to see the closest TfL stops."}
-            </p>
+          <div className="flex min-h-64 flex-col border-b p-5 lg:h-[25rem] lg:border-r lg:border-b-0">
+            <div className="flex items-start gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-background text-muted-foreground">
+                {isLoading ? (
+                  <LoaderCircleIcon className="size-4 animate-spin" />
+                ) : (
+                  <LocateFixedIcon className="size-4" />
+                )}
+              </span>
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold">
+                  {status === "ready"
+                    ? "No nearby stations"
+                    : isLoading
+                      ? "Finding nearby stations"
+                      : "Stations near you"}
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {status === "ready"
+                    ? "No supported TfL stations were found within 5 km."
+                    : "Use your location to find the closest TfL stops."}
+                </p>
+              </div>
+            </div>
             {error && <p className="mt-3 text-xs text-destructive">{error}</p>}
             <Button
               type="button"
-              className="mt-5 w-full max-w-52"
+              className="mt-auto w-full"
               onClick={locateUser}
               disabled={isLoading}
             >
@@ -171,8 +177,9 @@ export default function NearbyStationsMap({
             aria-label="Map of nearby stations"
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+              className="transport-map-tiles"
+              url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <MapViewport location={location} stations={stations} />
 

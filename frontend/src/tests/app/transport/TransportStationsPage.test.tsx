@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { MemoryRouter } from "react-router"
 import { describe, expect, it, vi } from "vitest"
 
@@ -46,6 +46,8 @@ const mockedUseTransportStation = vi.mocked(useTransportStation)
 
 describe("TransportStationsPage", () => {
   it("renders station search sections", () => {
+    const handleResetSearch = vi.fn()
+
     mockedUseTransportStation.mockReturnValue({
       query: "Bank",
       stations: [{ id: "bank", name: "Bank", modes: ["tube"] }],
@@ -58,6 +60,7 @@ describe("TransportStationsPage", () => {
       setQuery: vi.fn(),
       handleSearchStations: vi.fn(),
       handleSelectStation: vi.fn(),
+      handleResetSearch,
     })
 
     render(
@@ -70,6 +73,10 @@ describe("TransportStationsPage", () => {
     expect(screen.getByText("Search query: Bank")).toBeInTheDocument()
     expect(screen.getByText("Stations: 1")).toBeInTheDocument()
     expect(screen.getByText("Arrivals: 0")).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: "Back" }))
+
+    expect(handleResetSearch).toHaveBeenCalledOnce()
   })
 
   it("renders station page errors", () => {
@@ -85,6 +92,7 @@ describe("TransportStationsPage", () => {
       setQuery: vi.fn(),
       handleSearchStations: vi.fn(),
       handleSelectStation: vi.fn(),
+      handleResetSearch: vi.fn(),
     })
 
     render(

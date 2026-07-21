@@ -22,10 +22,8 @@ export default function StationSearchForm({
   return (
     <form
       onSubmit={onSearchStations}
-      className={`flex w-full items-center rounded-lg border bg-card shadow-sm ${
-        prominent
-          ? "mx-auto h-14 gap-2 px-2"
-          : "h-10 min-w-0 flex-1 gap-1 pr-1 pl-3"
+      className={`flex w-full items-center rounded-lg border bg-card ${
+        prominent ? "h-12 gap-2 px-2" : "h-10 min-w-0 flex-1 gap-1 pr-1 pl-3"
       }`}
     >
       <Input
@@ -37,7 +35,7 @@ export default function StationSearchForm({
       />
       <Button
         type="submit"
-        className={prominent ? "h-10 px-5" : "h-8"}
+        className={prominent ? "h-9 px-5" : "h-8"}
         disabled={isSearching || !query.trim()}
       >
         {isSearching ? (

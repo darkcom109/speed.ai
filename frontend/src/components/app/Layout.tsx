@@ -30,7 +30,7 @@ export default function Layout({ children, title }: LayoutProps) {
       <SidebarInset className="min-h-0 overflow-hidden">
         <SiteHeader title={title} />
         <main className="flex min-h-0 flex-1 overflow-y-auto p-4 lg:p-6">
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-4">
+          <div className="mx-auto flex w-full max-w-7xl self-start flex-col gap-4 [&>*]:shrink-0">
             {children}
           </div>
         </main>

@@ -4,50 +4,44 @@ const isValidCoordinate = (value, minimum, maximum) => {
   return Number.isFinite(value) && value >= minimum && value <= maximum
 }
 
-const STATION_CACHE_DURATION_MS = 15 * 60 * 1000
-let stationCache = null
-let stationCacheExpiresAt = 0
+const STATION_TYPES = ["NaptanMetroStation", "NaptanRailStation"]
+const SUPPORTED_MODES = new Set([
+  "tube",
+  "dlr",
+  "overground",
+  "elizabeth-line",
+  "national-rail",
+])
+const RETRY_DELAYS_MS = [0, 500, 1500]
 
-const toRadians = (degrees) => (degrees * Math.PI) / 180
+const wait = (duration) =>
+  new Promise((resolve) => setTimeout(resolve, duration))
 
-const getDistanceMetres = (origin, destination) => {
-  const earthRadiusMetres = 6_371_000
-  const latitudeDelta = toRadians(destination.latitude - origin.latitude)
-  const longitudeDelta = toRadians(destination.longitude - origin.longitude)
-  const originLatitude = toRadians(origin.latitude)
-  const destinationLatitude = toRadians(destination.latitude)
+const fetchNearbyStations = async (url) => {
+  let lastError
 
-  const haversine =
-    Math.sin(latitudeDelta / 2) ** 2 +
-    Math.cos(originLatitude) *
-      Math.cos(destinationLatitude) *
-      Math.sin(longitudeDelta / 2) ** 2
+  for (const [attempt, delay] of RETRY_DELAYS_MS.entries()) {
+    if (delay > 0) await wait(delay)
 
-  return 2 * earthRadiusMetres * Math.asin(Math.sqrt(haversine))
-}
+    try {
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(20_000),
+      })
+      const canRetry = response.status === 429 || response.status >= 500
 
-const getStationCatalogue = async (appKey) => {
-  if (stationCache && Date.now() < stationCacheExpiresAt) {
-    return stationCache
+      if (!canRetry || attempt === RETRY_DELAYS_MS.length - 1) {
+        return response
+      }
+    } catch (error) {
+      lastError = error
+
+      if (attempt === RETRY_DELAYS_MS.length - 1) {
+        throw error
+      }
+    }
   }
 
-  const url = new URL(
-    "https://api.tfl.gov.uk/StopPoint/Type/NaptanMetroStation"
-  )
-  url.searchParams.set("app_key", appKey)
-
-  const response = await fetch(url, { signal: AbortSignal.timeout(15_000) })
-
-  if (!response.ok) {
-    const error = new Error("Unable to load TfL station catalogue")
-    error.status = response.status
-    throw error
-  }
-
-  stationCache = await response.json()
-  stationCacheExpiresAt = Date.now() + STATION_CACHE_DURATION_MS
-
-  return stationCache
+  throw lastError
 }
 
 // Find public transport stations around a geographic coordinate.
@@ -68,27 +62,35 @@ tflRouter.get("/stations/nearby", async (req, res) => {
   }
 
   try {
-    const stationCatalogue = await getStationCatalogue(appKey)
+    const url = new URL("https://api.tfl.gov.uk/StopPoint")
+    url.searchParams.set("lat", latitude)
+    url.searchParams.set("lon", longitude)
+    url.searchParams.set("radius", "5000")
+    url.searchParams.set("stopTypes", STATION_TYPES.join(","))
+    url.searchParams.set("app_key", appKey)
+
+    const response = await fetchNearbyStations(url)
+
+    if (!response.ok) {
+      const error = new Error("Unable to load nearby TfL stations")
+      error.status = response.status
+      throw error
+    }
+
+    const data = await response.json()
     const seenStationIds = new Set()
-    const stations = stationCatalogue
+    const stations = (data.stopPoints || [])
       .reduce((nearbyStations, station) => {
         if (
           !station.id ||
           !Number.isFinite(station.lat) ||
           !Number.isFinite(station.lon) ||
-          seenStationIds.has(station.id)
+          !Number.isFinite(station.distance) ||
+          seenStationIds.has(station.id) ||
+          !(station.modes || []).some((mode) => SUPPORTED_MODES.has(mode))
         ) {
           return nearbyStations
         }
-
-        const distanceMetres = Math.round(
-          getDistanceMetres(
-            { latitude, longitude },
-            { latitude: station.lat, longitude: station.lon }
-          )
-        )
-
-        if (distanceMetres > 5000) return nearbyStations
 
         seenStationIds.add(station.id)
         nearbyStations.push({
@@ -97,7 +99,7 @@ tflRouter.get("/stations/nearby", async (req, res) => {
           modes: station.modes || [],
           latitude: station.lat,
           longitude: station.lon,
-          distanceMetres,
+          distanceMetres: Math.round(station.distance),
         })
 
         return nearbyStations
