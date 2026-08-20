@@ -1,5 +1,5 @@
 // Helper function to build date-time objects
-export function buildDateTime() {
+export function buildDateTime(timeZone) {
     const now = new Date()
 
     // Get today's date
@@ -18,5 +18,5 @@ export function buildDateTime() {
     const nextHour = new Date(now)
     nextHour.setHours(nextHour.getHours() + 1)
 
-    return { now, todayStart, tomorrowStart, dayAfterTomorrowStart, nextHour}
+    return { now, todayStart, tomorrowStart, dayAfterTomorrowStart, nextHour, timeZone }
 }

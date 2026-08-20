@@ -31,4 +31,10 @@ export type GithubData = {
   profile: GithubProfile
   repos: GithubRepo[]
   activity: GithubActivity[]
+  rating: {
+    score: number
+    summary: string
+    strengths: string[]
+    improvements: string[]
+  } | null
 }

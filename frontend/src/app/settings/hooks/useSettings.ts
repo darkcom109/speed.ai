@@ -13,6 +13,7 @@ type User = {
 export default function useSettings() {
   const [user, setUser] = useState<User | null>(null)
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
   const { theme, setTheme } = useTheme()
 
@@ -44,12 +45,15 @@ export default function useSettings() {
     async function loadUser() {
       try {
         setError("")
+        setIsLoading(true)
 
         const { data } = await apiClient.get<{ user: User }>("/auth/me")
         
         setUser(data.user)
       } catch {
         setError("Unable to load settings")
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -59,6 +63,7 @@ export default function useSettings() {
   return {
     user,
     error,
+    isLoading,
     theme,
     setTheme,
     handleLogout,

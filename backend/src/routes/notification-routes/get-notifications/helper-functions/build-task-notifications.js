@@ -2,8 +2,8 @@ import { formatDateTime } from "./format-date-time.js"
 import { buildDateTime } from "./build-date-time.js"
 
 // Helper function to build notifications queue
-export function buildTaskNotifications(tasks) {
-    const { now, todayStart, tomorrowStart, dayAfterTomorrowStart, nextHour} = buildDateTime()
+export function buildTaskNotifications(tasks, timeZone) {
+    const { now, todayStart, tomorrowStart, dayAfterTomorrowStart, nextHour } = buildDateTime(timeZone)
 
     const notifications = []
 
@@ -19,8 +19,9 @@ export function buildTaskNotifications(tasks) {
             notifications.push({
                 id: `task-overdue-${task.id}`,
                 type: "overdue_task",
-                title: "Overdue Task",
-                message: `"${task.title}" was due ${formatDateTime(dueDate)}.`,
+                title: "Due Now",
+                taskTitle: task.title,
+                message: `"${task.title}" is due now.`,
                 priority: "high",
                 taskId: task.id,
                 dueDate: task.dueDate,
@@ -34,7 +35,8 @@ export function buildTaskNotifications(tasks) {
                 id: `task-due-soon-${task.id}`,
                 type: "task_due_soon",
                 title: "Task Due Soon",
-                message: `"${task.title}" is due at ${formatDateTime(dueDate)}.`,
+                taskTitle: task.title,
+                message: `"${task.title}" is due at ${formatDateTime(dueDate, timeZone)}.`,
                 priority: "high",
                 taskId: task.id,
                 dueDate: task.dueDate,
@@ -48,7 +50,8 @@ export function buildTaskNotifications(tasks) {
                 id: `task-due-today-${task.id}`,
                 type: "task_due_today",
                 title: "Task Due Today",
-                message: `"${task.title}" is due today at ${formatDateTime(dueDate)}.`,
+                taskTitle: task.title,
+                message: `"${task.title}" is due today at ${formatDateTime(dueDate, timeZone)}.`,
                 priority: "medium",
                 taskId: task.id,
                 dueDate: task.dueDate,
@@ -62,7 +65,8 @@ export function buildTaskNotifications(tasks) {
                 id: `task-due-tomorrow-${task.id}`,
                 type: "task_due_tomorrow",
                 title: "Task Due Tomorrow",
-                message: `"${task.title}" is due tomorrow at ${formatDateTime(dueDate)}.`,
+                taskTitle: task.title,
+                message: `"${task.title}" is due tomorrow at ${formatDateTime(dueDate, timeZone)}.`,
                 priority: "low",
                 taskId: task.id,
                 dueDate: task.dueDate,

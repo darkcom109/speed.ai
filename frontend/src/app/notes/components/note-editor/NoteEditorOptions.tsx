@@ -18,25 +18,25 @@ export default function NoteEditorOptions({
     handleDeleteNote
 } : NoteEditorOptionsProps) {
     return (
-        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3">
+        <div className="grid w-full min-w-0 gap-3 2xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:gap-5">
             <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">/{folder}</p>
-            <h2 className="truncate text-xl font-semibold tracking-tight">
-                {title || "Untitled file"}
-            </h2>
+                <p className="text-xs text-muted-foreground">/{folder}</p>
+                <h2 className="truncate text-xl font-semibold tracking-tight">
+                    {title || "Untitled file"}
+                </h2>
             </div>
-            <div className="flex gap-2">
-            <Button asChild type="button" variant="outline">
-                <Link to="/notes">Back to files</Link>
-            </Button>
-            <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleExportNote(title, content)}
-            >
-                Export
-            </Button>
-            <DeleteNoteDialog noteTitle={title} onDelete={handleDeleteNote} />
+            <div className="flex flex-wrap gap-2 2xl:justify-end">
+                <Button asChild type="button" variant="outline">
+                    <Link to="/notes">Back to files</Link>
+                </Button>
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleExportNote(title, content)}
+                >
+                    Export
+                </Button>
+                <DeleteNoteDialog noteTitle={title} onDelete={handleDeleteNote} />
             </div>
         </div>
     )

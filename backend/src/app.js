@@ -14,6 +14,7 @@ import {
   holidayRouter,
   assistantRouter,
   githubRouter,
+  projectRouter,
   savingRouter,
   tflRouter,
   futurePredictionRouter,
@@ -71,6 +72,7 @@ app.use("/api/tasks", taskRouter)
 app.use("/api/notes", noteRouter)
 app.use("/api/notifications", notificationRouter)
 app.use("/api/expenses", expenseRouter)
+app.use("/api/projects", projectRouter)
 app.use("/api/savings", savingRouter)
 app.use("/api/weather", weatherRouter)
 app.use("/api/holidays", holidayRouter)

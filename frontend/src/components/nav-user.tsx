@@ -2,6 +2,7 @@ import {
   Avatar,
   AvatarFallback,
 } from "@/components/ui/avatar"
+import { memo } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +25,7 @@ import { clearGoogleSession } from "@/app/login/utils/clear-google-session"
 import { apiClient } from "@/lib/api-client"
 import axios from "axios"
 
-export function NavUser({
+function NavUserComponent({
   user,
 }: {
   user: {
@@ -126,3 +127,5 @@ export function NavUser({
     </SidebarMenu>
   )
 }
+
+export const NavUser = memo(NavUserComponent)
