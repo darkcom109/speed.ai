@@ -27,11 +27,11 @@ export default function AppearanceOptions({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="grid max-w-lg grid-cols-3 gap-1 rounded-lg border bg-muted/30 p-1">
           <Button
             type="button"
             variant={theme === "light" ? "default" : "outline"}
-            className="justify-start"
+            className="justify-center border-0 shadow-none"
             onClick={() => setTheme("light")}
           >
             <SunIcon />
@@ -40,7 +40,7 @@ export default function AppearanceOptions({
           <Button
             type="button"
             variant={theme === "dark" ? "default" : "outline"}
-            className="justify-start"
+            className="justify-center border-0 shadow-none"
             onClick={() => setTheme("dark")}
           >
             <MoonIcon />
@@ -49,7 +49,7 @@ export default function AppearanceOptions({
           <Button
             type="button"
             variant={theme === "system" ? "default" : "outline"}
-            className="justify-start"
+            className="justify-center border-0 shadow-none"
             onClick={() => setTheme("system")}
           >
             <MonitorIcon />

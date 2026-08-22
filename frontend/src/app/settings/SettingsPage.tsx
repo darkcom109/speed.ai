@@ -20,12 +20,13 @@ export default function SettingsPage() {
 
   return (
     <Layout>
-      <SettingsHeader />
+      <div className="mx-auto w-full max-w-6xl space-y-5">
+        <SettingsHeader />
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
 
-      {isLoading ? (
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]">
+        {isLoading ? (
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="grid gap-4">
             <Card>
               <CardHeader className="space-y-2">
@@ -60,9 +61,9 @@ export default function SettingsPage() {
               <Skeleton className="h-10 w-full" />
             </CardContent>
           </Card>
-        </div>
-      ) : (
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]">
+          </div>
+        ) : (
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="grid gap-4">
             <AppearanceOptions theme={theme} setTheme={setTheme} />
             <NotificationOptions />
@@ -73,8 +74,9 @@ export default function SettingsPage() {
             handleLogout={handleLogout}
             handleDeleteAccount={handleDeleteAccount}
           />
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </Layout>
   )
 }

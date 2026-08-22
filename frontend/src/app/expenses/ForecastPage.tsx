@@ -1,4 +1,3 @@
-import { type CSSProperties } from "react"
 import {
   CalculatorIcon,
   PiggyBankIcon,
@@ -6,8 +5,7 @@ import {
 } from "lucide-react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import { currencyFormatter } from "@/app/expenses/utils/expense-utils"
-import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
+import Layout from "@/components/app/Layout"
 import {
   Card,
   CardContent,
@@ -21,10 +19,6 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
 
 import { useForecast } from "./hooks/use-forecast"
 
@@ -83,19 +77,7 @@ export default function ForecastPage() {
     : []
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title="Forecast" />
-
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+    <Layout title="Forecast">
           <div>
             <h2 className="text-xl font-semibold tracking-tight">Forecast</h2>
             <p className="text-sm text-muted-foreground">
@@ -325,8 +307,6 @@ export default function ForecastPage() {
               </div>
             </CardContent>
           </Card>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    </Layout>
   )
 }

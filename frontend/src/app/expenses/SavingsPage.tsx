@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react"
 import {
   LandmarkIcon,
   PencilIcon,
@@ -7,8 +6,7 @@ import {
   TrendingUpIcon,
 } from "lucide-react"
 
-import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
+import Layout from "@/components/app/Layout"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -17,10 +15,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
 import DeleteSavingAccountDialog from "@/app/expenses/components/DeleteSavingAccountDialog"
 import RenderPagination from "@/app/expenses/components/RenderPagination"
 import SavingAccountFormDialog from "@/app/expenses/components/SavingAccountFormDialog"
@@ -96,19 +90,7 @@ export default function SavingsPage() {
   }
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title="Savings" />
-
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+    <Layout title="Savings">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-xl font-semibold tracking-tight">Savings</h2>
@@ -336,8 +318,6 @@ export default function SavingsPage() {
               {renderPagination()}
             </CardContent>
           </Card>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    </Layout>
   )
 }
