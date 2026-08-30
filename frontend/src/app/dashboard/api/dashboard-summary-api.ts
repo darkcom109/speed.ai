@@ -1,7 +1,18 @@
 import { apiClient } from "@/lib/api-client"
 
-export async function getDashboardSummary() {
-  const { data } = await apiClient.get<{ message: string }>("/assistant/dashboard-summary")
+let pendingDashboardSummary: Promise<string> | null = null
 
-  return data.message
+export async function getDashboardSummary() {
+  if (pendingDashboardSummary) {
+    return pendingDashboardSummary
+  }
+
+  pendingDashboardSummary = apiClient
+    .get<{ message: string }>("/assistant/dashboard-summary")
+    .then(({ data }) => data.message)
+    .finally(() => {
+      pendingDashboardSummary = null
+    })
+
+  return pendingDashboardSummary
 }

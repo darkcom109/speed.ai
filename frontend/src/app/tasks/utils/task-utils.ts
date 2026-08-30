@@ -31,6 +31,10 @@ function matchesTaskFilter(task: Task, taskFilter: TaskFilter) {
     return true
   }
 
+  if (taskFilter === "completed") {
+    return task.completed
+  }
+
   if (taskFilter === "no-date") {
     return !task.dueDate
   }

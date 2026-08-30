@@ -137,6 +137,10 @@ body::-webkit-scrollbar {
     display: none;
 }
 
+.transport-map-tiles {
+    filter: grayscale(1) invert(1) brightness(0.72) contrast(1.2);
+}
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     appearance: none;
@@ -264,4 +268,36 @@ input[type="number"] {
   html {
     @apply font-sans;
     }
+}
+@keyframes research-stage-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.99);
+  }
+}
+
+@keyframes research-stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+}
+
+.research-stage {
+  view-transition-name: research-stage;
+}
+
+::view-transition-old(research-stage) {
+  animation: 180ms ease-in both research-stage-out;
+}
+
+::view-transition-new(research-stage) {
+  animation: 320ms ease-out both research-stage-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(research-stage),
+  ::view-transition-new(research-stage) {
+    animation: none;
+  }
 }

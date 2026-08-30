@@ -8,9 +8,7 @@ import type { ResearchLoop, ResearchResponse, ResearchStep } from "../types"
 
 export default function useResearchEngine() {
   const [goal, setGoal] = useState("")
-  const [prompt, setPrompt] = useState(
-    "Research the topic I give you and summarize the key facts clearly."
-  )
+  const [prompt, setPrompt] = useState("")
   const [isRunning, setIsRunning] = useState(false)
   const [iteration, setIteration] = useState(0)
   const [steps, setSteps] = useState<ResearchStep[]>(() => makeInitialSteps(goal))
@@ -156,6 +154,16 @@ export default function useResearchEngine() {
     }
   }
 
+  function resetResearch() {
+    setGoal("")
+    setPrompt("")
+    setIsRunning(false)
+    setIteration(0)
+    setSteps(makeInitialSteps(""))
+    setFinding("Ready to begin. Give the agent a goal, then let it plan, search, verify, and refine.")
+    setResult(null)
+  }
+
   return {
     goal,
     setGoal,
@@ -168,5 +176,6 @@ export default function useResearchEngine() {
     result,
     progress,
     runLoop,
+    resetResearch,
   }
 }

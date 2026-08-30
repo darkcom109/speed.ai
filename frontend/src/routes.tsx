@@ -1,8 +1,8 @@
 // React Router
-import {
-  createBrowserRouter,
-} from "react-router"
+import { createBrowserRouter, Navigate } from "react-router"
 import AppLayout from "./AppLayout"
+
+import { redirectAuthenticatedUser } from "@/hooks/use-auth-redirect"
 
 import {
   HomePage,
@@ -10,8 +10,7 @@ import {
   SignupPage,
   DashboardPage,
   SettingsPage,
-  TasksPage,
-  CalendarPage,
+  PlanningPage,
   ExpensesPage,
   ForecastPage,
   SavingsPage,
@@ -31,81 +30,88 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <HomePage />
+        element: <HomePage />,
+        loader: redirectAuthenticatedUser,
       },
       {
         path: "login",
-        element: <LoginPage />
+        element: <LoginPage />,
+        loader: redirectAuthenticatedUser,
       },
       {
         path: "signup",
-        element: <SignupPage />
+        element: <SignupPage />,
+        loader: redirectAuthenticatedUser,
       },
       {
         path: "dashboard",
-        element: <DashboardPage />
+        element: <DashboardPage />,
       },
       {
         path: "settings",
-        element: <SettingsPage />
+        element: <SettingsPage />,
+      },
+      {
+        path: "planning",
+        element: <PlanningPage />,
       },
       {
         path: "tasks",
-        element: <TasksPage />
+        element: <Navigate to="/planning" replace />,
       },
       {
         path: "calendar",
-        element: <CalendarPage />
+        element: <Navigate to="/planning" replace />,
       },
       {
         path: "expenses",
-        element: <ExpensesPage />
+        element: <ExpensesPage />,
       },
       {
         path: "expenses/savings",
-        element: <SavingsPage />
+        element: <SavingsPage />,
       },
       {
         path: "expenses/forecast",
-        element: <ForecastPage />
+        element: <ForecastPage />,
       },
       {
         path: "notes/:noteId",
-        element: <NoteEditorPage />
+        element: <NoteEditorPage />,
       },
       {
         path: "notes",
-        element: <NotesPage />
+        element: <NotesPage />,
       },
       {
         path: "projects",
-        element: <ProjectsPage />
+        element: <ProjectsPage />,
       },
       {
         path: "projects/:projectId",
-        element: <ProjectDetailPage />
+        element: <ProjectDetailPage />,
       },
       {
         path: "research",
-        element: <ResearchPage />
+        element: <ResearchPage />,
       },
       {
         path: "github",
-        element: <GithubPage />
+        element: <GithubPage />,
       },
       {
         path: "transport",
-        element: <TransportPage />
+        element: <TransportPage />,
       },
       {
         path: "transport/status",
-        element: <TransportPage />
+        element: <TransportPage />,
       },
       {
         path: "transport/stations",
-        element: <TransportStationsPage />
+        element: <TransportStationsPage />,
       },
-    ]
+    ],
   },
 ])
 

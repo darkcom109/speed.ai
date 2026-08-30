@@ -67,6 +67,28 @@ describe("useCalendar", () => {
     expect(result.current.hasTasksDueThisMonth).toBe(true)
   })
 
+  it("uses provided tasks without fetching them again", () => {
+    const providedTask = {
+      id: "shared",
+      title: "Shared task",
+      description: null,
+      dueDate: new Date(2026, 5, 19, 13).toISOString(),
+      completed: false,
+      createdAt: "2026-06-18T10:00:00.000Z",
+      updatedAt: "2026-06-18T10:00:00.000Z",
+      userId: "user-1",
+    }
+
+    const { result } = renderHook(() => useCalendar([providedTask]))
+
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.getTasksForDay(new Date(2026, 5, 19))).toEqual([
+      providedTask,
+    ])
+    expect(apiClient.get).not.toHaveBeenCalled()
+    expect(getTasks).not.toHaveBeenCalled()
+  })
+
   it("moves between months and reloads after task updates", async () => {
     const { result } = renderHook(() => useCalendar())
 

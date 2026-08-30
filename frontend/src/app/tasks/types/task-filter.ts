@@ -4,3 +4,4 @@ export type TaskFilter =
   | "overdue"
   | "next-7-days"
   | "no-date"
+  | "completed"

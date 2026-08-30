@@ -1,7 +1,6 @@
 import useSettings from "@/app/settings/hooks/useSettings"
 import Layout from "@/components/app/Layout"
 import {
-  AppearanceOptions,
   SettingsHeader,
   AccountOptions,
   NotificationOptions,
@@ -15,28 +14,19 @@ import { Skeleton } from "@/components/ui/skeleton"
  * @returns The settings page layout
  */
 export default function SettingsPage() {
-  const { user, error, isLoading, theme, setTheme, handleLogout, handleDeleteAccount } =
+  const { user, error, isLoading, handleLogout, handleDeleteAccount } =
     useSettings()
 
   return (
     <Layout>
-      <SettingsHeader />
+      <div className="mx-auto w-full max-w-6xl space-y-5">
+        <SettingsHeader />
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
 
-      {isLoading ? (
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]">
+        {isLoading ? (
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="grid gap-4">
-            <Card>
-              <CardHeader className="space-y-2">
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="h-4 w-56" />
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-3/4" />
-              </CardContent>
-            </Card>
             <Card>
               <CardHeader className="space-y-2">
                 <Skeleton className="h-5 w-28" />
@@ -60,11 +50,10 @@ export default function SettingsPage() {
               <Skeleton className="h-10 w-full" />
             </CardContent>
           </Card>
-        </div>
-      ) : (
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]">
+          </div>
+        ) : (
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="grid gap-4">
-            <AppearanceOptions theme={theme} setTheme={setTheme} />
             <NotificationOptions />
           </div>
 
@@ -73,8 +62,9 @@ export default function SettingsPage() {
             handleLogout={handleLogout}
             handleDeleteAccount={handleDeleteAccount}
           />
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </Layout>
   )
 }

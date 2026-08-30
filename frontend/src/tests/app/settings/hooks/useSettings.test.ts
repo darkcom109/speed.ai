@@ -6,14 +6,9 @@ import { clearGoogleSession } from "@/app/login/utils/clear-google-session"
 import { apiClient } from "@/lib/api-client"
 
 const navigate = vi.fn()
-const setTheme = vi.fn()
 
 vi.mock("react-router", () => ({
   useNavigate: () => navigate,
-}))
-
-vi.mock("@/components/theme-provider", () => ({
-  useTheme: () => ({ theme: "dark", setTheme }),
 }))
 
 vi.mock("@/app/login/utils/clear-google-session", () => ({
@@ -48,7 +43,6 @@ describe("useSettings", () => {
     )
 
     expect(apiClient.get).toHaveBeenCalledWith("/auth/me")
-    expect(result.current.theme).toBe("dark")
   })
 
   it("logs out and navigates to login", async () => {

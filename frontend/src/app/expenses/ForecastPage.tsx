@@ -1,4 +1,3 @@
-import { type CSSProperties } from "react"
 import {
   CalculatorIcon,
   PiggyBankIcon,
@@ -6,8 +5,7 @@ import {
 } from "lucide-react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import { currencyFormatter } from "@/app/expenses/utils/expense-utils"
-import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
+import Layout from "@/components/app/Layout"
 import {
   Card,
   CardContent,
@@ -21,10 +19,6 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
 
 import { useForecast } from "./hooks/use-forecast"
 
@@ -62,40 +56,23 @@ export default function ForecastPage() {
   } = useForecast()
 
   const chartData = forecast
-    ? [
-        {
-          period: "Now",
-          savings: forecast.currentSavings,
+    ? forecast.monthlyForecasts.reduce(
+        (points, monthlyNet, index) => {
+          const previousSavings = points.at(-1)?.savings ?? forecast.currentSavings
+
+          points.push({
+            period: `${index + 1}m`,
+            savings: previousSavings + monthlyNet,
+          })
+
+          return points
         },
-        {
-          period: "3 months",
-          savings: forecast.projections.threeMonths,
-        },
-        {
-          period: "6 months",
-          savings: forecast.projections.sixMonths,
-        },
-        {
-          period: "12 months",
-          savings: forecast.projections.twelveMonths,
-        },
-      ]
+        [{ period: "Now", savings: forecast.currentSavings }]
+      )
     : []
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title="Forecast" />
-
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+    <Layout title="Forecast">
           <div>
             <h2 className="text-xl font-semibold tracking-tight">Forecast</h2>
             <p className="text-sm text-muted-foreground">
@@ -165,7 +142,9 @@ export default function ForecastPage() {
             <CardHeader>
               <CardTitle>Projected savings path</CardTitle>
               <CardDescription>
-                A baseline projection from your current savings and monthly net.
+                {forecast
+                  ? `${forecast.method} using ${forecast.historyMonths} completed months with ${forecast.confidence} confidence.`
+                  : "A robust projection based on your completed finance history."}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -292,41 +271,36 @@ export default function ForecastPage() {
             <CardHeader>
               <CardTitle>Algorithm notes</CardTitle>
               <CardDescription>
-                Use this section to show the inputs, assumptions, confidence,
-                and explanation behind the projection.
+                How the current estimate was calculated and how much uncertainty it carries.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 text-sm sm:grid-cols-3">
                 <div className="rounded-lg border p-3">
-                  <p className="text-muted-foreground">Income input</p>
+                  <p className="text-muted-foreground">Forecast method</p>
+                  <p className="mt-1 font-medium">
+                    {forecast?.method || "Not calculated yet"}
+                  </p>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <p className="text-muted-foreground">Evidence window</p>
                   <p className="mt-1 font-medium">
                     {forecast
-                      ? currencyFormatter.format(forecast.totalIncome)
+                      ? `${forecast.historyMonths} completed months`
                       : "Not calculated yet"}
                   </p>
                 </div>
                 <div className="rounded-lg border p-3">
-                  <p className="text-muted-foreground">Expense input</p>
+                  <p className="text-muted-foreground">12-month estimate range</p>
                   <p className="mt-1 font-medium">
                     {forecast
-                      ? currencyFormatter.format(forecast.totalExpense)
-                      : "Not calculated yet"}
-                  </p>
-                </div>
-                <div className="rounded-lg border p-3">
-                  <p className="text-muted-foreground">Savings input</p>
-                  <p className="mt-1 font-medium">
-                    {forecast
-                      ? currencyFormatter.format(forecast.currentSavings)
+                      ? `${currencyFormatter.format(forecast.ranges.twelveMonths.low)} – ${currencyFormatter.format(forecast.ranges.twelveMonths.high)}`
                       : "Not calculated yet"}
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    </Layout>
   )
 }

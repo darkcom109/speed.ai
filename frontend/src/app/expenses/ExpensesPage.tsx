@@ -1,16 +1,10 @@
-import type { CSSProperties } from "react"
 import { ReceiptTextIcon } from "lucide-react"
 
-import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
+import Layout from "@/components/app/Layout"
 import {
   Card,
   CardContent,
 } from "@/components/ui/card"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
 import DeleteFinanceDialog from "@/app/expenses/components/DeleteFinanceDialog"
 import EditExpenseDialog from "@/app/expenses/components/EditExpenseDialog"
 import ExpenseSpendingChart from "@/app/expenses/components/ExpenseSpendingChart"
@@ -92,19 +86,7 @@ export default function ExpensesPage() {
   }
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title="Finances" />
-
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+    <Layout title="Finances">
           <div>
             <h2 className="text-xl font-semibold tracking-tight">Finances</h2>
             <p className="text-sm text-muted-foreground">
@@ -234,8 +216,6 @@ export default function ExpensesPage() {
               {renderPagination()}
             </CardContent>
           </Card>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    </Layout>
   )
 }

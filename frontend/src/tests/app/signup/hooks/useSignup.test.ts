@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { signupUser } from "@/app/signup/api/signup-api"
 import useSignup from "@/app/signup/hooks/useSignup"
+import { setSidebarUser } from "@/lib/sidebar-user-store"
 
 const navigate = vi.fn()
 
@@ -16,6 +17,10 @@ vi.mock("@/app/signup/api/signup-api", () => ({
 
 vi.mock("@/app/login/api/google-login-api", () => ({
   loginWithGoogle: vi.fn(),
+}))
+
+vi.mock("@/lib/sidebar-user-store", () => ({
+  setSidebarUser: vi.fn(),
 }))
 
 function createSignupEvent() {
@@ -61,6 +66,12 @@ describe("useSignup", () => {
       name: "Alex Garcia",
       email: "alex@example.com",
       password: "password123",
+    })
+    expect(setSidebarUser).toHaveBeenCalledWith({
+      id: 1,
+      name: "Alex Garcia",
+      email: "alex@example.com",
+      createdAt: new Date("2026-06-14T10:00:00.000Z"),
     })
     expect(navigate).toHaveBeenCalledWith("/dashboard")
     expect(result.current.isSubmitting).toBe(false)

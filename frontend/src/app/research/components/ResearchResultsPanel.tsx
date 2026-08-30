@@ -1,7 +1,15 @@
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import {
+  ArrowUpRightIcon,
+  CheckIcon,
+  HistoryIcon,
+  PlusIcon,
+  SearchCheckIcon,
+  SparklesIcon,
+} from "lucide-react"
+
 import type { ResearchLoop, ResearchSource, ResearchStep } from "../types"
-import { ArrowRightIcon, ChevronRightIcon, SparklesIcon, WandSparklesIcon } from "lucide-react"
 
 type ResearchResultsPanelProps = {
   steps: ResearchStep[]
@@ -12,6 +20,15 @@ type ResearchResultsPanelProps = {
   }
   finding: string
   iteration: number
+  onReset: () => void
+}
+
+function getSourceHost(url: string) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "")
+  } catch {
+    return url
+  }
 }
 
 export default function ResearchResultsPanel({
@@ -19,114 +36,140 @@ export default function ResearchResultsPanel({
   result,
   finding,
   iteration,
+  onReset,
 }: ResearchResultsPanelProps) {
   return (
-    <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-      <Card className="border-muted/70 shadow-sm">
-        <CardHeader className="space-y-2 pb-3">
-          <div className="flex items-center justify-between gap-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <SparklesIcon className="size-4 text-primary" />
-              Research summary
-            </CardTitle>
-            <Badge variant="outline">Done</Badge>
+    <section className="mx-auto w-full max-w-6xl py-4 sm:py-8">
+      <header className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-sm font-medium text-emerald-400">
+            <SearchCheckIcon className="size-4" />
+            Research complete
           </div>
-          <p className="text-sm leading-6 text-muted-foreground">
-            The run is finished. Here&apos;s the concise answer and the path it took.
+          <h3 className="mt-2 text-3xl font-semibold">Research summary</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {result.sources.length} sources reviewed across {iteration} iterations.
           </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="rounded-2xl border border-border/70 bg-muted/15 p-4">
-            <p className="text-sm font-medium">Summary</p>
-            {result.findings.length ? (
-              <ul className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
-                {result.findings.map((item) => (
-                  <li key={item} className="flex gap-2">
-                    <span className="mt-1.5 size-1.5 rounded-full bg-primary" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-2 text-sm text-muted-foreground">{finding}</p>
-            )}
-          </div>
+        </div>
+        <Button variant="outline" onClick={onReset}>
+          <PlusIcon className="size-4" />
+          New research
+        </Button>
+      </header>
 
-          <div className="grid gap-3 md:grid-cols-2">
-            {steps.map((step) => (
-              <div key={step.id} className="rounded-xl border border-border/70 bg-card p-3.5">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={
-                      step.state === "done"
-                        ? "mt-1.5 size-2 rounded-full bg-emerald-500"
-                        : step.state === "running"
-                          ? "mt-1.5 size-2 rounded-full bg-primary"
-                          : "mt-1.5 size-2 rounded-full bg-muted-foreground/50"
-                    }
-                  />
-                  <p className="text-sm font-medium">{step.title}</p>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">{step.detail}</p>
+      <div className="grid items-start gap-5 py-6 lg:grid-cols-[minmax(0,3fr)_minmax(20rem,2fr)]">
+        <div className="space-y-5">
+          <article className="overflow-hidden rounded-lg border border-border bg-card">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
+              <div className="flex items-center gap-2">
+                <SparklesIcon className="size-4 text-amber-400" />
+                <h4 className="text-sm font-medium">Answer</h4>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              <Badge variant="outline">Verified</Badge>
+            </div>
 
-      <Card className="border-muted/70 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <WandSparklesIcon className="size-4 text-primary" />
-            Sources
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between rounded-2xl border border-dashed border-border/80 px-4 py-3 text-sm text-muted-foreground">
-            <span>Iterations</span>
-            <span>{iteration}</span>
-          </div>
+            <div className="p-6 sm:p-7">
+              {result.findings.length ? (
+                <ul className="space-y-5">
+                  {result.findings.map((item) => (
+                    <li key={item} className="flex gap-3 text-sm leading-7 text-foreground/90">
+                      <span className="mt-1 flex size-5 shrink-0 items-center justify-center rounded bg-emerald-500/10 text-emerald-400">
+                        <CheckIcon className="size-3.5" />
+                      </span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm leading-7 text-foreground/90">{finding}</p>
+              )}
+            </div>
 
-          <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
-            <p className="text-sm font-medium">Loop log</p>
-            {result.loop.iterations.length ? (
-              <ul className="mt-3 space-y-2.5 text-sm leading-6 text-muted-foreground">
+            <div className="grid border-t border-border bg-muted/10 sm:grid-cols-4">
+              {steps.map((step, index) => (
+                <div
+                  key={step.id}
+                  className="flex items-center gap-2.5 border-b border-border px-4 py-3 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0"
+                >
+                  <span className="flex size-5 items-center justify-center rounded bg-emerald-500/10 text-[10px] font-semibold text-emerald-400">
+                    {index + 1}
+                  </span>
+                  <span className="text-xs font-medium">{step.title}</span>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          {result.loop.iterations.length ? (
+            <section className="overflow-hidden rounded-lg border border-border bg-card">
+              <div className="flex items-center justify-between border-b border-border px-5 py-4">
+                <div className="flex items-center gap-2">
+                  <HistoryIcon className="size-4 text-muted-foreground" />
+                  <h4 className="text-sm font-medium">Research activity</h4>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {result.loop.iterations.length} events
+                </span>
+              </div>
+              <div className="divide-y divide-border">
                 {result.loop.iterations.map((item, index) => (
-                  <li key={`${item.type}-${index}`} className="flex gap-2">
-                    <ArrowRightIcon className="mt-1 size-3.5 shrink-0 text-primary" />
-                    <span>{item.type === "search" ? `Search: ${item.query}` : `Fetch: ${item.url}`}</span>
-                  </li>
+                  <div key={`${item.type}-${index}`} className="flex items-start gap-3 px-5 py-3.5">
+                    <span className="mt-0.5 rounded border border-border px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
+                      {item.type}
+                    </span>
+                    <p className="min-w-0 break-all text-xs leading-5 text-muted-foreground">
+                      {item.type === "search" ? item.query : item.url}
+                    </p>
+                  </div>
                 ))}
-              </ul>
-            ) : null}
+              </div>
+            </section>
+          ) : null}
+        </div>
+
+        <aside className="overflow-hidden rounded-lg border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <h4 className="text-sm font-medium">Sources</h4>
+            <span className="text-xs text-muted-foreground">{result.sources.length} found</span>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Sources</p>
+          <div className="divide-y divide-border">
             {result.sources.length ? (
-              result.sources.map((source) => (
+              result.sources.map((source, index) => (
                 <a
                   key={source.url}
                   href={source.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="block rounded-2xl border border-border/70 bg-card p-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
+                  className="group block px-5 py-4 transition-colors hover:bg-muted/30"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-medium">{source.title}</p>
-                    <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />
+                  <div className="flex items-start gap-3">
+                    <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded border border-border text-[10px] text-muted-foreground">
+                      {index + 1}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="line-clamp-2 text-sm font-medium leading-5">{source.title}</p>
+                        <ArrowUpRightIcon className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">{getSourceHost(source.url)}</p>
+                      {source.snippet ? (
+                        <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                          {source.snippet}
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">{source.snippet}</p>
                 </a>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-border/80 p-4 text-sm text-muted-foreground">
+              <p className="px-5 py-8 text-center text-sm text-muted-foreground">
                 No sources were returned.
-              </div>
+              </p>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </aside>
+      </div>
     </section>
   )
 }

@@ -1,4 +1,5 @@
 import { ChevronLeftIcon } from "lucide-react"
+import { flushSync } from "react-dom"
 import { Link } from "react-router"
 
 import Layout from "@/components/app/Layout"
@@ -20,16 +21,44 @@ export default function ResearchPage() {
     result,
     progress,
     runLoop,
+    resetResearch,
   } = useResearchEngine()
+
+  const stage = isRunning ? "running" : result ? "results" : "compose"
+
+  function transitionStage(update: () => void) {
+    const transitionDocument = document as Document & {
+      startViewTransition?: (callback: () => void) => void
+    }
+
+    if (!transitionDocument.startViewTransition) {
+      update()
+      return
+    }
+
+    transitionDocument.startViewTransition(() => {
+      flushSync(update)
+    })
+  }
+
+  function handleRun() {
+    transitionStage(() => {
+      void runLoop()
+    })
+  }
+
+  function handleReset() {
+    transitionStage(resetResearch)
+  }
 
   return (
     <Layout>
       <div className="space-y-8">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-xl font-semibold tracking-tight">Research Engine</h2>
+            <h2 className="text-xl font-semibold tracking-tight">Research</h2>
             <p className="max-w-3xl text-sm text-muted-foreground">
-              Give the agent a goal and let it iterate through planning, search, inspection, and synthesis.
+              Explore a topic, compare evidence, and build a sourced answer.
             </p>
           </div>
 
@@ -41,43 +70,48 @@ export default function ResearchPage() {
           </Button>
         </header>
 
-        {!isRunning && !result ? (
-          <ResearchComposer
-            prompt={prompt}
-            setPrompt={setPrompt}
-            onRun={runLoop}
-            isRunning={isRunning}
-            steps={steps}
-          />
-        ) : isRunning ? (
-          <ResearchFlowPanel
-            title="Research in progress"
-            badge={`${progress}% complete`}
-            description="The agent is planning, searching, fetching, and synthesizing in the background."
-            steps={steps}
-            message={finding}
-            progress={progress}
-            running
-          />
-        ) : (
-          <ResearchResultsPanel
-            steps={steps}
-            finding={finding}
-            iteration={iteration}
-            result={{
-              findings: result?.findings || [],
-              loop:
-                result?.loop || {
-                  iterations: [],
-                  searches: [],
-                  fetches: [],
-                  findings: [],
-                  sources: [],
-                },
-              sources: result?.sources || [],
-            }}
-          />
-        )}
+        <div
+          key={stage}
+          className="research-stage animate-in fade-in slide-in-from-bottom-2 duration-500"
+        >
+          {!isRunning && !result ? (
+            <ResearchComposer
+              prompt={prompt}
+              setPrompt={setPrompt}
+              onRun={handleRun}
+              isRunning={isRunning}
+            />
+          ) : isRunning ? (
+            <ResearchFlowPanel
+              title="Researching your question"
+              badge={`${progress}% complete`}
+              description="Reviewing the question, gathering sources, and preparing a concise answer."
+              steps={steps}
+              message={finding}
+              progress={progress}
+              running
+            />
+          ) : (
+            <ResearchResultsPanel
+              steps={steps}
+              finding={finding}
+              iteration={iteration}
+              onReset={handleReset}
+              result={{
+                findings: result?.findings || [],
+                loop:
+                  result?.loop || {
+                    iterations: [],
+                    searches: [],
+                    fetches: [],
+                    findings: [],
+                    sources: [],
+                  },
+                sources: result?.sources || [],
+              }}
+            />
+          )}
+        </div>
       </div>
     </Layout>
   )

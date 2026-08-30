@@ -4,6 +4,12 @@ export type TflStation = {
   modes: string[]
 }
 
+export type NearbyTflStation = TflStation & {
+  latitude: number
+  longitude: number
+  distanceMetres: number
+}
+
 export type TflArrival = {
   id: string
   lineName: string

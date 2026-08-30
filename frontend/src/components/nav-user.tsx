@@ -1,7 +1,4 @@
-import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { memo } from "react"
 import {
   DropdownMenu,
@@ -18,11 +15,18 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
+import {
+  EllipsisVerticalIcon,
+  CircleUserRoundIcon,
+  CreditCardIcon,
+  BellIcon,
+  LogOutIcon,
+} from "lucide-react"
 import { useNavigate } from "react-router"
 
 import { clearGoogleSession } from "@/app/login/utils/clear-google-session"
 import { apiClient } from "@/lib/api-client"
+import { clearSidebarUser } from "@/lib/sidebar-user-store"
 import axios from "axios"
 
 function NavUserComponent({
@@ -42,9 +46,9 @@ function NavUserComponent({
       await apiClient.post("/auth/logout")
 
       clearGoogleSession()
+      clearSidebarUser()
       navigate("/login")
-    }
-    catch(error) {
+    } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         return
       }
@@ -98,18 +102,15 @@ function NavUserComponent({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <CircleUserRoundIcon
-                />
+                <CircleUserRoundIcon />
                 Account
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <CreditCardIcon
-                />
+                <CreditCardIcon />
                 Billing
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <BellIcon
-                />
+                <BellIcon />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>

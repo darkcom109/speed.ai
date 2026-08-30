@@ -1,5 +1,4 @@
 import * as React from "react"
-import { apiClient } from "@/lib/api-client"
 
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
@@ -20,61 +19,14 @@ import {
   NotebookTextIcon,
   ReceiptTextIcon,
   Settings2Icon,
-  SquareCheckBigIcon,
   SparklesIcon,
   TrainFrontIcon,
 } from "lucide-react"
-import type { UserData } from "@/app/login/types/user-data"
-
-async function getUserData() {
-  try {
-    const { data } = await apiClient.get<{ user: UserData}>("/auth/me")
-
-    return data.user
-  } catch {
-    return null
-  }
-}
-
-type SidebarUser = {
-  name: string
-  email: string
-  avatar: string
-}
-
-const fallbackUser: SidebarUser = {
-  name: "Guest",
-  email: "Not signed in",
-  avatar: "/avatars/shadcn.jpg",
-}
-
-let cachedSidebarUser: SidebarUser | null = null
-let pendingSidebarUser: Promise<SidebarUser> | null = null
-
-function clearSidebarUserCache() {
-  cachedSidebarUser = null
-  pendingSidebarUser = null
-}
-
-async function getSidebarUser() {
-  if (cachedSidebarUser) {
-    return cachedSidebarUser
-  }
-
-  pendingSidebarUser ??= getUserData().then((userData) => {
-    cachedSidebarUser = {
-      name: userData?.name || fallbackUser.name,
-      email: userData?.email || fallbackUser.email,
-      avatar: fallbackUser.avatar,
-    }
-
-    return cachedSidebarUser
-  }).finally(() => {
-    pendingSidebarUser = null
-  })
-
-  return pendingSidebarUser
-}
+import {
+  getSidebarUserSnapshot,
+  loadSidebarUser,
+  subscribeToSidebarUser,
+} from "@/lib/sidebar-user-store"
 
 const data = {
   navMain: [
@@ -84,10 +36,7 @@ const data = {
         {
           title: "Dashboard",
           url: "/dashboard",
-          icon: (
-            <LayoutDashboardIcon
-            />
-          ),
+          icon: <LayoutDashboardIcon />,
         },
       ],
     },
@@ -95,28 +44,14 @@ const data = {
       title: "Workspace",
       items: [
         {
-          title: "Tasks",
-          url: "/tasks",
-          icon: (
-            <SquareCheckBigIcon
-            />
-          ),
-        },
-        {
-          title: "Calendar",
-          url: "/calendar",
-          icon: (
-            <CalendarDaysIcon
-            />
-          ),
+          title: "Planning",
+          url: "/planning",
+          icon: <CalendarDaysIcon />,
         },
         {
           title: "Finances",
           url: "/expenses",
-          icon: (
-            <ReceiptTextIcon
-            />
-          ),
+          icon: <ReceiptTextIcon />,
           items: [
             {
               title: "Overview",
@@ -135,18 +70,12 @@ const data = {
         {
           title: "Notes",
           url: "/notes",
-          icon: (
-            <NotebookTextIcon
-            />
-          ),
+          icon: <NotebookTextIcon />,
         },
         {
           title: "Projects",
           url: "/projects",
-          icon: (
-            <SparklesIcon
-            />
-          ),
+          icon: <SparklesIcon />,
         },
       ],
     },
@@ -156,18 +85,12 @@ const data = {
         {
           title: "GitHub",
           url: "/github",
-          icon: (
-            <CodeIcon
-            />
-          ),
+          icon: <CodeIcon />,
         },
         {
           title: "Transport",
           url: "/transport/status",
-          icon: (
-            <TrainFrontIcon
-            />
-          ),
+          icon: <TrainFrontIcon />,
           items: [
             {
               title: "Status",
@@ -182,10 +105,7 @@ const data = {
         {
           title: "Research",
           url: "/research",
-          icon: (
-            <SparklesIcon
-            />
-          ),
+          icon: <SparklesIcon />,
         },
       ],
     },
@@ -194,37 +114,20 @@ const data = {
     {
       title: "Settings",
       url: "/settings",
-      icon: (
-        <Settings2Icon
-        />
-      ),
+      icon: <Settings2Icon />,
     },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [user, setUser] = React.useState<SidebarUser>(
-    () => cachedSidebarUser ?? fallbackUser
+  const user = React.useSyncExternalStore(
+    subscribeToSidebarUser,
+    getSidebarUserSnapshot,
+    getSidebarUserSnapshot
   )
 
   React.useEffect(() => {
-    let isMounted = true
-
-    async function loadUser() {
-      const sidebarUser = await getSidebarUser()
-
-      if (!isMounted) {
-        return
-      }
-
-      setUser(sidebarUser)
-    }
-
-    loadUser()
-
-    return () => {
-      isMounted = false
-    }
+    void loadSidebarUser()
   }, [])
 
   return (

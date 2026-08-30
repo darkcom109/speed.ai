@@ -20,7 +20,7 @@ import { CSS } from "@dnd-kit/utilities"
 import Layout from "@/components/app/Layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -175,8 +175,8 @@ function TaskBoardColumn({
     <section
       ref={setNodeRef}
       className={cn(
-        "space-y-3 rounded-xl border bg-muted/20 p-3 transition-colors",
-        isOver && "border-primary/40 bg-primary/5"
+        "min-h-[26rem] space-y-3 rounded-lg border border-border/70 bg-card/30 p-3 transition-colors",
+        isOver && "border-primary/50 bg-primary/[0.04]"
       )}
     >
       <div className="flex items-center justify-between gap-2">
@@ -184,9 +184,9 @@ function TaskBoardColumn({
         <Badge variant="outline">{tasks.length}</Badge>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {tasks.length === 0 ? (
-          <div className="rounded-lg border border-dashed px-3 py-4 text-sm text-muted-foreground">
+          <div className="flex min-h-24 items-center justify-center rounded-lg border border-dashed border-border/70 px-3 py-4 text-sm text-muted-foreground">
             No tasks here.
           </div>
         ) : (
@@ -232,12 +232,11 @@ function DraggableTaskCard({
       style={{
         transform: CSS.Translate.toString(transform),
         transition,
-        boxShadow: `inset 3px 0 0 ${accent.color}`,
-        backgroundImage: `linear-gradient(180deg, ${accent.soft} 0%, rgba(0, 0, 0, 0) 56%)`,
+        borderLeftColor: accent.color,
       }}
       data-dragging={isDragging}
       className={cn(
-        "cursor-grab space-y-3 rounded-lg border bg-background p-3 active:cursor-grabbing",
+        "cursor-grab space-y-3 rounded-lg border border-l-[3px] bg-background p-3 shadow-sm transition-[border-color,box-shadow,opacity] hover:border-border hover:shadow-md active:cursor-grabbing",
         isDragging && "opacity-50 shadow-lg"
       )}
       {...attributes}
@@ -524,14 +523,14 @@ export default function ProjectDetailPage() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-5">
         <header className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight">
+          <div className="space-y-1">
+            <h1 className="text-xl font-semibold">
               {selectedProject?.title || "Project"}
-            </h2>
+            </h1>
             <p className="text-sm text-muted-foreground">
-              Plan work, keep tasks moving, and check where each project stands.
+              {selectedProject?.description || "Plan work, keep tasks moving, and track delivery."}
             </p>
           </div>
 
@@ -548,12 +547,26 @@ export default function ProjectDetailPage() {
 
         {selectedProject && (
           <>
-            <section className="overflow-hidden rounded-xl border border-border/70 bg-card/10 shadow-sm">
-              <div className="space-y-5 p-5 sm:p-6">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="space-y-1">
-                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Project workspace</p>
-                    <p className="text-sm text-muted-foreground">Task planning, editing, and AI tools live here.</p>
+            <section className="overflow-hidden rounded-lg border border-border/70 bg-card/20">
+              <div className="space-y-4 px-5 py-4 sm:px-6">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Created</p>
+                      <p className="mt-0.5 text-sm font-medium">
+                        {formatProjectDate(selectedProject.createdAt)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Last updated</p>
+                      <p className="mt-0.5 text-sm font-medium">
+                        {formatProjectDate(selectedProject.updatedAt)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Tasks</p>
+                      <p className="mt-0.5 text-sm font-medium">{selectedProject.tasks.length}</p>
+                    </div>
                   </div>
 
                   <div className="flex flex-wrap items-center justify-end gap-2">
@@ -901,98 +914,91 @@ export default function ProjectDetailPage() {
                   </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Created</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">
-                      {formatProjectDate(selectedProject.createdAt)}
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Updated</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">
-                      {formatProjectDate(selectedProject.updatedAt)}
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-border/60 bg-background/30 px-4 py-3">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Tasks</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">{selectedProject.tasks.length}</p>
-                  </div>
-                </div>
               </div>
 
-              <div className="border-t border-border/60 bg-background/20 px-5 py-5 sm:px-6">
-                <div className="space-y-4">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">AI project tools</p>
-                    <p className="text-sm text-muted-foreground">
-                      Use AI to draft tasks, move items around, or get quick planning help.
-                    </p>
+              <div className="border-t border-border/60 px-5 py-4 sm:px-6">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <SparklesIcon className="size-4 text-muted-foreground" />
+                    <p className="text-sm font-medium">Project assistant</p>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => void handleProjectAi("generate_tasks")}
-                      disabled={isAiRunning}
-                    >
-                      <PlusIcon />
-                      Generate tasks
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => void handleProjectAi("rebalance_board")}
-                      disabled={isAiRunning}
-                    >
-                      <ArrowUpDownIcon />
-                      Rebalance board
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => void handleProjectAi("brief")}
-                      disabled={isAiRunning}
-                    >
-                      <SparklesIcon />
-                      Generate brief
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => void handleProjectAi("help")}
-                      disabled={isAiRunning}
-                    >
-                      <SparklesIcon />
-                      Ask AI
-                    </Button>
-                  </div>
-
-                  <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-stretch">
+                  <div className="overflow-hidden rounded-lg border border-border/70 bg-background shadow-sm focus-within:border-ring focus-within:ring-1 focus-within:ring-ring/30">
                     <Textarea
                       value={aiPrompt}
                       onChange={(event) => setAiPrompt(event.target.value)}
                       placeholder="Tell AI what you want it to do with this project..."
                       aria-label="Project AI prompt"
-                      className="min-h-24 resize-y border-border/70 bg-background/40 lg:h-full"
+                      className="min-h-24 resize-y rounded-none border-0 bg-transparent px-4 py-3 shadow-none focus-visible:ring-0"
                       disabled={isAiRunning}
                     />
 
-                    <div className="flex h-full min-h-24 items-start rounded-xl border border-dashed border-border/70 bg-background/30 px-4 py-3 text-sm whitespace-pre-line text-muted-foreground">
-                      {isAiRunning
-                        ? "AI is working on the project..."
-                        : aiResult || "Use AI to draft tasks, move items around, or get quick planning help."}
+                    <div className="flex flex-col gap-2 border-t border-border/60 bg-muted/10 p-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex flex-wrap items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => void handleProjectAi("generate_tasks")}
+                          disabled={isAiRunning}
+                        >
+                          <PlusIcon />
+                          Generate tasks
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => void handleProjectAi("rebalance_board")}
+                          disabled={isAiRunning}
+                        >
+                          <ArrowUpDownIcon />
+                          Rebalance
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => void handleProjectAi("brief")}
+                          disabled={isAiRunning}
+                        >
+                          <SparklesIcon />
+                          Brief
+                        </Button>
+                      </div>
+
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => void handleProjectAi("help")}
+                        disabled={isAiRunning}
+                      >
+                        <SparklesIcon />
+                        {isAiRunning ? "Working..." : "Ask AI"}
+                      </Button>
                     </div>
                   </div>
+
+                  {(isAiRunning || aiResult) && (
+                    <div className="rounded-lg border border-border/60 bg-muted/20 px-4 py-3 text-sm whitespace-pre-line text-muted-foreground">
+                      {isAiRunning ? "Working on your project..." : aiResult}
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
 
-            <Card className="border shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-base">Board</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <section className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-base font-semibold">Board</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedProject.tasks.length} {selectedProject.tasks.length === 1 ? "task" : "tasks"} across four stages
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
@@ -1027,7 +1033,7 @@ export default function ProjectDetailPage() {
                   }}
                   onDragCancel={() => setActiveTaskId(null)}
                 >
-                  <div className="grid gap-4 xl:grid-cols-4">
+                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                     {groupedTasks.map((column) => (
                       <TaskBoardColumn
                         key={column.id}
@@ -1048,8 +1054,8 @@ export default function ProjectDetailPage() {
                       <article
                         className="w-[18rem] space-y-3 rounded-lg border border-border/70 bg-background p-3 shadow-xl"
                         style={{
-                          boxShadow: `inset 3px 0 0 ${getTaskAccent(activeTask).color}`,
-                          backgroundImage: `linear-gradient(180deg, ${getTaskAccent(activeTask).soft} 0%, rgba(0, 0, 0, 0) 56%)`,
+                          borderLeftColor: getTaskAccent(activeTask).color,
+                          borderLeftWidth: 3,
                         }}
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -1082,8 +1088,8 @@ export default function ProjectDetailPage() {
                     ) : null}
                   </DragOverlay>
                 </DndContext>
-              </CardContent>
-            </Card>
+              </div>
+            </section>
           </>
         )}
       </div>

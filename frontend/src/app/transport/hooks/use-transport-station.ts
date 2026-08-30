@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { FormEvent } from "react"
 import {
   getTflStationArrivals,
@@ -25,6 +25,8 @@ export default function useTransportStation() {
   const [error, setError] = useState("")
   const [isSearching, setIsSearching] = useState(false)
   const [isLoadingArrivals, setIsLoadingArrivals] = useState(false)
+  const searchRequestId = useRef(0)
+  const arrivalsRequestId = useRef(0)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -48,6 +50,9 @@ export default function useTransportStation() {
       return
     }
 
+    const requestId = ++searchRequestId.current
+    arrivalsRequestId.current += 1
+
     try {
       setError("")
       setIsSearching(true)
@@ -56,18 +61,29 @@ export default function useTransportStation() {
 
       const stations = await searchTflStations(trimmedQuery)
 
+      if (requestId !== searchRequestId.current) return
+
       setStations(stations)
+      if (stations.length === 0) {
+        setError(`No stations found for "${trimmedQuery}"`)
+      }
     } catch (error) {
+      if (requestId !== searchRequestId.current) return
+
       setStations([])
       setError(
         error instanceof Error ? error.message : "Unable to search stations"
       )
     } finally {
-      setIsSearching(false)
+      if (requestId === searchRequestId.current) {
+        setIsSearching(false)
+      }
     }
   }
 
   async function handleSelectStation(station: TflStation) {
+    const requestId = ++arrivalsRequestId.current
+
     try {
       setError("")
       setSelectedStation(station)
@@ -75,15 +91,33 @@ export default function useTransportStation() {
 
       const arrivals = await getTflStationArrivals(station.id)
 
+      if (requestId !== arrivalsRequestId.current) return
+
       setArrivals(arrivals)
     } catch (error) {
+      if (requestId !== arrivalsRequestId.current) return
+
       setArrivals([])
       setError(
         error instanceof Error ? error.message : "Unable to load arrivals"
       )
     } finally {
-      setIsLoadingArrivals(false)
+      if (requestId === arrivalsRequestId.current) {
+        setIsLoadingArrivals(false)
+      }
     }
+  }
+
+  function handleResetSearch() {
+    searchRequestId.current += 1
+    arrivalsRequestId.current += 1
+    setQuery("")
+    setStations([])
+    setSelectedStation(null)
+    setArrivals([])
+    setError("")
+    setIsSearching(false)
+    setIsLoadingArrivals(false)
   }
 
   const arrivalsByDirection = groupArrivalsByDirection(arrivals)
@@ -100,5 +134,6 @@ export default function useTransportStation() {
     setQuery,
     handleSearchStations,
     handleSelectStation,
+    handleResetSearch,
   }
 }

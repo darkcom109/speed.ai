@@ -32,7 +32,7 @@ export default function AccountOptions({
   handleDeleteAccount,
 }: AccountOptionsProps) {
   return (
-    <Card>
+    <Card className="lg:sticky lg:top-4">
       <CardHeader>
         <CardTitle>Account</CardTitle>
         <CardDescription>
@@ -52,11 +52,11 @@ export default function AccountOptions({
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-5 grid gap-2">
           <Button
             type="button"
             variant="outline"
-            size="sm"
+            className="justify-start"
             onClick={handleLogout}
           >
             <LogOutIcon />
@@ -65,7 +65,7 @@ export default function AccountOptions({
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button type="button" variant="destructive" size="sm">
+              <Button type="button" variant="destructive" className="w-full justify-start">
                 <Trash2Icon />
                 Delete account
               </Button>

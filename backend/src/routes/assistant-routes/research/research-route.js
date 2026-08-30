@@ -4,16 +4,46 @@ import { researchRequestSchema } from "#schemas/research-schemas.js"
 
 import { assistantRouter } from "../assistant-router.js"
 
+const parsedFetchTimeout = Number.parseInt(process.env.RESEARCH_FETCH_TIMEOUT_MS || "", 10)
+const sourceFetchTimeoutMs = Number.isFinite(parsedFetchTimeout)
+  ? Math.min(60_000, Math.max(5_000, parsedFetchTimeout))
+  : 20_000
+
+const researchStrategies = [
+  "Prioritize authoritative and primary sources before secondary commentary.",
+  "Start broad, then narrow the search using the strongest terminology discovered.",
+  "Look for recent evidence and corroborate important claims across independent sources.",
+  "Prefer practical examples, concrete evidence, and sources that explain their methodology.",
+  "Explore more than one perspective before deciding which evidence is strongest.",
+]
+
+function chooseResearchStrategy() {
+  return researchStrategies[Math.floor(Math.random() * researchStrategies.length)]
+}
+
+function rotateResults(results) {
+  if (results.length < 2) {
+    return results
+  }
+
+  const offset = Math.floor(Math.random() * results.length)
+  return [...results.slice(offset), ...results.slice(0, offset)]
+}
+
 function normalizeResults(results) {
   if (!Array.isArray(results)) {
     return []
   }
 
-  return results.slice(0, 5).map((result) => ({
-    title: typeof result?.title === "string" ? result.title : "",
-    url: typeof result?.url === "string" ? result.url : "",
-    content: typeof result?.content === "string" ? result.content : "",
-  }))
+  const normalized = results
+    .filter((result) => typeof result?.url === "string" && result.url)
+    .map((result) => ({
+      title: typeof result?.title === "string" ? result.title : "",
+      url: result.url,
+      content: typeof result?.content === "string" ? result.content : "",
+    }))
+
+  return rotateResults(normalized).slice(0, 5)
 }
 
 async function runWebSearch(query) {
@@ -25,7 +55,7 @@ async function runWebSearch(query) {
     },
     body: JSON.stringify({
       query,
-      max_results: 5,
+      max_results: 8,
     }),
   })
 
@@ -39,25 +69,39 @@ async function runWebSearch(query) {
 }
 
 async function runWebFetch(url) {
-  const response = await fetch("https://ollama.com/api/web_fetch", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.OLLAMA_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ url }),
-  })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), sourceFetchTimeoutMs)
 
-  const data = await response.json()
+  try {
+    const response = await fetch("https://ollama.com/api/web_fetch", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OLLAMA_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url }),
+      signal: controller.signal,
+    })
 
-  if (!response.ok) {
-    throw new Error(data.error || "Web fetch failed")
-  }
+    const data = await response.json()
 
-  return {
-    title: typeof data.title === "string" ? data.title : "",
-    content: typeof data.content === "string" ? data.content.slice(0, 3000) : "",
-    links: Array.isArray(data.links) ? data.links.filter((link) => typeof link === "string") : [],
+    if (!response.ok) {
+      throw new Error(data.error || "Web fetch failed")
+    }
+
+    return {
+      title: typeof data.title === "string" ? data.title : "",
+      content: typeof data.content === "string" ? data.content.slice(0, 3000) : "",
+      links: Array.isArray(data.links) ? data.links.filter((link) => typeof link === "string") : [],
+    }
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error(`Source inspection timed out after ${Math.round(sourceFetchTimeoutMs / 1000)} seconds`)
+    }
+
+    throw error
+  } finally {
+    clearTimeout(timeout)
   }
 }
 
@@ -80,6 +124,7 @@ function buildResearchContext(context) {
     goal: compactText(context.goal, 300),
     prompt: compactText(context.prompt, 400),
     instruction: compactText(context.instruction, 220),
+    strategy: compactText(context.loop?.strategy, 220),
     loop: {
       iterations: Array.isArray(context.loop?.iterations)
         ? context.loop.iterations.slice(-6).map((item) => ({
@@ -170,11 +215,20 @@ assistantRouter.post("/research", async (req, res) => {
   const loop = {
     goal,
     prompt,
+    strategy: chooseResearchStrategy(),
     iterations: [],
     searches: [],
     fetches: [],
     findings: [],
     sources: [],
+  }
+
+  const sendProgress = (payload) => {
+    if (!streamProgress) {
+      return
+    }
+
+    res.write(`${JSON.stringify(payload)}\n`)
   }
 
   try {
@@ -183,14 +237,6 @@ assistantRouter.post("/research", async (req, res) => {
       res.setHeader("Cache-Control", "no-cache, no-transform")
       res.setHeader("Connection", "keep-alive")
       res.flushHeaders?.()
-    }
-
-    const sendProgress = (payload) => {
-      if (!streamProgress) {
-        return
-      }
-
-      res.write(`${JSON.stringify(payload)}\n`)
     }
 
     sendProgress({
@@ -254,7 +300,35 @@ assistantRouter.post("/research", async (req, res) => {
           loop,
         })
 
-        const fetched = await runWebFetch(parsedAction.url)
+        let fetched
+
+        try {
+          fetched = await runWebFetch(parsedAction.url)
+        } catch (error) {
+          const failureMessage = error instanceof Error ? error.message : "Source inspection failed"
+
+          loop.iterations.push({
+            type: "fetch",
+            url: parsedAction.url,
+            reason: `Skipped source: ${failureMessage}`,
+          })
+
+          sendProgress({
+            type: "step",
+            step: "fetch",
+            message: `${failureMessage}. Continuing with another source.`,
+            loop,
+          })
+
+          nextAction = await askResearchModel({
+            goal,
+            prompt,
+            loop,
+            instruction: `The source ${parsedAction.url} could not be inspected: ${failureMessage}. Do not select that URL again. Search or choose another source.`,
+          })
+          continue
+        }
+
         loop.iterations.push({
           type: "fetch",
           url: parsedAction.url,
