@@ -23,17 +23,40 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
 
 const mockedUseNotifications = vi.mocked(useNotifications)
 
+function createNotificationsModel(
+  overrides: Partial<ReturnType<typeof useNotifications>> = {}
+): ReturnType<typeof useNotifications> {
+  return {
+    notifications: [],
+    error: "",
+    isLoading: false,
+    activeAlarm: null,
+    dismissAlarm: vi.fn(),
+    enableBrowserNotifications: vi.fn(),
+    disableBrowserNotifications: vi.fn(),
+    enableSound: vi.fn(),
+    disableSound: vi.fn(),
+    setNotificationSoundVolume: vi.fn(),
+    setNotificationSoundType: vi.fn(),
+    browserAlertsEnabled: true,
+    soundEnabled: false,
+    soundVolume: 0.35,
+    soundType: "beep",
+    canShowBrowserNotifications: true,
+    browserNotificationPermission: "default",
+    ...overrides,
+  }
+}
+
 describe("NotificationBell", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it("renders a loading state", () => {
-    mockedUseNotifications.mockReturnValue({
-      notifications: [],
-      error: "",
+    mockedUseNotifications.mockReturnValue(createNotificationsModel({
       isLoading: true,
-    })
+    }))
 
     render(<NotificationBell />)
 
@@ -41,21 +64,20 @@ describe("NotificationBell", () => {
   })
 
   it("renders a notification badge and content", () => {
-    mockedUseNotifications.mockReturnValue({
+    mockedUseNotifications.mockReturnValue(createNotificationsModel({
       notifications: [
         {
           id: "1",
           type: "task",
           title: "Task due",
+          taskTitle: "Finish report",
           message: "Finish report today",
           priority: "high",
           taskId: "task-1",
           dueDate: "2026-06-16T09:00:00.000Z",
         },
       ],
-      error: "",
-      isLoading: false,
-    })
+    }))
 
     render(<NotificationBell />)
 
@@ -66,11 +88,7 @@ describe("NotificationBell", () => {
   })
 
   it("renders the empty state", () => {
-    mockedUseNotifications.mockReturnValue({
-      notifications: [],
-      error: "",
-      isLoading: false,
-    })
+    mockedUseNotifications.mockReturnValue(createNotificationsModel())
 
     render(<NotificationBell />)
 

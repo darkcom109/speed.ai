@@ -219,7 +219,7 @@ function DraggableTaskCard({
   onEditTask,
 }: DraggableTaskCardProps) {
   const accent = getTaskAccent(task)
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: task.id,
     data: {
       task,
@@ -231,7 +231,6 @@ function DraggableTaskCard({
       ref={setNodeRef}
       style={{
         transform: CSS.Translate.toString(transform),
-        transition,
         borderLeftColor: accent.color,
       }}
       data-dragging={isDragging}

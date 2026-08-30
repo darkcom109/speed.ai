@@ -118,6 +118,10 @@ export default function NoteEditorForm({
     editor.commands.setContent(nextContent, { emitUpdate: false })
   }, [content, editor])
 
+  useEffect(() => {
+    editor?.setEditable(!isAiEditing)
+  }, [editor, isAiEditing])
+
   return (
     <form
       onSubmit={handleSaveNote}

@@ -29,7 +29,11 @@ describe("getNotifications", () => {
 
     const notifications = await getNotifications()
 
-    expect(apiClient.get).toHaveBeenCalledWith("/notifications")
+    expect(apiClient.get).toHaveBeenCalledWith("/notifications", {
+      params: {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+    })
     expect(notifications).toHaveLength(1)
     expect(notifications[0]?.title).toBe("Task due")
   })

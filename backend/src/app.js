@@ -2,6 +2,8 @@ import "dotenv/config"
 import cookieParser from "cookie-parser"
 import cors from "cors"
 import express from "express"
+import { existsSync } from "node:fs"
+import { fileURLToPath } from "node:url"
 
 // Import Routers
 import {
@@ -21,14 +23,38 @@ import {
 } from "#routes/index.js"
 
 const app = express()
+const isProduction = process.env.NODE_ENV === "production"
+const configuredCorsOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
+if (isProduction) {
+  app.set("trust proxy", 1)
+}
 
 // Express middleware
 
 // Allows the frontend to call the backend from another origin/port
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true
-}))
+if (!isProduction || configuredCorsOrigins.length > 0) {
+  const allowedOrigins = configuredCorsOrigins.length
+    ? configuredCorsOrigins
+    : ["http://localhost:5173"]
+
+  app.use(
+    cors({
+      origin(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true)
+          return
+        }
+
+        callback(new Error("Origin is not allowed by CORS"))
+      },
+      credentials: true,
+    })
+  )
+}
 
 /*
 Parses incoming JSON request bodies into req.body
@@ -80,5 +106,30 @@ app.use("/api/assistant", assistantRouter)
 app.use("/api/github", githubRouter)
 app.use("/api/tfl", tflRouter)
 app.use("/api/prediction", futurePredictionRouter)
+
+if (isProduction && !process.env.VERCEL) {
+  const frontendDirectory = fileURLToPath(
+    new URL("../../frontend/dist/", import.meta.url)
+  )
+  const frontendEntryPoint = fileURLToPath(
+    new URL("../../frontend/dist/index.html", import.meta.url)
+  )
+
+  if (existsSync(frontendEntryPoint)) {
+    app.use(express.static(frontendDirectory))
+    app.use((req, res, next) => {
+      if (req.method !== "GET" || req.path.startsWith("/api/")) {
+        next()
+        return
+      }
+
+      res.sendFile(frontendEntryPoint)
+    })
+  } else {
+    console.warn(
+      "Frontend production build was not found. Run the frontend build before starting the server."
+    )
+  }
+}
 
 export { app }

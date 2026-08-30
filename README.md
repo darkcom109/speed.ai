@@ -13,7 +13,7 @@ and a persistent AI assistant in one application.
 - Expense and income tracking with categories, filtering, editing, and
   pagination
 - Savings accounts with targets and progress visualisation
-- Financial forecasting using recent monthly data and linear regression
+- Financial forecasting using damped-trend exponential smoothing
 - Rich-text notes with checklist support
 - Persistent AI chat history and compacted conversation memory
 - AI tools for reading, creating, and updating tasks and finances
@@ -72,7 +72,7 @@ speed.ai/
 
 ## Prerequisites
 
-- Node.js 20.19 or newer
+- Node.js 22
 - npm
 - PostgreSQL
 - Google OAuth credentials for Google sign-in
@@ -108,12 +108,15 @@ JWT_SECRET="replace-with-a-long-random-secret"
 GOOGLE_CLIENT_ID="your-google-client-id"
 
 TFL_APP_KEY="your-tfl-api-key"
+GITHUB_TOKEN="your-optional-github-token"
 
 OLLAMA_URL="your-ollama-compatible-api-url"
 OLLAMA_API_KEY="your-ollama-api-key"
 OLLAMA_MODEL="your-model-name"
+RESEARCH_FETCH_TIMEOUT_MS="12000"
 
 PORT=3001
+CORS_ORIGINS="http://localhost:5173"
 ```
 
 Create `frontend/.env`:
@@ -169,6 +172,70 @@ Development URLs:
 
 The current development configuration expects the frontend and backend to use
 these ports.
+
+## Production Deployment
+
+### Deploy on Vercel
+
+The root `vercel.json` deploys the frontend and backend together with Vercel
+Services. Requests under `/api` go to Express, while all other requests go to
+the Vite frontend. The frontend service also includes an SPA fallback so direct
+links such as `/dashboard` and `/planning` work correctly.
+
+1. Push the repository to GitHub.
+2. Import the repository in Vercel and leave the Root Directory at the
+   repository root.
+3. Select the **Services** application preset. Vercel will detect the root
+   `vercel.json`, the Vite frontend, and the Express backend.
+4. Add these environment variables for Production and Preview deployments:
+
+```env
+DATABASE_URL="your-pooled-postgresql-connection-string"
+JWT_SECRET="a-long-random-secret"
+GOOGLE_CLIENT_ID="your-google-client-id"
+VITE_GOOGLE_CLIENT_ID="the-same-google-client-id"
+TFL_APP_KEY="your-tfl-api-key"
+OLLAMA_URL="your-public-ollama-compatible-api-url"
+OLLAMA_API_KEY="your-ollama-api-key"
+OLLAMA_MODEL="your-model-name"
+GITHUB_TOKEN="your-optional-github-token"
+RESEARCH_FETCH_TIMEOUT_MS="12000"
+```
+
+5. Create a PostgreSQL database using the Vercel Marketplace or another hosted
+   provider. Use its pooled connection string for `DATABASE_URL`.
+6. Apply the production migrations before opening the application:
+
+```powershell
+cd backend
+$env:DATABASE_URL="your-production-connection-string"
+npm run db:deploy
+```
+
+7. Add the Vercel production URL, such as `https://speed-ai.vercel.app`, to the
+   Google OAuth client's authorized JavaScript origins.
+8. Deploy the project. Trigger a new deployment after changing a build-time
+   variable such as
+   `VITE_GOOGLE_CLIENT_ID`.
+
+The Ollama-compatible endpoint must be reachable from the public internet.
+An endpoint hosted only on `localhost` will not be available to Vercel.
+
+Vercel runs the Express backend as a managed service with function limits.
+Long-running research requests must finish within the duration available on
+the selected Vercel plan.
+
+### Deploy on Render
+
+The repository also retains a `render.yaml` Blueprint as an alternative. It
+creates a Node.js web service and managed PostgreSQL database, serves the
+compiled frontend through Express, runs Prisma migrations during startup, and
+checks `/api/health`.
+
+The included database plan is persistent and paid because free Render
+PostgreSQL instances are temporary and do not include recovery. Review the
+selected Render plans before applying the Blueprint if you want to adjust the
+cost or capacity.
 
 ## Available Scripts
 
@@ -235,5 +302,4 @@ remain isolated.
 ## Current Status
 
 This is an actively developed solo project. The main workflows are implemented,
-while backend test coverage, deployment configuration, and production-ready
-environment handling remain areas for further work.
+while backend automated test coverage remains an area for further work.

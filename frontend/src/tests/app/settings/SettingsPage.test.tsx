@@ -25,6 +25,7 @@ describe("SettingsPage", () => {
     vi.mocked(useSettings).mockReturnValue({
       user: { name: "Alex Garcia", email: "alex@example.com" },
       error: "Unable to load settings",
+      isLoading: false,
       handleLogout: vi.fn(),
       handleDeleteAccount: vi.fn(),
     })

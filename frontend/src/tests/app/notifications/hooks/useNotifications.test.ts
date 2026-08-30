@@ -19,6 +19,7 @@ describe("useNotifications", () => {
         id: "1",
         type: "task",
         title: "Task due",
+        taskTitle: "Finish report",
         message: "Finish report today",
         priority: "high",
         taskId: "task-1",

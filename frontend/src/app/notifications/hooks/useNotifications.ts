@@ -8,7 +8,14 @@ const activeAlarmStorageKey = "speed-ai-active-alarm"
 
 export type NotificationSoundType = "beep" | "double" | "chime"
 
-function readStoredNotificationPreferences() {
+type NotificationPreferences = {
+  browserAlertsEnabled: boolean
+  soundEnabled: boolean
+  soundVolume: number
+  soundType: NotificationSoundType
+}
+
+function readStoredNotificationPreferences(): NotificationPreferences {
   if (typeof window === "undefined") {
     return {
       browserAlertsEnabled: true,
@@ -200,14 +207,20 @@ export default function useNotifications() {
       window.clearInterval(alarmTimerRef.current)
     }
 
-    if (activeAlarm?.title !== "Due Now") {
-      playAlarmPattern(audioContext, activeAlarm.title)
+    const alarmTitle = activeAlarm?.title
+
+    if (!alarmTitle) {
       return
     }
 
-    playAlarmPattern(audioContext, activeAlarm?.title)
+    if (alarmTitle !== "Due Now") {
+      playAlarmPattern(audioContext, alarmTitle)
+      return
+    }
+
+    playAlarmPattern(audioContext, alarmTitle)
     alarmTimerRef.current = window.setInterval(
-      () => playAlarmPattern(audioContext, activeAlarm?.title),
+      () => playAlarmPattern(audioContext, alarmTitle),
       1200
     )
   }
