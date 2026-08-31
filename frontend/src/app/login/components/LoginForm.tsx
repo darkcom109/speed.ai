@@ -12,9 +12,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import GoogleAuthButton from "@/components/google-auth-button"
 
 import useLogin from "@/app/login/hooks/useLogin"
-import { GoogleLogin } from "@react-oauth/google"
 
 export default function LoginForm() {
   
@@ -96,14 +96,12 @@ export default function LoginForm() {
               <Separator className="flex-1" />
             </div>
 
-            <GoogleLogin onSuccess={(credentialResponse) => {
-              handleGoogleSuccess(credentialResponse.credential)
-            }}
-            onError={() => {
-              setError("Google sign in failed")
-            }}/>
+            <GoogleAuthButton
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError("Google sign in failed")}
+            />
 
-            <p className="mt-6 text-center text-sm text-muted-foreground">
+            <p className="mt-5 text-center text-sm leading-5 text-muted-foreground">
               Don&apos;t have an account?{" "}
               <Link
                 to="/signup"
